@@ -663,7 +663,7 @@ const TicketDetail = () => {
                         </AvatarFallback>
                       </Avatar>
                     )}
-                    <div className={`flex-1 max-w-[85%] ${message.created_by === user?.id ? "text-right" : ""}`}>
+                    <div className={`flex-1 ${message.created_by === user?.id ? "text-right" : ""}`}>
                       <div className="flex items-center gap-2 mb-1">
                         {message.created_by !== user?.id && (
                           <>
