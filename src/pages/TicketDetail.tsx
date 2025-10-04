@@ -9,8 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, Send, Clock, AlertCircle, CheckCircle, XCircle } from "lucide-react";
+import { Loader2, ArrowLeft, Send, Clock, AlertCircle, CheckCircle, XCircle, Activity } from "lucide-react";
 import { formatDistanceToNow, format, differenceInDays } from "date-fns";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface Ticket {
   id: string;
@@ -53,6 +54,19 @@ interface HelpdeskUser {
   email: string;
 }
 
+interface TicketActivity {
+  id: string;
+  action_type: string;
+  old_value: string | null;
+  new_value: string | null;
+  created_at: string;
+  user_id: string | null;
+  profiles: {
+    full_name: string | null;
+    email: string;
+  } | null;
+}
+
 const statusConfig = {
   open: { label: "Open", icon: Clock, color: "text-blue-500" },
   in_progress: { label: "In Progress", icon: AlertCircle, color: "text-yellow-500" },
@@ -69,6 +83,7 @@ const TicketDetail = () => {
   const [sending, setSending] = useState(false);
   const [helpdeskUsers, setHelpdeskUsers] = useState<HelpdeskUser[]>([]);
   const [updating, setUpdating] = useState(false);
+  const [activities, setActivities] = useState<TicketActivity[]>([]);
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -77,6 +92,7 @@ const TicketDetail = () => {
     if (id) {
       fetchTicket();
       fetchMessages();
+      fetchActivities();
       if (profile?.is_admin || profile?.is_helpdesk) {
         fetchHelpdeskUsers();
       }
@@ -146,6 +162,63 @@ const TicketDetail = () => {
     }
   };
 
+  const fetchActivities = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("ticket_activities")
+        .select("*")
+        .eq("ticket_id", id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      // Fetch user profiles for activities
+      const activitiesWithProfiles = await Promise.all(
+        (data || []).map(async (activity) => {
+          if (activity.user_id) {
+            const { data: profileData } = await supabase
+              .from("profiles")
+              .select("full_name, email")
+              .eq("id", activity.user_id)
+              .single();
+            
+            return { ...activity, profiles: profileData };
+          }
+          return { ...activity, profiles: null };
+        })
+      );
+
+      setActivities(activitiesWithProfiles);
+    } catch (error) {
+      console.error("Error fetching activities:", error);
+    }
+  };
+
+  const getActivityDescription = (activity: TicketActivity) => {
+    const userName = activity.profiles?.full_name || activity.profiles?.email || "System";
+    
+    switch (activity.action_type) {
+      case "created":
+        return `Created the ticket`;
+      case "status_changed":
+        return `Changed status from ${activity.old_value} to ${activity.new_value}`;
+      case "assigned":
+        if (!activity.old_value && activity.new_value) {
+          const assignedUser = helpdeskUsers.find(u => u.id === activity.new_value);
+          return `Assigned to ${assignedUser?.full_name || assignedUser?.email || 'someone'}`;
+        }
+        return `Changed assignment`;
+      case "priority_changed":
+        return `Changed priority from ${activity.old_value} to ${activity.new_value}`;
+      case "replied_helpdesk":
+        return `Replied (Helpdesk)`;
+      case "replied_user":
+        return `Replied`;
+      default:
+        return `Performed action: ${activity.action_type}`;
+    }
+  };
+
   const handleAssignTicket = async (userId: string) => {
     setUpdating(true);
     try {
@@ -162,6 +235,7 @@ const TicketDetail = () => {
       });
 
       fetchTicket();
+      fetchActivities();
     } catch (error: any) {
       toast({
         title: "Error",
@@ -189,6 +263,7 @@ const TicketDetail = () => {
       });
 
       fetchTicket();
+      fetchActivities();
     } catch (error: any) {
       toast({
         title: "Error",
@@ -271,6 +346,7 @@ const TicketDetail = () => {
       }
         
       fetchTicket();
+      fetchActivities();
 
       toast({
         title: "Message sent",
@@ -521,6 +597,44 @@ const TicketDetail = () => {
                 )}
               </Button>
             </form>
+          </CardContent>
+        </Card>
+
+        {/* Activity Log */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5" />
+              Activity Log
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {activities.length === 0 ? (
+              <p className="text-center text-muted-foreground py-4">No activities recorded yet.</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Who</TableHead>
+                    <TableHead>What</TableHead>
+                    <TableHead>When</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {activities.map((activity) => (
+                    <TableRow key={activity.id}>
+                      <TableCell className="font-medium">
+                        {activity.profiles?.full_name || activity.profiles?.email || "System"}
+                      </TableCell>
+                      <TableCell>{getActivityDescription(activity)}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {format(new Date(activity.created_at), 'dd-MM-yyyy HH:mm')}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </CardContent>
         </Card>
       </div>
