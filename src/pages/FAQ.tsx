@@ -95,64 +95,53 @@ const FAQ = () => {
     return acc;
   }, {} as Record<string, FAQ[]>);
 
+  const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
   const renderContentWithLinks = (content: string) => {
-    const parts: (string | JSX.Element)[] = [];
-    let remainingContent = content;
-    let keyCounter = 0;
+    const nameKeys = Object.keys(nameToEmail).sort((a, b) => b.length - a.length);
+    const pattern = new RegExp(`(/create-ticket|${nameKeys.map(escapeRegex).join("|")})`, "gi");
+    const parts = content.split(pattern);
 
-    // First handle /create-ticket links
-    const ticketParts = remainingContent.split('/create-ticket');
-    
-    ticketParts.forEach((part, partIndex) => {
-      let currentText = part;
-      
-      // For each part, find and replace names with email links
-      Object.entries(nameToEmail).forEach(([name, email]) => {
-        const regex = new RegExp(`\\b${name}\\b`, 'gi');
-        const matches = currentText.match(regex);
-        
-        if (matches) {
-          const segments = currentText.split(regex);
-          const newParts: (string | JSX.Element)[] = [];
-          
-          segments.forEach((segment, segIndex) => {
-            if (segment) {
-              newParts.push(segment);
-            }
-            if (segIndex < matches.length) {
-              newParts.push(
-                <a
-                  key={`email-${keyCounter++}`}
-                  href={`mailto:${email}`}
-                  className="text-primary hover:underline font-medium"
-                >
-                  {matches[segIndex]}
-                </a>
-              );
-            }
-          });
-          
-          currentText = newParts.map(p => typeof p === 'string' ? p : `__LINK_${keyCounter}__`).join('');
-          parts.push(...newParts.filter(p => typeof p !== 'string'));
-        }
-      });
-      
-      parts.push(currentText);
-      
-      if (partIndex < ticketParts.length - 1) {
-        parts.push(
-          <Link
-            key={`ticket-${keyCounter++}`}
-            to="/create-ticket"
-            className="text-primary hover:underline font-medium"
-          >
-            /create-ticket
-          </Link>
-        );
-      }
-    });
+    return (
+      <span>
+        {parts.filter(Boolean).map((part, i) => {
+          const lower = part.toLowerCase();
 
-    return <span>{parts}</span>;
+          if (lower === "/create-ticket") {
+            return (
+              <Link
+                key={`ticket-${i}`}
+                to="/create-ticket"
+                className="text-primary hover:underline font-medium"
+              >
+                /create-ticket
+              </Link>
+            );
+          }
+
+          const matchedKey = nameKeys.find(
+            (k) => k.toLowerCase() === lower
+          );
+
+          if (matchedKey) {
+            const email = nameToEmail[matchedKey];
+            return (
+              <a
+                key={`email-${i}`}
+                href={`mailto:${email}`}
+                className="text-primary hover:underline font-medium"
+              >
+                {part}
+              </a>
+            );
+          }
+
+          return (
+            <span key={`text-${i}`}>{part}</span>
+          );
+        })}
+      </span>
+    );
   };
 
   if (loading) {
