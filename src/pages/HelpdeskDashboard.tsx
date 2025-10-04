@@ -165,11 +165,20 @@ const HelpdeskDashboard = () => {
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <div className="flex items-center gap-2">
-                  <Badge variant={statusInfo?.variant}>
+                  <Badge variant="outline">
                     <StatusIcon className="h-3 w-3 mr-1" />
                     {getStatusLabel(ticket.status)}
                   </Badge>
-                  <Badge variant="outline" className="capitalize">
+                  <Badge 
+                    variant="outline" 
+                    className={`capitalize ${
+                      ticket.priority === 'high' 
+                        ? 'text-orange-600 font-bold border-orange-600' 
+                        : ticket.priority === 'urgent'
+                        ? 'bg-red-600 text-white font-bold border-red-600'
+                        : ''
+                    }`}
+                  >
                     {ticket.priority}
                   </Badge>
                 </div>
