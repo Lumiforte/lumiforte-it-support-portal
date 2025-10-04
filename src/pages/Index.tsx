@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { HelpCircle, Ticket, Plus, Search, Clock, CheckCircle, FileText } from "lucide-react";
+import { HelpCircle, Ticket, Plus, Search, Clock, CheckCircle, FileText, Users } from "lucide-react";
 
 const Index = () => {
   return (
@@ -109,7 +109,7 @@ const Index = () => {
             <CardDescription>Before submitting a ticket, try these quick solutions</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-3">
               <div className="flex gap-3">
                 <div className="p-2 h-fit bg-secondary rounded-lg">
                   <Clock className="h-5 w-5 text-secondary-foreground" />
@@ -129,6 +129,17 @@ const Index = () => {
                   <h4 className="font-semibold mb-1">Restart First</h4>
                   <p className="text-sm text-muted-foreground">
                     Many technical issues can be resolved with a simple restart of your device.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <div className="p-2 h-fit bg-primary/10 rounded-lg">
+                  <Users className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-1">Ask a Colleague</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Check with your colleagues or manager if they experience the same issue. Often, you can help each other quickly.
                   </p>
                 </div>
               </div>
