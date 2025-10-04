@@ -28,7 +28,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <Link to="/faq">
-                <Button className="w-full">
+                <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
                   <Search className="mr-2 h-4 w-4" />
                   Search FAQ
                 </Button>
@@ -39,8 +39,8 @@ const Index = () => {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-accent rounded-lg">
-                  <Plus className="h-6 w-6 text-accent-foreground" />
+                <div className="p-2 bg-secondary rounded-lg">
+                  <Plus className="h-6 w-6 text-secondary-foreground" />
                 </div>
                 <CardTitle>Create Ticket</CardTitle>
               </div>
@@ -50,7 +50,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <Link to="/tickets/new">
-                <Button className="w-full">
+                <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
                   <Plus className="mr-2 h-4 w-4" />
                   New Ticket
                 </Button>
@@ -61,8 +61,8 @@ const Index = () => {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-primary rounded-lg">
-                  <Ticket className="h-6 w-6 text-primary-foreground" />
+                <div className="p-2 bg-secondary rounded-lg">
+                  <Ticket className="h-6 w-6 text-secondary-foreground" />
                 </div>
                 <CardTitle>My Tickets</CardTitle>
               </div>
@@ -72,7 +72,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <Link to="/tickets">
-                <Button className="w-full" variant="outline">
+                <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
                   <Ticket className="mr-2 h-4 w-4" />
                   View Tickets
                 </Button>
@@ -94,7 +94,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <Link to="/documents">
-                <Button className="w-full" variant="outline">
+                <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
                   <FileText className="mr-2 h-4 w-4" />
                   View Documents
                 </Button>
@@ -122,8 +122,8 @@ const Index = () => {
                 </div>
               </div>
               <div className="flex gap-3">
-                <div className="p-2 h-fit bg-accent rounded-lg">
-                  <CheckCircle className="h-5 w-5 text-accent-foreground" />
+                <div className="p-2 h-fit bg-secondary rounded-lg">
+                  <CheckCircle className="h-5 w-5 text-secondary-foreground" />
                 </div>
                 <div>
                   <h4 className="font-semibold mb-1">Restart First</h4>
@@ -133,8 +133,8 @@ const Index = () => {
                 </div>
               </div>
               <div className="flex gap-3">
-                <div className="p-2 h-fit bg-primary/10 rounded-lg">
-                  <Users className="h-5 w-5 text-primary" />
+                <div className="p-2 h-fit bg-secondary rounded-lg">
+                  <Users className="h-5 w-5 text-secondary-foreground" />
                 </div>
                 <div>
                   <h4 className="font-semibold mb-1">Ask a Colleague</h4>
