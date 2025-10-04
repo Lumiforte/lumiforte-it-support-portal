@@ -139,7 +139,8 @@ const Layout = () => {
 
       <footer className="mt-auto border-t border-border bg-card py-6">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Lumiforte. All rights reserved.
+          <p>© {new Date().getFullYear()} Lumiforte. All rights reserved.</p>
+          <p className="mt-2">This system is under development and not yet complete. Responses may be incorrect.</p>
         </div>
       </footer>
     </div>
