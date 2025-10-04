@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -29,8 +30,17 @@ interface Stats {
   resolvedTickets: number;
 }
 
+interface UserWithRoles {
+  id: string;
+  email: string;
+  full_name: string | null;
+  created_at: string;
+  user_roles: Array<{ role: string; id: string }>;
+}
+
 const AdminPanel = () => {
   const [tickets, setTickets] = useState<TicketWithUser[]>([]);
+  const [users, setUsers] = useState<UserWithRoles[]>([]);
   const [stats, setStats] = useState<Stats>({
     totalTickets: 0,
     openTickets: 0,
@@ -38,11 +48,13 @@ const AdminPanel = () => {
     resolvedTickets: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [usersLoading, setUsersLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchTickets();
     fetchStats();
+    fetchUsers();
   }, []);
 
   const fetchTickets = async () => {
@@ -109,6 +121,75 @@ const AdminPanel = () => {
     }
   };
 
+  const fetchUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select(`
+          *,
+          user_roles (
+            id,
+            role
+          )
+        `)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setUsers(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to load users",
+        variant: "destructive",
+      });
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
+  const handleRoleChange = async (userId: string, role: string, isChecked: boolean) => {
+    try {
+      if (isChecked) {
+        // Add role
+        const { error } = await supabase
+          .from("user_roles")
+          .insert({ 
+            user_id: userId, 
+            role: role as any
+          });
+
+        if (error) throw error;
+
+        toast({
+          title: "Role added",
+          description: `${role} role has been assigned successfully.`,
+        });
+      } else {
+        // Remove role
+        const { error } = await supabase
+          .from("user_roles")
+          .delete()
+          .eq("user_id", userId)
+          .eq("role", role as any);
+
+        if (error) throw error;
+
+        toast({
+          title: "Role removed",
+          description: `${role} role has been removed successfully.`,
+        });
+      }
+
+      fetchUsers();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleStatusChange = async (ticketId: string, newStatus: string) => {
     try {
       const { error } = await supabase
@@ -146,10 +227,18 @@ const AdminPanel = () => {
 
   return (
     <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-primary mb-2">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage tickets and support requests</p>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold text-primary mb-2">Admin Dashboard</h1>
+        <p className="text-muted-foreground">Manage tickets, users, and support requests</p>
+      </div>
+
+      <Tabs defaultValue="tickets" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="tickets">Tickets</TabsTrigger>
+          <TabsTrigger value="users">Users & Roles</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="tickets" className="space-y-6">
 
         <div className="grid gap-4 md:grid-cols-4">
           <Card>
@@ -244,7 +333,91 @@ const AdminPanel = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
+        </TabsContent>
+
+        <TabsContent value="users">
+          <Card>
+            <CardHeader>
+              <CardTitle>User Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {usersLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {users.length === 0 ? (
+                    <p className="text-center text-muted-foreground py-8">No users found.</p>
+                  ) : (
+                    users.map((user) => (
+                      <div
+                        key={user.id}
+                        className="flex items-center justify-between p-4 border rounded-lg"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold truncate">
+                            {user.full_name || user.email}
+                          </h4>
+                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                        </div>
+                        <div className="flex items-center gap-6 ml-4">
+                          <div className="flex items-center gap-2">
+                            <Checkbox
+                              id={`${user.id}-admin`}
+                              checked={user.user_roles.some(r => r.role === 'admin')}
+                              onCheckedChange={(checked) => 
+                                handleRoleChange(user.id, 'admin', checked as boolean)
+                              }
+                            />
+                            <label
+                              htmlFor={`${user.id}-admin`}
+                              className="text-sm font-medium cursor-pointer"
+                            >
+                              Admin
+                            </label>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Checkbox
+                              id={`${user.id}-helpdesk`}
+                              checked={user.user_roles.some(r => r.role === 'helpdesk')}
+                              onCheckedChange={(checked) => 
+                                handleRoleChange(user.id, 'helpdesk', checked as boolean)
+                              }
+                            />
+                            <label
+                              htmlFor={`${user.id}-helpdesk`}
+                              className="text-sm font-medium cursor-pointer"
+                            >
+                              Helpdesk
+                            </label>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Checkbox
+                              id={`${user.id}-user`}
+                              checked={user.user_roles.some(r => r.role === 'user')}
+                              onCheckedChange={(checked) => 
+                                handleRoleChange(user.id, 'user', checked as boolean)
+                              }
+                            />
+                            <label
+                              htmlFor={`${user.id}-user`}
+                              className="text-sm font-medium cursor-pointer"
+                            >
+                              User
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 
