@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -60,8 +59,7 @@ const CreateTicket = () => {
   };
 
   return (
-    <Layout>
-      <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -160,7 +158,6 @@ const CreateTicket = () => {
           </CardContent>
         </Card>
       </div>
-    </Layout>
   );
 };
 

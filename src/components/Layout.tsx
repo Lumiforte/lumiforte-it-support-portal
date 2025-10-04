@@ -1,5 +1,4 @@
-import { ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, Outlet } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,11 +19,7 @@ import {
   Menu
 } from "lucide-react";
 
-interface LayoutProps {
-  children: ReactNode;
-}
-
-const Layout = ({ children }: LayoutProps) => {
+const Layout = () => {
   const { profile, signOut } = useAuth();
   const location = useLocation();
 
@@ -136,7 +131,7 @@ const Layout = ({ children }: LayoutProps) => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {children}
+        <Outlet />
       </main>
 
       <footer className="mt-auto border-t border-border bg-card py-6">

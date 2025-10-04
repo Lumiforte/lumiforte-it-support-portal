@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -134,17 +133,14 @@ const AdminPanel = () => {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </Layout>
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-primary mb-2">Admin Dashboard</h1>
           <p className="text-muted-foreground">Manage tickets and support requests</p>
@@ -244,7 +240,6 @@ const AdminPanel = () => {
           </CardContent>
         </Card>
       </div>
-    </Layout>
   );
 };
 

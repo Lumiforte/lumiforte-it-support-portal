@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -88,17 +87,14 @@ const FAQ = () => {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </Layout>
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-primary mb-2">Frequently Asked Questions</h1>
           <p className="text-muted-foreground">
@@ -162,7 +158,6 @@ const FAQ = () => {
           </div>
         )}
       </div>
-    </Layout>
   );
 };
 

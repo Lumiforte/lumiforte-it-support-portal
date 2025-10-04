@@ -1,13 +1,11 @@
 import { Link } from "react-router-dom";
-import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { HelpCircle, Ticket, Plus, Search, Clock, CheckCircle } from "lucide-react";
 
 const Index = () => {
   return (
-    <Layout>
-      <div className="space-y-8">
+    <div className="space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-primary mb-2">IT Support Portal</h1>
           <p className="text-xl text-muted-foreground">
@@ -116,7 +114,6 @@ const Index = () => {
           </CardContent>
         </Card>
       </div>
-    </Layout>
   );
 };
 

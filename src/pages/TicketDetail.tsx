@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -154,11 +153,9 @@ const TicketDetail = () => {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </Layout>
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
     );
   }
 
@@ -170,8 +167,7 @@ const TicketDetail = () => {
   const StatusIcon = statusInfo?.icon || Clock;
 
   return (
-    <Layout>
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -297,7 +293,6 @@ const TicketDetail = () => {
           </CardContent>
         </Card>
       </div>
-    </Layout>
   );
 };
 
