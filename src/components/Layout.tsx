@@ -142,11 +142,12 @@ const Layout = () => {
           <p>© {new Date().getFullYear()} Lumiforte. All rights reserved.</p>
           <p className="mt-2">This system is under development and not yet complete. Responses may be incorrect.</p>
           <p className="mt-1">
-            If you have feedback or would like to contribute to this portal, please contact Jeroen Vrieselaar at{" "}
+            If you have feedback or would like to contribute to this portal, please contact{" "}
             <a href="mailto:jeroen.vrieselaar@lumiforte.com" className="text-primary hover:underline">
-              jeroen.vrieselaar@lumiforte.com
+              Jeroen Vrieselaar
             </a>
           </p>
+          <p className="text-xs mt-1">jeroen.vrieselaar@lumiforte.com</p>
         </div>
       </footer>
     </div>
