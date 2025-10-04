@@ -149,6 +149,13 @@ const Layout = () => {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>{t("common.myAccount")}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/profile" className="flex items-center">
+                    <User className="h-4 w-4 mr-2" />
+                    {t("common.profile")}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <div className="md:hidden px-2 py-1.5">
                   <div className="text-xs font-semibold text-muted-foreground mb-2">{t("common.language")}</div>
                   <div className="flex gap-2">

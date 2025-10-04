@@ -12,6 +12,7 @@ import Tickets from "./pages/Tickets";
 import CreateTicket from "./pages/CreateTicket";
 import TicketDetail from "./pages/TicketDetail";
 import AdminPanel from "./pages/AdminPanel";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Layout from "@/components/Layout";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -35,6 +36,7 @@ const App = () => (
               <Route path="/tickets/new" element={<ProtectedRoute><CreateTicket /></ProtectedRoute>} />
               <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetail /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
