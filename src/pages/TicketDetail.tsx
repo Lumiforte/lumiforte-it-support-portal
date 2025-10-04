@@ -457,11 +457,12 @@ const TicketDetail = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 relative z-10 mb-4">
           <Button
             variant="outline"
             size="default"
             onClick={() => navigate("/tickets")}
+            className="cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Tickets
