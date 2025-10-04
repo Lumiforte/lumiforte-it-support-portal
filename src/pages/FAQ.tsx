@@ -9,13 +9,10 @@ import { useToast } from "@/hooks/use-toast";
 
 interface FAQ {
   id: string;
-  question: string;
-  answer: string;
+  title: string;
+  content: string;
   tags: string[];
-  category: {
-    name: string;
-    icon: string;
-  };
+  category: string;
 }
 
 const FAQ = () => {
@@ -31,30 +28,18 @@ const FAQ = () => {
   const fetchFAQs = async () => {
     try {
       const { data, error } = await supabase
-        .from("faqs")
-        .select(`
-          id,
-          question,
-          answer,
-          tags,
-          faq_categories (
-            name,
-            icon
-          )
-        `)
+        .from("faq_articles")
+        .select("*")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
       
       const formattedFaqs = data.map((faq: any) => ({
         id: faq.id,
-        question: faq.question,
-        answer: faq.answer,
+        title: faq.title,
+        content: faq.content,
         tags: faq.tags || [],
-        category: {
-          name: faq.faq_categories?.name || "General",
-          icon: faq.faq_categories?.icon || "HelpCircle",
-        },
+        category: faq.category,
       }));
       
       setFaqs(formattedFaqs);
@@ -71,13 +56,13 @@ const FAQ = () => {
 
   const filteredFAQs = faqs.filter(
     (faq) =>
-      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      faq.answer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      faq.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      faq.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
       faq.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const groupedFAQs = filteredFAQs.reduce((acc, faq) => {
-    const category = faq.category.name;
+    const category = faq.category;
     if (!acc[category]) {
       acc[category] = [];
     }
@@ -133,11 +118,11 @@ const FAQ = () => {
                     {categoryFAQs.map((faq) => (
                       <AccordionItem key={faq.id} value={faq.id}>
                         <AccordionTrigger className="text-left">
-                          {faq.question}
+                          {faq.title}
                         </AccordionTrigger>
                         <AccordionContent>
                           <div className="space-y-3">
-                            <p className="text-muted-foreground whitespace-pre-line">{faq.answer}</p>
+                            <p className="text-muted-foreground whitespace-pre-line">{faq.content}</p>
                             {faq.tags.length > 0 && (
                               <div className="flex flex-wrap gap-2">
                                 {faq.tags.map((tag) => (
