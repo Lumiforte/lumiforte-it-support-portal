@@ -2,14 +2,17 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { HelpCircle, Ticket, Plus, Search, Clock, CheckCircle, FileText, Users } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
+  const { t } = useLanguage();
+  
   return (
     <div className="space-y-8">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-primary mb-2">IT Support Portal</h1>
+          <h1 className="text-4xl font-bold text-primary mb-2">{t("home.title")}</h1>
           <p className="text-xl text-muted-foreground">
-            Welcome to the Lumiforte IT Support System
+            {t("home.subtitle")}
           </p>
         </div>
 
@@ -20,17 +23,17 @@ const Index = () => {
                 <div className="p-2 bg-secondary rounded-lg">
                   <HelpCircle className="h-6 w-6 text-secondary-foreground" />
                 </div>
-                <CardTitle>Browse FAQ</CardTitle>
+                <CardTitle>{t("home.browseFaq")}</CardTitle>
               </div>
               <CardDescription>
-                Find answers to frequently asked questions about IT support
+                {t("home.browseFaqDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Link to="/faq">
                 <Button className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
                   <Search className="mr-2 h-4 w-4" />
-                  Search FAQ
+                  {t("home.searchFaq")}
                 </Button>
               </Link>
             </CardContent>
@@ -42,17 +45,17 @@ const Index = () => {
                 <div className="p-2 bg-secondary rounded-lg">
                   <Plus className="h-6 w-6 text-secondary-foreground" />
                 </div>
-                <CardTitle>Create Ticket</CardTitle>
+                <CardTitle>{t("home.createTicket")}</CardTitle>
               </div>
               <CardDescription>
-                Need help? Submit a new support ticket and we'll assist you
+                {t("home.createTicketDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Link to="/tickets/new">
                 <Button className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
                   <Plus className="mr-2 h-4 w-4" />
-                  New Ticket
+                  {t("home.newTicket")}
                 </Button>
               </Link>
             </CardContent>
@@ -64,17 +67,17 @@ const Index = () => {
                 <div className="p-2 bg-secondary rounded-lg">
                   <Ticket className="h-6 w-6 text-secondary-foreground" />
                 </div>
-                <CardTitle>My Tickets</CardTitle>
+                <CardTitle>{t("home.myTickets")}</CardTitle>
               </div>
               <CardDescription>
-                View and track the status of your support requests
+                {t("home.myTicketsDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Link to="/tickets">
                 <Button className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
                   <Ticket className="mr-2 h-4 w-4" />
-                  View Tickets
+                  {t("home.viewTickets")}
                 </Button>
               </Link>
             </CardContent>
@@ -86,17 +89,17 @@ const Index = () => {
                 <div className="p-2 bg-secondary rounded-lg">
                   <FileText className="h-6 w-6 text-secondary-foreground" />
                 </div>
-                <CardTitle>Documents</CardTitle>
+                <CardTitle>{t("home.documents")}</CardTitle>
               </div>
               <CardDescription>
-                Access important company documents and resources
+                {t("home.documentsDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Link to="/documents">
                 <Button className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
                   <FileText className="mr-2 h-4 w-4" />
-                  View Documents
+                  {t("home.viewDocuments")}
                 </Button>
               </Link>
             </CardContent>
@@ -105,8 +108,8 @@ const Index = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Quick Tips</CardTitle>
-            <CardDescription>Before submitting a ticket, try these quick solutions</CardDescription>
+            <CardTitle>{t("home.quickTips")}</CardTitle>
+            <CardDescription>{t("home.quickTipsDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-3">
@@ -115,9 +118,18 @@ const Index = () => {
                   <Clock className="h-5 w-5 text-secondary-foreground" />
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-1">Check FAQ First</h4>
+                  <h4 className="font-semibold mb-1">{t("home.checkFaqFirst")}</h4>
                   <p className="text-sm text-muted-foreground">
-                    Most common issues are documented in our <Link to="/faq" className="text-primary hover:underline font-medium">FAQ section</Link> with step-by-step solutions.
+                    {t("home.checkFaqFirstDesc").split("FAQ section").map((part, i, arr) => 
+                      i < arr.length - 1 ? (
+                        <span key={i}>
+                          {part}
+                          <Link to="/faq" className="text-primary hover:underline font-medium">
+                            {t("common.faq")} section
+                          </Link>
+                        </span>
+                      ) : part
+                    )}
                   </p>
                 </div>
               </div>
@@ -126,9 +138,9 @@ const Index = () => {
                   <CheckCircle className="h-5 w-5 text-secondary-foreground" />
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-1">Restart First</h4>
+                  <h4 className="font-semibold mb-1">{t("home.restartFirst")}</h4>
                   <p className="text-sm text-muted-foreground">
-                    Many technical issues can be resolved with a simple restart of your device.
+                    {t("home.restartFirstDesc")}
                   </p>
                 </div>
               </div>
@@ -137,9 +149,9 @@ const Index = () => {
                   <Users className="h-5 w-5 text-secondary-foreground" />
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-1">Ask a Colleague</h4>
+                  <h4 className="font-semibold mb-1">{t("home.askColleague")}</h4>
                   <p className="text-sm text-muted-foreground">
-                    Check with your colleagues or manager if they experience the same issue. Often, you can help each other quickly.
+                    {t("home.askColleagueDesc")}
                   </p>
                 </div>
               </div>

@@ -1,5 +1,6 @@
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -23,6 +24,7 @@ import lumiforteLogo from "@/assets/lumiforte-logo.png";
 
 const Layout = () => {
   const { profile, signOut } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
@@ -48,7 +50,7 @@ const Layout = () => {
                   className={isActive("/") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-primary/80"}
                 >
                   <Home className="h-4 w-4 mr-2" />
-                  Home
+                  {t("common.home")}
                 </Button>
               </Link>
               <Link to="/faq">
@@ -58,7 +60,7 @@ const Layout = () => {
                   className={isActive("/faq") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-primary/80"}
                 >
                   <HelpCircle className="h-4 w-4 mr-2" />
-                  FAQ
+                  {t("common.faq")}
                 </Button>
               </Link>
               <Link to="/documents">
@@ -68,7 +70,7 @@ const Layout = () => {
                   className={isActive("/documents") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-primary/80"}
                 >
                   <FileText className="h-4 w-4 mr-2" />
-                  Documents
+                  {t("common.documents")}
                 </Button>
               </Link>
               <Link to="/tickets">
@@ -78,7 +80,7 @@ const Layout = () => {
                   className={isActive("/tickets") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-primary/80"}
                 >
                   <Ticket className="h-4 w-4 mr-2" />
-                  My Tickets
+                  {t("common.tickets")}
                 </Button>
               </Link>
               {profile?.is_admin && (
@@ -101,28 +103,48 @@ const Layout = () => {
               <Button 
                 variant="outline" 
                 size="sm"
-                className="h-8 px-3 bg-background border-2 hover:bg-primary hover:text-primary-foreground font-semibold"
+                onClick={() => setLanguage("en")}
+                className={`h-8 px-3 border-2 font-semibold transition-colors ${
+                  language === "en" 
+                    ? "bg-primary text-primary-foreground" 
+                    : "bg-background hover:bg-primary hover:text-primary-foreground"
+                }`}
               >
                 EN
               </Button>
               <Button 
                 variant="outline" 
                 size="sm"
-                className="h-8 px-3 bg-background border-2 hover:bg-primary hover:text-primary-foreground font-semibold"
+                onClick={() => setLanguage("nl")}
+                className={`h-8 px-3 border-2 font-semibold transition-colors ${
+                  language === "nl" 
+                    ? "bg-primary text-primary-foreground" 
+                    : "bg-background hover:bg-primary hover:text-primary-foreground"
+                }`}
               >
                 NL
               </Button>
               <Button 
                 variant="outline" 
                 size="sm"
-                className="h-8 px-3 bg-background border-2 hover:bg-primary hover:text-primary-foreground font-semibold"
+                onClick={() => setLanguage("fr")}
+                className={`h-8 px-3 border-2 font-semibold transition-colors ${
+                  language === "fr" 
+                    ? "bg-primary text-primary-foreground" 
+                    : "bg-background hover:bg-primary hover:text-primary-foreground"
+                }`}
               >
                 FR
               </Button>
               <Button 
                 variant="outline" 
                 size="sm"
-                className="h-8 px-3 bg-background border-2 hover:bg-primary hover:text-primary-foreground font-semibold"
+                onClick={() => setLanguage("de")}
+                className={`h-8 px-3 border-2 font-semibold transition-colors ${
+                  language === "de" 
+                    ? "bg-primary text-primary-foreground" 
+                    : "bg-background hover:bg-primary hover:text-primary-foreground"
+                }`}
               >
                 DE
               </Button>
@@ -136,36 +158,48 @@ const Layout = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>{t("common.myAccount")}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <div className="md:hidden px-2 py-1.5">
-                  <div className="text-xs font-semibold text-muted-foreground mb-2">Language</div>
+                  <div className="text-xs font-semibold text-muted-foreground mb-2">{t("common.language")}</div>
                   <div className="flex gap-2">
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="h-8 px-3 flex-1 border-2 font-semibold"
+                      onClick={() => setLanguage("en")}
+                      className={`h-8 px-3 flex-1 border-2 font-semibold ${
+                        language === "en" ? "bg-primary text-primary-foreground" : ""
+                      }`}
                     >
                       EN
                     </Button>
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="h-8 px-3 flex-1 border-2 font-semibold"
+                      onClick={() => setLanguage("nl")}
+                      className={`h-8 px-3 flex-1 border-2 font-semibold ${
+                        language === "nl" ? "bg-primary text-primary-foreground" : ""
+                      }`}
                     >
                       NL
                     </Button>
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="h-8 px-3 flex-1 border-2 font-semibold"
+                      onClick={() => setLanguage("fr")}
+                      className={`h-8 px-3 flex-1 border-2 font-semibold ${
+                        language === "fr" ? "bg-primary text-primary-foreground" : ""
+                      }`}
                     >
                       FR
                     </Button>
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="h-8 px-3 flex-1 border-2 font-semibold"
+                      onClick={() => setLanguage("de")}
+                      className={`h-8 px-3 flex-1 border-2 font-semibold ${
+                        language === "de" ? "bg-primary text-primary-foreground" : ""
+                      }`}
                     >
                       DE
                     </Button>
@@ -175,25 +209,25 @@ const Layout = () => {
                 <DropdownMenuItem className="md:hidden" asChild>
                   <Link to="/" className="flex items-center">
                     <Home className="h-4 w-4 mr-2" />
-                    Home
+                    {t("common.home")}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="md:hidden" asChild>
                   <Link to="/faq" className="flex items-center">
                     <HelpCircle className="h-4 w-4 mr-2" />
-                    FAQ
+                    {t("common.faq")}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="md:hidden" asChild>
                   <Link to="/documents" className="flex items-center">
                     <FileText className="h-4 w-4 mr-2" />
-                    Documents
+                    {t("common.documents")}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="md:hidden" asChild>
                   <Link to="/tickets" className="flex items-center">
                     <Ticket className="h-4 w-4 mr-2" />
-                    My Tickets
+                    {t("common.tickets")}
                   </Link>
                 </DropdownMenuItem>
                 {profile?.is_admin && (
@@ -207,7 +241,7 @@ const Layout = () => {
                 <DropdownMenuSeparator className="md:hidden" />
                 <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
                   <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
+                  {t("common.signOut")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -221,10 +255,10 @@ const Layout = () => {
 
       <footer className="mt-auto border-t border-border bg-card py-6">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} Lumiforte Holding BV. All rights reserved.</p>
-          <p className="mt-2">This system is under development and not yet complete. Responses may be incorrect.</p>
+          <p>© {new Date().getFullYear()} Lumiforte Holding BV. {t("common.copyright")}</p>
+          <p className="mt-2">{t("footer.systemDevelopment")}</p>
           <p className="mt-1">
-            If you have feedback or would like to contribute to this portal, please contact{" "}
+            {t("footer.feedbackContact")}{" "}
             <a href="mailto:jeroen.vrieselaar@lumiforte.com" className="text-primary hover:underline">
               Jeroen Vrieselaar
             </a>.

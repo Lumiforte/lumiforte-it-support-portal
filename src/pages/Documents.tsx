@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { FileText, Download, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Document {
   name: string;
@@ -24,6 +25,7 @@ const Documents = () => {
   const [storageDocuments, setStorageDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchDocuments();
@@ -95,9 +97,9 @@ const Documents = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-primary mb-2">Documents</h1>
+        <h1 className="text-3xl font-bold text-primary mb-2">{t("documents.title")}</h1>
         <p className="text-muted-foreground">
-          Access important company documents and resources
+          {t("documents.subtitle")}
         </p>
       </div>
 
@@ -105,7 +107,7 @@ const Documents = () => {
         <Card>
           <CardContent className="py-12 text-center">
             <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-muted-foreground">No documents available yet.</p>
+            <p className="text-muted-foreground">{t("documents.noDocuments")}</p>
           </CardContent>
         </Card>
       ) : (
@@ -139,7 +141,7 @@ const Documents = () => {
                     rel="noopener noreferrer"
                   >
                     <Download className="mr-2 h-4 w-4" />
-                    Download
+                    {t("documents.download")}
                   </a>
                 </Button>
               </CardContent>

@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Badge } from "@/components/ui/badge";
 import { Search, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface FAQ {
   id: string;
@@ -20,6 +21,7 @@ const FAQ = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchFAQs();
@@ -81,16 +83,16 @@ const FAQ = () => {
   return (
     <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-primary mb-2">Frequently Asked Questions</h1>
+          <h1 className="text-3xl font-bold text-primary mb-2">{t("faq.title")}</h1>
           <p className="text-muted-foreground">
-            Search our knowledge base for quick answers to common IT questions
+            {t("faq.subtitle")}
           </p>
         </div>
 
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search FAQs..."
+            placeholder={t("faq.searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -100,7 +102,7 @@ const FAQ = () => {
         {Object.keys(groupedFAQs).length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground">No FAQs found matching your search.</p>
+              <p className="text-muted-foreground">{t("faq.noResults")}</p>
             </CardContent>
           </Card>
         ) : (
