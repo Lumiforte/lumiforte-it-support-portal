@@ -72,7 +72,7 @@ serve(async (req) => {
     const textBody = `Reset je wachtwoord:\n\nKopieer en plak deze link in je browser (klik niet rechtstreeks):\n${actionLink}\n\nDe link is eenmalig geldig.`;
 
     await resend.emails.send({
-      from: "Lumiforte Support <onboarding@resend.dev>",
+      from: "Lumiforte Support <noreply@lumiforte.dev>",
       to: [email],
       subject: "Reset your password",
       text: textBody,
