@@ -94,7 +94,7 @@ const Auth = () => {
             <img 
               src={lumiforteLogo} 
               alt="Lumiforte Logo" 
-              className="h-16 w-auto"
+              className="h-28 w-auto"
             />
           </div>
           <CardTitle className="text-2xl font-bold text-primary">IT Support Portal</CardTitle>
