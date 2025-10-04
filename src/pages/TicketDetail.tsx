@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, Send, Clock, AlertCircle, CheckCircle, XCircle } from "lucide-react";
-import { formatDistanceToNow, format } from "date-fns";
+import { formatDistanceToNow, format, differenceInDays } from "date-fns";
 
 interface Ticket {
   id: string;
@@ -26,6 +26,10 @@ interface Ticket {
   resolved_at: string | null;
   closed_at: string | null;
   assigned_user?: {
+    full_name: string | null;
+    email: string;
+  };
+  creator?: {
     full_name: string | null;
     email: string;
   };
@@ -86,6 +90,10 @@ const TicketDetail = () => {
         .select(`
           *,
           assigned_user:profiles!tickets_assigned_to_fkey (
+            full_name,
+            email
+          ),
+          creator:profiles!tickets_created_by_fkey (
             full_name,
             email
           )
@@ -249,10 +257,18 @@ const TicketDetail = () => {
       setNewMessage("");
       fetchMessages();
       
-      await supabase
-        .from("tickets")
-        .update({ updated_at: new Date().toISOString() })
-        .eq("id", id);
+      // If helpdesk/admin replies and ticket is still open, set it to in_progress
+      if ((profile?.is_admin || profile?.is_helpdesk) && ticket?.status === 'open') {
+        await supabase
+          .from("tickets")
+          .update({ status: 'in_progress', updated_at: new Date().toISOString() })
+          .eq("id", id);
+      } else {
+        await supabase
+          .from("tickets")
+          .update({ updated_at: new Date().toISOString() })
+          .eq("id", id);
+      }
         
       fetchTicket();
 
@@ -321,8 +337,18 @@ const TicketDetail = () => {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                   <div>
+                    <span className="text-muted-foreground">Submitted by:</span>
+                    <p className="font-medium">{ticket.creator?.full_name || ticket.creator?.email || 'Unknown'}</p>
+                  </div>
+                  
+                  <div>
                     <span className="text-muted-foreground">Created:</span>
                     <p className="font-medium">{format(new Date(ticket.created_at), 'dd-MM-yyyy HH:mm')}</p>
+                  </div>
+                  
+                  <div>
+                    <span className="text-muted-foreground">Days open:</span>
+                    <p className="font-medium">{differenceInDays(new Date(), new Date(ticket.created_at))} {differenceInDays(new Date(), new Date(ticket.created_at)) === 1 ? 'day' : 'days'}</p>
                   </div>
                   
                   {ticket.assigned_to && ticket.assigned_user ? (
