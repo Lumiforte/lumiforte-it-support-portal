@@ -543,7 +543,7 @@ const TicketDetail = () => {
                     {ticket.priority}
                   </Badge>
                   {ticket.category && (
-                    <Badge variant="secondary" className="capitalize">
+                    <Badge variant="outline" className="capitalize">
                       {ticket.category}
                     </Badge>
                   )}
