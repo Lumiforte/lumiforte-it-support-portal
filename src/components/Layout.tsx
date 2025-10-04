@@ -18,6 +18,7 @@ import {
   Shield,
   Menu
 } from "lucide-react";
+import lumiforteLogo from "@/assets/lumiforte-logo.png";
 
 const Layout = () => {
   const { profile, signOut } = useAuth();
@@ -31,9 +32,11 @@ const Layout = () => {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center gap-2">
-              <div className="text-xl font-bold text-primary-foreground">
-                Lumiforte IT Support
-              </div>
+              <img 
+                src={lumiforteLogo} 
+                alt="Lumiforte" 
+                className="h-8 w-auto"
+              />
             </Link>
             
             <nav className="hidden md:flex items-center gap-1">
