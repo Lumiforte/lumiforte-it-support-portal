@@ -3,12 +3,23 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { HelpCircle, Ticket, Plus, Search, Clock, CheckCircle, FileText, Users } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
 const Index = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   return (
     <div className="space-y-8">
+        {(language === "fr" || language === "de") && t("footer.languageNote") && (
+          <Alert className="bg-accent/20 border-accent">
+            <Info className="h-4 w-4" />
+            <AlertDescription className="ml-2">
+              {t("footer.languageNote")}
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <div className="text-center">
           <h1 className="text-4xl font-bold text-primary mb-2">{t("home.title")}</h1>
           <p className="text-xl text-muted-foreground">

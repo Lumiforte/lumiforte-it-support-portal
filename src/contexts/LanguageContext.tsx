@@ -96,6 +96,7 @@ const getTranslations = (lang: Language) => {
       footer: {
         systemDevelopment: "This system is under development and not yet complete. Responses may be incorrect.",
         feedbackContact: "If you have feedback or would like to contribute to this portal, please contact",
+        languageNote: "", // No note for English
       }
     },
     nl: {
@@ -148,6 +149,7 @@ const getTranslations = (lang: Language) => {
       footer: {
         systemDevelopment: "Dit systeem is in ontwikkeling en nog niet compleet. Reacties kunnen onjuist zijn.",
         feedbackContact: "Als u feedback heeft of wilt bijdragen aan dit portaal, neem dan contact op met",
+        languageNote: "", // No note for Dutch
       }
     },
     fr: {
@@ -200,6 +202,7 @@ const getTranslations = (lang: Language) => {
       footer: {
         systemDevelopment: "Ce système est en cours de développement et n'est pas encore complet. Les réponses peuvent être incorrectes.",
         feedbackContact: "Si vous avez des commentaires ou souhaitez contribuer à ce portail, veuillez contacter",
+        languageNote: "📝 Note importante : Ce portail a été traduit en français pour faciliter son utilisation. Cependant, lors de la création d'un ticket de support, veuillez rédiger votre demande en anglais afin que notre équipe d'assistance puisse traiter votre demande efficacement.",
       }
     },
     de: {
@@ -252,6 +255,7 @@ const getTranslations = (lang: Language) => {
       footer: {
         systemDevelopment: "Dieses System befindet sich in der Entwicklung und ist noch nicht vollständig. Antworten können falsch sein.",
         feedbackContact: "Wenn Sie Feedback haben oder zu diesem Portal beitragen möchten, kontaktieren Sie bitte",
+        languageNote: "📝 Wichtiger Hinweis: Dieses Portal wurde ins Deutsche übersetzt, um die Nutzung zu erleichtern. Bei der Erstellung eines Support-Tickets schreiben Sie Ihre Anfrage jedoch bitte auf Englisch, damit unser Support-Team Ihre Anfrage effektiv bearbeiten kann.",
       }
     }
   };
