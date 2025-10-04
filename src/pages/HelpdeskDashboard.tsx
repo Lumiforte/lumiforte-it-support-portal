@@ -17,6 +17,7 @@ interface Ticket {
   description: string;
   status: string;
   priority: string;
+  category: string;
   created_at: string;
   updated_at: string;
   created_by: string;
@@ -243,6 +244,9 @@ const HelpdeskDashboard = () => {
                     }`}
                   >
                     {ticket.priority}
+                  </Badge>
+                  <Badge variant="outline" className="capitalize">
+                    {ticket.category}
                   </Badge>
                 </div>
               </div>
