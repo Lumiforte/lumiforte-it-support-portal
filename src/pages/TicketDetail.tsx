@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, Send, Clock, AlertCircle, CheckCircle, XCircle } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format } from "date-fns";
 
 interface Ticket {
   id: string;
@@ -21,6 +21,13 @@ interface Ticket {
   created_at: string;
   updated_at: string;
   created_by: string;
+  assigned_to: string | null;
+  resolved_at: string | null;
+  closed_at: string | null;
+  assigned_user?: {
+    full_name: string | null;
+    email: string;
+  };
 }
 
 interface Message {
@@ -64,13 +71,19 @@ const TicketDetail = () => {
     try {
       const { data, error } = await supabase
         .from("tickets")
-        .select("*")
+        .select(`
+          *,
+          assigned_user:profiles!tickets_assigned_to_fkey (
+            full_name,
+            email
+          )
+        `)
         .eq("id", id)
         .single();
 
       if (error) throw error;
       
-      if (data.created_by !== user?.id && !profile?.is_admin) {
+      if (data.created_by !== user?.id && !profile?.is_admin && !profile?.is_helpdesk) {
         navigate("/tickets");
         return;
       }
@@ -213,15 +226,48 @@ const TicketDetail = () => {
                     </Badge>
                   )}
                 </div>
-                <CardTitle className="text-2xl">{ticket.title}</CardTitle>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Created {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
-                </p>
+                <CardTitle className="text-2xl mb-4">{ticket.title}</CardTitle>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Aangemaakt:</span>
+                    <p className="font-medium">{format(new Date(ticket.created_at), 'dd-MM-yyyy HH:mm')}</p>
+                  </div>
+                  
+                  {ticket.assigned_to && ticket.assigned_user && (
+                    <div>
+                      <span className="text-muted-foreground">Behandelaar:</span>
+                      <p className="font-medium">{ticket.assigned_user.full_name || ticket.assigned_user.email}</p>
+                    </div>
+                  )}
+                  
+                  {!ticket.assigned_to && (
+                    <div>
+                      <span className="text-muted-foreground">Behandelaar:</span>
+                      <p className="font-medium text-muted-foreground">Nog niet toegewezen</p>
+                    </div>
+                  )}
+                  
+                  {ticket.resolved_at && (
+                    <div>
+                      <span className="text-muted-foreground">Opgelost op:</span>
+                      <p className="font-medium text-green-600">{format(new Date(ticket.resolved_at), 'dd-MM-yyyy HH:mm')}</p>
+                    </div>
+                  )}
+                  
+                  {ticket.closed_at && (
+                    <div>
+                      <span className="text-muted-foreground">Gesloten op:</span>
+                      <p className="font-medium text-gray-600">{format(new Date(ticket.closed_at), 'dd-MM-yyyy HH:mm')}</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <div className="bg-muted rounded-lg p-4">
+              <p className="text-sm font-semibold text-muted-foreground mb-2">Beschrijving:</p>
               <p className="whitespace-pre-line">{ticket.description}</p>
             </div>
           </CardContent>

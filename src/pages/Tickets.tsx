@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Loader2, Clock, CheckCircle, AlertCircle, XCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format } from "date-fns";
 
 interface Ticket {
   id: string;
@@ -18,6 +18,13 @@ interface Ticket {
   priority: string;
   created_at: string;
   updated_at: string;
+  assigned_to: string | null;
+  resolved_at: string | null;
+  closed_at: string | null;
+  assigned_user?: {
+    full_name: string | null;
+    email: string;
+  };
 }
 
 const statusConfig = {
@@ -51,7 +58,13 @@ const Tickets = () => {
     try {
       const { data, error } = await supabase
         .from("tickets")
-        .select("*")
+        .select(`
+          *,
+          assigned_user:profiles!tickets_assigned_to_fkey (
+            full_name,
+            email
+          )
+        `)
         .eq("created_by", user?.id)
         .order("created_at", { ascending: false });
 
@@ -76,6 +89,16 @@ const Tickets = () => {
   const TicketCard = ({ ticket }: { ticket: Ticket }) => {
     const statusInfo = statusConfig[ticket.status as keyof typeof statusConfig];
     const StatusIcon = statusInfo?.icon || Clock;
+    
+    const getStatusDate = () => {
+      if (ticket.status === 'closed' && ticket.closed_at) {
+        return format(new Date(ticket.closed_at), 'dd-MM-yyyy HH:mm');
+      }
+      if (ticket.status === 'resolved' && ticket.resolved_at) {
+        return format(new Date(ticket.resolved_at), 'dd-MM-yyyy HH:mm');
+      }
+      return null;
+    };
 
     return (
       <Link to={`/tickets/${ticket.id}`}>
@@ -90,19 +113,45 @@ const Tickets = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-              <div className="flex items-center gap-2">
-                <Badge variant={statusInfo?.variant}>
-                  <StatusIcon className="h-3 w-3 mr-1" />
-                  {statusInfo?.label}
-                </Badge>
-                <Badge variant="outline" className="capitalize">
-                  {ticket.priority}
-                </Badge>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <Badge variant={statusInfo?.variant}>
+                    <StatusIcon className="h-3 w-3 mr-1" />
+                    {statusInfo?.label}
+                  </Badge>
+                  <Badge variant="outline" className="capitalize">
+                    {ticket.priority}
+                  </Badge>
+                </div>
               </div>
-              <span className="text-xs text-muted-foreground">
-                {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
-              </span>
+              
+              <div className="text-xs text-muted-foreground space-y-1">
+                <div className="flex items-center justify-between">
+                  <span>Aangemaakt:</span>
+                  <span className="font-medium">{format(new Date(ticket.created_at), 'dd-MM-yyyy HH:mm')}</span>
+                </div>
+                
+                {ticket.assigned_to && ticket.assigned_user && (
+                  <div className="flex items-center justify-between">
+                    <span>Behandelaar:</span>
+                    <span className="font-medium">{ticket.assigned_user.full_name || ticket.assigned_user.email}</span>
+                  </div>
+                )}
+                
+                {getStatusDate() && (
+                  <div className="flex items-center justify-between">
+                    <span>{ticket.status === 'closed' ? 'Gesloten' : 'Opgelost'}:</span>
+                    <span className="font-medium">{getStatusDate()}</span>
+                  </div>
+                )}
+                
+                {!ticket.assigned_to && (
+                  <div className="flex items-center justify-between text-muted-foreground/70">
+                    <span>Nog niet toegewezen</span>
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
