@@ -49,13 +49,19 @@ serve(async (req) => {
       email,
       options: { redirectTo: redirect },
     });
-
-    const props = (data as any)?.properties || {};
-    if (!props.token_hash || !props.email_action_type) {
+    if (error) {
+      console.error("generateLink error", error);
+      throw error;
+    }
+    // Prefer the action_link provided by the API
+    const actionLink =
+      (data as any)?.properties?.action_link ??
+      (data as any)?.action_link ??
+      null;
+    if (!actionLink) {
+      console.log("generateLink data without action_link", data);
       throw new Error("Failed to generate reset link");
     }
-
-    const actionLink = `${supabaseUrl}/auth/v1/verify?token=${props.token_hash}&type=${props.email_action_type}&redirect_to=${encodeURIComponent(props.redirect_to || redirect)}`;
     const result = await resend.emails.send({
       from: "Lumiforte Support <onboarding@resend.dev>",
       to: [email],
