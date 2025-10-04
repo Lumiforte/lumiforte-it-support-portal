@@ -17,7 +17,8 @@ import {
   LogOut, 
   User, 
   Shield,
-  Menu
+  Menu,
+  Headset
 } from "lucide-react";
 import lumiforteLogo from "@/assets/lumiforte-logo.png";
 
@@ -72,6 +73,18 @@ const Layout = () => {
                   {t("common.tickets")}
                 </Button>
               </Link>
+              {(profile?.is_helpdesk || profile?.is_admin) && (
+                <Link to="/helpdesk">
+                  <Button
+                    variant={isActive("/helpdesk") ? "secondary" : "ghost"}
+                    size="sm"
+                    className={isActive("/helpdesk") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-primary/80"}
+                  >
+                    <Headset className="h-4 w-4 mr-2" />
+                    {t("common.helpdesk")}
+                  </Button>
+                </Link>
+              )}
               {profile?.is_admin && (
                 <Link to="/admin">
                   <Button
@@ -220,6 +233,14 @@ const Layout = () => {
                     {t("common.tickets")}
                   </Link>
                 </DropdownMenuItem>
+                {(profile?.is_helpdesk || profile?.is_admin) && (
+                  <DropdownMenuItem className="md:hidden" asChild>
+                    <Link to="/helpdesk" className="flex items-center">
+                      <Headset className="h-4 w-4 mr-2" />
+                      {t("common.helpdesk")}
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 {profile?.is_admin && (
                   <DropdownMenuItem className="md:hidden" asChild>
                     <Link to="/admin" className="flex items-center">

@@ -13,6 +13,7 @@ import CreateTicket from "./pages/CreateTicket";
 import TicketDetail from "./pages/TicketDetail";
 import AdminPanel from "./pages/AdminPanel";
 import Profile from "./pages/Profile";
+import HelpdeskDashboard from "./pages/HelpdeskDashboard";
 import NotFound from "./pages/NotFound";
 import Layout from "@/components/Layout";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -35,8 +36,9 @@ const App = () => (
                 <Route path="/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
                 <Route path="/tickets/new" element={<ProtectedRoute><CreateTicket /></ProtectedRoute>} />
                 <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetail /></ProtectedRoute>} />
-                <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
-                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
+              <Route path="/helpdesk" element={<ProtectedRoute><HelpdeskDashboard /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>

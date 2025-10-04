@@ -57,6 +57,10 @@ const getTranslations = (lang: Language) => {
         language: "Language",
         copyright: "All rights reserved",
         profile: "Profile",
+        helpdesk: "Helpdesk",
+        all: "All",
+        no: "No",
+        error: "Error",
       },
       profile: {
         title: "My Profile",
@@ -69,6 +73,11 @@ const getTranslations = (lang: Language) => {
         saving: "Saving...",
         successMessage: "Profile updated successfully",
         errorMessage: "Failed to update profile",
+      },
+      helpdesk: {
+        title: "Helpdesk Dashboard",
+        subtitle: "View and manage all support tickets",
+        noTickets: "No tickets found.",
       },
       home: {
         title: "IT Support Portal",
@@ -124,6 +133,10 @@ const getTranslations = (lang: Language) => {
         copyright: "Alle rechten voorbehouden",
         comingSoon: "Nederlandse versie komt binnenkort beschikbaar. Gebruik voorlopig de Engelse versie.",
         profile: "Profiel",
+        helpdesk: "Helpdesk",
+        all: "Alle",
+        no: "Geen",
+        error: "Fout",
       },
       profile: {
         title: "Mijn Profiel",
@@ -136,6 +149,11 @@ const getTranslations = (lang: Language) => {
         saving: "Opslaan...",
         successMessage: "Profiel succesvol bijgewerkt",
         errorMessage: "Profiel bijwerken mislukt",
+      },
+      helpdesk: {
+        title: "Helpdesk Dashboard",
+        subtitle: "Bekijk en beheer alle supporttickets",
+        noTickets: "Geen tickets gevonden.",
       },
       home: {
         title: "IT Ondersteuningsportaal",
@@ -191,6 +209,10 @@ const getTranslations = (lang: Language) => {
         copyright: "Tous droits réservés",
         comingSoon: "La version française sera bientôt disponible. Veuillez utiliser la version anglaise pour le moment.",
         profile: "Profil",
+        helpdesk: "Service d'assistance",
+        all: "Tout",
+        no: "Aucun",
+        error: "Erreur",
       },
       profile: {
         title: "Mon Profil",
@@ -203,6 +225,11 @@ const getTranslations = (lang: Language) => {
         saving: "Enregistrement...",
         successMessage: "Profil mis à jour avec succès",
         errorMessage: "Échec de la mise à jour du profil",
+      },
+      helpdesk: {
+        title: "Tableau de bord Service d'assistance",
+        subtitle: "Voir et gérer tous les tickets d'assistance",
+        noTickets: "Aucun ticket trouvé.",
       },
       home: {
         title: "Portail d'Assistance IT",
@@ -258,6 +285,10 @@ const getTranslations = (lang: Language) => {
         copyright: "Alle Rechte vorbehalten",
         comingSoon: "Deutsche Version in Kürze verfügbar. Bitte verwenden Sie vorerst die englische Version.",
         profile: "Profil",
+        helpdesk: "Helpdesk",
+        all: "Alle",
+        no: "Keine",
+        error: "Fehler",
       },
       profile: {
         title: "Mein Profil",
@@ -270,6 +301,11 @@ const getTranslations = (lang: Language) => {
         saving: "Speichern...",
         successMessage: "Profil erfolgreich aktualisiert",
         errorMessage: "Profil konnte nicht aktualisiert werden",
+      },
+      helpdesk: {
+        title: "Helpdesk Dashboard",
+        subtitle: "Alle Support-Tickets anzeigen und verwalten",
+        noTickets: "Keine Tickets gefunden.",
       },
       home: {
         title: "IT-Support-Portal",

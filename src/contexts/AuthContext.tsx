@@ -8,6 +8,8 @@ interface Profile {
   email: string;
   full_name: string | null;
   is_admin: boolean;
+  is_helpdesk: boolean;
+  roles: string[];
 }
 
 interface AuthContextType {
@@ -66,16 +68,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (profileError) throw profileError;
 
-      // Fetch user role separately
-      const { data: roleData } = await supabase
+      // Fetch all user roles
+      const { data: rolesData } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", userId)
-        .single();
+        .eq("user_id", userId);
+
+      const roles = rolesData?.map(r => r.role) || [];
 
       setProfile({
         ...profileData,
-        is_admin: roleData?.role === 'admin'
+        is_admin: roles.includes('admin'),
+        is_helpdesk: roles.includes('helpdesk'),
+        roles
       });
     } catch (error) {
       console.error("Error fetching profile:", error);
