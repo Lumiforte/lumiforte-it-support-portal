@@ -19,15 +19,16 @@ const Auth = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (user) {
+    if (user && !isPasswordRecovery) {
       navigate("/", { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, isPasswordRecovery]);
 
   useEffect(() => {
     // Check if this is a password recovery flow
@@ -37,6 +38,16 @@ const Auth = () => {
     if (type === 'recovery') {
       setIsPasswordRecovery(true);
     }
+  }, []);
+
+  // Also handle Supabase event which fires on recovery links
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsPasswordRecovery(true);
+      }
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -131,6 +142,15 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      if (newPassword !== confirmPassword) {
+        toast({
+          title: "Wachtwoorden komen niet overeen",
+          description: "Voer hetzelfde wachtwoord twee keer in.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase.auth.updateUser({
         password: newPassword,
       });
@@ -184,7 +204,19 @@ const Auth = () => {
                   minLength={6}
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirm New Password</Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  placeholder="Re-enter your new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength={6}
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading || newPassword.length < 6 || newPassword !== confirmPassword}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Reset Password
               </Button>
