@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import lumiforteLogo from "@/assets/lumiforte-logo.png";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -89,7 +90,14 @@ const Auth = () => {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary to-secondary p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-primary">Lumiforte IT Support</CardTitle>
+          <div className="flex justify-center mb-6">
+            <img 
+              src={lumiforteLogo} 
+              alt="Lumiforte Logo" 
+              className="h-16 w-auto"
+            />
+          </div>
+          <CardTitle className="text-2xl font-bold text-primary">IT Support Portal</CardTitle>
           <CardDescription>Sign in to access the support system</CardDescription>
         </CardHeader>
         <CardContent>
