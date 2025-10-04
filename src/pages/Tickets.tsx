@@ -161,7 +161,7 @@ const Tickets = () => {
                   <Link to="/tickets/new">
                     <Button>
                       <Plus className="h-4 w-4 mr-2" />
-                      Create Your First Ticket
+                      {activeTab === "all" ? "Create Your First Ticket" : "Create a Ticket"}
                     </Button>
                   </Link>
                 </CardContent>
