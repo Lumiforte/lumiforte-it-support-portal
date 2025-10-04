@@ -21,17 +21,18 @@ const FAQ = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     fetchFAQs();
-  }, []);
+  }, [language]);
 
   const fetchFAQs = async () => {
     try {
       const { data, error } = await supabase
         .from("faq_articles")
         .select("*")
+        .eq("language", language)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
