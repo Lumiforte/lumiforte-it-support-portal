@@ -140,11 +140,11 @@ const Layout = () => {
       <footer className="mt-auto border-t border-border bg-card py-6">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
           <p>© {new Date().getFullYear()} Lumiforte. All rights reserved.</p>
-          <p className="mt-2">
-            This system is under development and not yet complete. Responses may be incorrect. 
-            If you have feedback or would like to contribute to this portal, please contact Jeroen Vriezelaar at{" "}
-            <a href="mailto:jeroen@lumiforte.com" className="text-primary hover:underline">
-              jeroen@lumiforte.com
+          <p className="mt-2">This system is under development and not yet complete. Responses may be incorrect.</p>
+          <p className="mt-1">
+            If you have feedback or would like to contribute to this portal, please contact Jeroen Vrieselaar at{" "}
+            <a href="mailto:jeroen.vrieselaar@lumiforte.com" className="text-primary hover:underline">
+              jeroen.vrieselaar@lumiforte.com
             </a>
           </p>
         </div>
