@@ -95,11 +95,7 @@ const Index = () => {
                 <div>
                   <h4 className="font-semibold mb-1">Check FAQ First</h4>
                   <p className="text-sm text-muted-foreground">
-                    Most common issues are documented in our{" "}
-                    <Link to="/faq" className="text-primary hover:underline font-medium">
-                      FAQ section
-                    </Link>
-                    {" "}with step-by-step solutions.
+                    Most common issues are documented in our <Link to="/faq" className="text-primary hover:underline font-medium">FAQ section</Link> with step-by-step solutions.
                   </p>
                 </div>
               </div>
