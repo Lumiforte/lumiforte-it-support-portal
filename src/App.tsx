@@ -8,7 +8,6 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import FAQ from "./pages/FAQ";
-import Documents from "./pages/Documents";
 import Tickets from "./pages/Tickets";
 import CreateTicket from "./pages/CreateTicket";
 import TicketDetail from "./pages/TicketDetail";
@@ -32,7 +31,6 @@ const App = () => (
             <Route element={<Layout />}>
               <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="/faq" element={<ProtectedRoute><FAQ /></ProtectedRoute>} />
-              <Route path="/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
               <Route path="/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
               <Route path="/tickets/new" element={<ProtectedRoute><CreateTicket /></ProtectedRoute>} />
               <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetail /></ProtectedRoute>} />

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { HelpCircle, Ticket, Plus, Search, Clock, CheckCircle, FileText, Users } from "lucide-react";
+import { HelpCircle, Ticket, Plus, Search, Clock, CheckCircle, Users } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
@@ -27,7 +27,7 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -89,28 +89,6 @@ const Index = () => {
                 <Button className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
                   <Ticket className="mr-2 h-4 w-4" />
                   {t("home.viewTickets")}
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-secondary rounded-lg">
-                  <FileText className="h-6 w-6 text-secondary-foreground" />
-                </div>
-                <CardTitle>{t("home.documents")}</CardTitle>
-              </div>
-              <CardDescription>
-                {t("home.documentsDesc")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Link to="/documents">
-                <Button className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
-                  <FileText className="mr-2 h-4 w-4" />
-                  {t("home.viewDocuments")}
                 </Button>
               </Link>
             </CardContent>
