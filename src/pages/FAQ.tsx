@@ -101,10 +101,12 @@ const FAQ = () => {
   const renderContentWithLinks = (content: string) => {
     const nameKeys = Object.keys(nameToEmail).sort((a, b) => b.length - a.length);
     const linkPattern = /\[Create a support ticket\]/gi;
-    const namePattern = new RegExp(`(${nameKeys.map(escapeRegex).join("|")})`, "gi");
+    
+    // Create pattern that matches names only as whole words (with word boundaries)
+    const namePattern = new RegExp(`\\b(${nameKeys.map(escapeRegex).join("|")})\\b`, "gi");
     
     // Split by both link pattern and name pattern
-    const combinedPattern = new RegExp(`(\\[Create a support ticket\\]|${nameKeys.map(escapeRegex).join("|")})`, "gi");
+    const combinedPattern = new RegExp(`(\\[Create a support ticket\\]|\\b(?:${nameKeys.map(escapeRegex).join("|")})\\b)`, "gi");
     const parts = content.split(combinedPattern);
 
     return (
