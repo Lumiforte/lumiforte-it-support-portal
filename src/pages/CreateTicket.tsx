@@ -40,6 +40,24 @@ const CreateTicket = () => {
 
       if (error) throw error;
 
+      // Send notification email
+      try {
+        await supabase.functions.invoke('notify-new-ticket', {
+          body: {
+            ticketId: data.id,
+            title: data.title,
+            description: data.description,
+            priority: data.priority,
+            category: data.category,
+            userName: user?.user_metadata?.full_name || user?.email || 'Unknown',
+            userEmail: user?.email || 'Unknown'
+          }
+        });
+      } catch (emailError) {
+        console.error("Error sending notification email:", emailError);
+        // Don't fail the ticket creation if email fails
+      }
+
       toast({
         title: "Ticket created!",
         description: "Your support ticket has been submitted successfully.",
