@@ -123,6 +123,16 @@ const FAQ = () => {
                         <AccordionContent>
                           <div className="space-y-3">
                             <p className="text-muted-foreground whitespace-pre-line">{faq.content}</p>
+                            {faq.title === "How does the video intercom work?" && (
+                              <a 
+                                href="/documents/instructions_video_intercom.pdf" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 text-primary hover:underline font-medium"
+                              >
+                                📄 Download Video Intercom Instructions (PDF)
+                              </a>
+                            )}
                             {faq.tags.length > 0 && (
                               <div className="flex flex-wrap gap-2">
                                 {faq.tags.map((tag) => (
