@@ -28,8 +28,8 @@ const Index = () => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
+          <Card className="hover:shadow-lg transition-shadow flex flex-col">
+            <CardHeader className="flex-grow">
               <div className="flex items-center gap-2">
                 <div className="p-2 bg-secondary rounded-lg">
                   <HelpCircle className="h-6 w-6 text-secondary-foreground" />
@@ -50,8 +50,8 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
+          <Card className="hover:shadow-lg transition-shadow flex flex-col">
+            <CardHeader className="flex-grow">
               <div className="flex items-center gap-2">
                 <div className="p-2 bg-secondary rounded-lg">
                   <Plus className="h-6 w-6 text-secondary-foreground" />
@@ -72,8 +72,8 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
+          <Card className="hover:shadow-lg transition-shadow flex flex-col">
+            <CardHeader className="flex-grow">
               <div className="flex items-center gap-2">
                 <div className="p-2 bg-secondary rounded-lg">
                   <Ticket className="h-6 w-6 text-secondary-foreground" />
