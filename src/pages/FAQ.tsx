@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Link } from "react-router-dom";
 
 interface FAQ {
   id: string;
@@ -125,7 +126,21 @@ const FAQ = () => {
                         </AccordionTrigger>
                         <AccordionContent>
                           <div className="space-y-3">
-                            <p className="text-muted-foreground whitespace-pre-line">{faq.content}</p>
+                            <div className="text-muted-foreground whitespace-pre-line">
+                              {faq.content.split('/create-ticket').map((part, index, array) => (
+                                <span key={index}>
+                                  {part}
+                                  {index < array.length - 1 && (
+                                    <Link 
+                                      to="/create-ticket" 
+                                      className="text-primary hover:underline font-medium"
+                                    >
+                                      /create-ticket
+                                    </Link>
+                                  )}
+                                </span>
+                              ))}
+                            </div>
                             {faq.tags.length > 0 && (
                               <div className="flex flex-wrap gap-2">
                                 {faq.tags.map((tag) => (
