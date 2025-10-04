@@ -647,7 +647,7 @@ const TicketDetail = () => {
                         </AvatarFallback>
                       </Avatar>
                     )}
-                    <div className={`flex-1 max-w-[70%] ${message.created_by === user?.id ? "text-right" : ""}`}>
+                    <div className={`flex-1 max-w-[85%] ${message.created_by === user?.id ? "text-right" : ""}`}>
                       <div className="flex items-center gap-2 mb-1">
                         {message.created_by !== user?.id && (
                           <>
@@ -660,13 +660,7 @@ const TicketDetail = () => {
                           </>
                         )}
                       </div>
-                      <div
-                        className={`rounded-lg p-3 ${
-                          message.created_by === user?.id
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
-                        }`}
-                      >
+                      <div className="rounded-lg p-3 bg-muted">
                         <p className="whitespace-pre-line">{message.message}</p>
                       </div>
                       <span className="text-xs text-muted-foreground mt-1 inline-block">
