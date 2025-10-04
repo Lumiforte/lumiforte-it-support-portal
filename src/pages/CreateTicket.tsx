@@ -28,14 +28,13 @@ const CreateTicket = () => {
     try {
       const { data, error } = await supabase
         .from("tickets")
-        .insert({
-          user_id: user?.id,
+        .insert([{
+          created_by: user?.id,
           title,
           description,
-          priority,
-          category: category || null,
-          status: "open",
-        })
+          priority: priority as "low" | "medium" | "high" | "urgent",
+          category,
+        }])
         .select()
         .single();
 

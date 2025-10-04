@@ -51,7 +51,7 @@ const AdminPanel = () => {
         .from("tickets")
         .select(`
           *,
-          profiles (
+          creator:profiles!created_by (
             full_name,
             email
           )
@@ -59,7 +59,13 @@ const AdminPanel = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setTickets(data || []);
+      
+      const ticketsWithProfiles = (data || []).map(ticket => ({
+        ...ticket,
+        profiles: ticket.creator
+      }));
+      
+      setTickets(ticketsWithProfiles);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -108,8 +114,7 @@ const AdminPanel = () => {
       const { error } = await supabase
         .from("tickets")
         .update({ 
-          status: newStatus,
-          resolved_at: newStatus === "resolved" ? new Date().toISOString() : null
+          status: newStatus as "open" | "in_progress" | "resolved" | "closed"
         })
         .eq("id", ticketId);
 

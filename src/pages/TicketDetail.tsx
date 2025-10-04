@@ -17,22 +17,22 @@ interface Ticket {
   description: string;
   status: string;
   priority: string;
-  category: string | null;
+  category: string;
   created_at: string;
   updated_at: string;
-  user_id: string;
+  created_by: string;
 }
 
 interface Message {
   id: string;
   message: string;
   created_at: string;
-  user_id: string;
+  created_by: string;
   profiles: {
     full_name: string | null;
     email: string;
-    is_admin: boolean;
   };
+  is_admin: boolean;
 }
 
 const statusConfig = {
@@ -70,7 +70,7 @@ const TicketDetail = () => {
 
       if (error) throw error;
       
-      if (data.user_id !== user?.id && !profile?.is_admin) {
+      if (data.created_by !== user?.id && !profile?.is_admin) {
         navigate("/tickets");
         return;
       }
@@ -96,15 +96,31 @@ const TicketDetail = () => {
           *,
           profiles (
             full_name,
-            email,
-            is_admin
+            email
           )
         `)
         .eq("ticket_id", id)
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      setMessages(data || []);
+
+      // Fetch admin status for each message creator
+      const messagesWithAdminStatus = await Promise.all(
+        (data || []).map(async (msg) => {
+          const { data: roleData } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", msg.created_by)
+            .single();
+          
+          return {
+            ...msg,
+            is_admin: roleData?.role === 'admin'
+          };
+        })
+      );
+
+      setMessages(messagesWithAdminStatus);
     } catch (error: any) {
       console.error("Error fetching messages:", error);
     }
@@ -120,7 +136,7 @@ const TicketDetail = () => {
         .from("ticket_messages")
         .insert({
           ticket_id: id,
-          user_id: user?.id,
+          created_by: user?.id,
           message: newMessage,
         });
 
@@ -222,25 +238,25 @@ const TicketDetail = () => {
               </p>
             ) : (
               messages.map((message) => {
-                const isAdmin = message.profiles?.is_admin;
+                const isAdmin = message.is_admin;
                 const displayName = message.profiles?.full_name || message.profiles?.email || "User";
                 const initials = displayName.charAt(0).toUpperCase();
 
                 return (
                   <div
                     key={message.id}
-                    className={`flex gap-3 ${message.user_id === user?.id ? "justify-end" : ""}`}
+                    className={`flex gap-3 ${message.created_by === user?.id ? "justify-end" : ""}`}
                   >
-                    {message.user_id !== user?.id && (
+                    {message.created_by !== user?.id && (
                       <Avatar className={isAdmin ? "border-2 border-primary" : ""}>
                         <AvatarFallback className={isAdmin ? "bg-primary text-primary-foreground" : ""}>
                           {initials}
                         </AvatarFallback>
                       </Avatar>
                     )}
-                    <div className={`flex-1 max-w-[70%] ${message.user_id === user?.id ? "text-right" : ""}`}>
+                    <div className={`flex-1 max-w-[70%] ${message.created_by === user?.id ? "text-right" : ""}`}>
                       <div className="flex items-center gap-2 mb-1">
-                        {message.user_id !== user?.id && (
+                        {message.created_by !== user?.id && (
                           <>
                             <span className="text-sm font-medium">{displayName}</span>
                             {isAdmin && (
@@ -253,7 +269,7 @@ const TicketDetail = () => {
                       </div>
                       <div
                         className={`rounded-lg p-3 ${
-                          message.user_id === user?.id
+                          message.created_by === user?.id
                             ? "bg-primary text-primary-foreground"
                             : "bg-muted"
                         }`}
@@ -264,7 +280,7 @@ const TicketDetail = () => {
                         {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
                       </span>
                     </div>
-                    {message.user_id === user?.id && (
+                    {message.created_by === user?.id && (
                       <Avatar>
                         <AvatarFallback>{profile?.full_name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
                       </Avatar>
