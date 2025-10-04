@@ -513,93 +513,98 @@ const TicketDetail = () => {
                 </div>
                 
                 {(profile?.is_admin || profile?.is_helpdesk) && (
-                  <div className="mt-4 pt-4 border-t space-y-3">
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium">Assign to:</span>
-                      <Select
-                        value={ticket.assigned_to || ""}
-                        onValueChange={handleAssignTicket}
-                        disabled={updating}
-                      >
-                        <SelectTrigger className="w-[250px]">
-                          <SelectValue placeholder="Select team member" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {helpdeskUsers.map((user) => (
-                            <SelectItem key={user.id} value={user.id}>
-                              {user.full_name || user.email}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium">Priority:</span>
-                      <Select
-                        value={ticket.priority}
-                        onValueChange={handlePriorityChange}
-                        disabled={updating}
-                      >
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="low">Low</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="high">High</SelectItem>
-                          <SelectItem value="urgent">Urgent</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium">Category:</span>
-                      <Select
-                        value={ticket.category}
-                        onValueChange={handleCategoryChange}
-                        disabled={updating}
-                      >
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="hardware">Hardware</SelectItem>
-                          <SelectItem value="software">Software</SelectItem>
-                          <SelectItem value="network">Network</SelectItem>
-                          <SelectItem value="access">Access</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium">Update status:</span>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant={ticket.status === "in_progress" ? "default" : "outline"}
-                          onClick={() => handleStatusChange("in_progress")}
-                          disabled={updating || ticket.status === "in_progress"}
+                  <div className="mt-4 pt-4 border-t space-y-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium min-w-[80px]">Assign to:</span>
+                        <Select
+                          value={ticket.assigned_to || ""}
+                          onValueChange={handleAssignTicket}
+                          disabled={updating}
                         >
-                          In Progress
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant={ticket.status === "resolved" ? "default" : "outline"}
-                          onClick={() => handleStatusChange("resolved")}
-                          disabled={updating || ticket.status === "resolved"}
+                          <SelectTrigger className="flex-1">
+                            <SelectValue placeholder="Select team member" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {helpdeskUsers.map((user) => (
+                              <SelectItem key={user.id} value={user.id}>
+                                {user.full_name || user.email}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium min-w-[80px]">Priority:</span>
+                        <Select
+                          value={ticket.priority}
+                          onValueChange={handlePriorityChange}
+                          disabled={updating}
                         >
-                          Resolved
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant={ticket.status === "closed" ? "default" : "outline"}
-                          onClick={() => handleStatusChange("closed")}
-                          disabled={updating || ticket.status === "closed"}
+                          <SelectTrigger className="flex-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="low">Low</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                            <SelectItem value="urgent">Urgent</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium min-w-[80px]">Category:</span>
+                        <Select
+                          value={ticket.category}
+                          onValueChange={handleCategoryChange}
+                          disabled={updating}
                         >
-                          Closed
-                        </Button>
+                          <SelectTrigger className="flex-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="hardware">Hardware</SelectItem>
+                            <SelectItem value="software">Software</SelectItem>
+                            <SelectItem value="network">Network</SelectItem>
+                            <SelectItem value="access">Access</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium min-w-[80px]">Status:</span>
+                        <div className="flex gap-1 flex-1">
+                          <Button
+                            size="sm"
+                            variant={ticket.status === "in_progress" ? "default" : "outline"}
+                            onClick={() => handleStatusChange("in_progress")}
+                            disabled={updating || ticket.status === "in_progress"}
+                            className="flex-1 text-xs px-2"
+                          >
+                            In Progress
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={ticket.status === "resolved" ? "default" : "outline"}
+                            onClick={() => handleStatusChange("resolved")}
+                            disabled={updating || ticket.status === "resolved"}
+                            className="flex-1 text-xs px-2"
+                          >
+                            Resolved
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={ticket.status === "closed" ? "default" : "outline"}
+                            onClick={() => handleStatusChange("closed")}
+                            disabled={updating || ticket.status === "closed"}
+                            className="flex-1 text-xs px-2"
+                          >
+                            Closed
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
