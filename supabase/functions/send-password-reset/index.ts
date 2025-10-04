@@ -43,50 +43,19 @@ serve(async (req) => {
 
     const redirect = redirectTo || `${origin}/auth`;
 
-    // Generate a password recovery (reset) link
-    const { data, error } = await supabaseAdmin.auth.admin.generateLink({
-      type: "recovery",
-      email,
-      options: { redirectTo: redirect },
+    // Use resetPasswordForEmail instead of admin.generateLink for more reliable tokens
+    const { data, error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
+      redirectTo: redirect,
     });
+    
     if (error) {
-      console.error("generateLink error", error);
+      console.error("resetPasswordForEmail error", error);
       throw error;
     }
-    // Prefer the action_link provided by the API
-    const actionLink =
-      (data as any)?.properties?.action_link ??
-      (data as any)?.action_link ??
-      null;
-    if (!actionLink) {
-      console.log("generateLink data without action_link", data);
-      throw new Error("Failed to generate reset link");
-    }
 
-    // Send email asynchronously - don't await
-    resend.emails.send({
-      from: "Lumiforte Support <onboarding@resend.dev>",
-      to: [email],
-      subject: "Reset your password",
-      html: `
-        <h2>Reset your password</h2>
-        <p>Click the button below to reset your password.</p>
-        <p><a href="${actionLink}" style="display:inline-block;padding:10px 14px;background:#0a66c2;color:#fff;text-decoration:none;border-radius:6px">Reset password</a></p>
-        <p>If the button doesn't work, copy and paste this link in your browser:</p>
-        <p><a href="${actionLink}">${actionLink}</a></p>
-      `,
-    }).then((sendRes) => {
-      const sendError = (sendRes as any)?.error;
-      if (sendError) {
-        console.error("Resend send error", sendError);
-      } else {
-        console.log("Resend send result", sendRes);
-      }
-    }).catch((err) => {
-      console.error("Email send failed", err);
-    });
+    console.log("Password reset email sent via Supabase to:", email);
 
-    // Return immediate response
+    // Supabase now sends the email directly - we just return success
     return new Response(
       JSON.stringify({ sent: true }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
