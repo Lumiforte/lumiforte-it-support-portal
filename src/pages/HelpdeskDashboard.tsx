@@ -126,10 +126,10 @@ const HelpdeskDashboard = () => {
 
   const getStatusLabel = (status: string) => {
     const statusMap: Record<string, string> = {
-      open: t("tickets.statusOpen") || "Open",
-      in_progress: t("tickets.statusInProgress") || "In Progress",
-      resolved: t("tickets.statusResolved") || "Resolved",
-      closed: t("tickets.statusClosed") || "Closed",
+      open: "Open",
+      in_progress: "In Progress",
+      resolved: "Resolved",
+      closed: "Closed",
     };
     return statusMap[status] || status;
   };
