@@ -97,6 +97,37 @@ const Layout = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-1 mr-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="h-8 px-3 bg-background border-2 hover:bg-primary hover:text-primary-foreground font-semibold"
+              >
+                EN
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="h-8 px-3 bg-background border-2 hover:bg-primary hover:text-primary-foreground font-semibold"
+              >
+                NL
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="h-8 px-3 bg-background border-2 hover:bg-primary hover:text-primary-foreground font-semibold"
+              >
+                FR
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="h-8 px-3 bg-background border-2 hover:bg-primary hover:text-primary-foreground font-semibold"
+              >
+                DE
+              </Button>
+            </div>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary/80">
@@ -107,6 +138,40 @@ const Layout = () => {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <div className="md:hidden px-2 py-1.5">
+                  <div className="text-xs font-semibold text-muted-foreground mb-2">Language</div>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="h-8 px-3 flex-1 border-2 font-semibold"
+                    >
+                      EN
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="h-8 px-3 flex-1 border-2 font-semibold"
+                    >
+                      NL
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="h-8 px-3 flex-1 border-2 font-semibold"
+                    >
+                      FR
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="h-8 px-3 flex-1 border-2 font-semibold"
+                    >
+                      DE
+                    </Button>
+                  </div>
+                </div>
+                <DropdownMenuSeparator className="md:hidden" />
                 <DropdownMenuItem className="md:hidden" asChild>
                   <Link to="/" className="flex items-center">
                     <Home className="h-4 w-4 mr-2" />
