@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -194,28 +194,44 @@ const TicketDetail = () => {
     }
   };
 
-  const getActivityDescription = (activity: TicketActivity) => {
+  const getActivityDescription = (activity: TicketActivity): ReactNode => {
     const userName = activity.profiles?.full_name || activity.profiles?.email || "System";
     
     switch (activity.action_type) {
       case "created":
-        return `Created the ticket`;
+        return "Created the ticket";
       case "status_changed":
-        return `Changed status from ${activity.old_value} to ${activity.new_value}`;
+        return (
+          <>
+            Changed status from <span className="font-bold">{activity.old_value}</span> to <span className="font-bold">{activity.new_value}</span>
+          </>
+        );
       case "assigned":
         if (!activity.old_value && activity.new_value) {
           const assignedUser = helpdeskUsers.find(u => u.id === activity.new_value);
-          return `Assigned to ${assignedUser?.full_name || assignedUser?.email || 'someone'}`;
+          return (
+            <>
+              Assigned to <span className="font-bold">{assignedUser?.full_name || assignedUser?.email || 'someone'}</span>
+            </>
+          );
         }
-        return `Changed assignment`;
+        return "Changed assignment";
       case "priority_changed":
-        return `Changed priority from ${activity.old_value} to ${activity.new_value}`;
+        return (
+          <>
+            Changed priority from <span className="font-bold">{activity.old_value}</span> to <span className="font-bold">{activity.new_value}</span>
+          </>
+        );
       case "category_changed":
-        return `Changed category from ${activity.old_value} to ${activity.new_value}`;
+        return (
+          <>
+            Changed category from <span className="font-bold">{activity.old_value}</span> to <span className="font-bold">{activity.new_value}</span>
+          </>
+        );
       case "replied_helpdesk":
-        return `Replied (Helpdesk)`;
+        return "Replied (Helpdesk)";
       case "replied_user":
-        return `Replied`;
+        return "Replied";
       default:
         return `Performed action: ${activity.action_type}`;
     }
