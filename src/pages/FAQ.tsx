@@ -44,6 +44,10 @@ const FAQ = () => {
     "Remi Weber": "remi.weber@lumiforte.com",
     "Jeroen Vrieselaar": "jeroen.vrieselaar@lumiforte.com",
     "Jeroen": "jeroen.vrieselaar@lumiforte.com",
+    "Valérie Fornes": "valerie.fornes@lumiforte.com",
+    "Valerie Fornes": "valerie.fornes@lumiforte.com",
+    "Valérie": "valerie.fornes@lumiforte.com",
+    "Valerie": "valerie.fornes@lumiforte.com",
   };
 
   useEffect(() => {
