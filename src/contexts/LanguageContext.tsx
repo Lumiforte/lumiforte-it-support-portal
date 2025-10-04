@@ -109,6 +109,7 @@ const getTranslations = (lang: Language) => {
         myAccount: "Mijn Account",
         language: "Taal",
         copyright: "Alle rechten voorbehouden",
+        comingSoon: "Nederlandse versie komt binnenkort beschikbaar. Gebruik voorlopig de Engelse versie.",
       },
       home: {
         title: "IT Ondersteuningsportaal",
@@ -162,6 +163,7 @@ const getTranslations = (lang: Language) => {
         myAccount: "Mon Compte",
         language: "Langue",
         copyright: "Tous droits réservés",
+        comingSoon: "La version française sera bientôt disponible. Veuillez utiliser la version anglaise pour le moment.",
       },
       home: {
         title: "Portail d'Assistance IT",
@@ -202,7 +204,7 @@ const getTranslations = (lang: Language) => {
       footer: {
         systemDevelopment: "Ce système est en cours de développement et n'est pas encore complet. Les réponses peuvent être incorrectes.",
         feedbackContact: "Si vous avez des commentaires ou souhaitez contribuer à ce portail, veuillez contacter",
-        languageNote: "📝 Note importante : Ce portail a été traduit en français pour faciliter son utilisation. Cependant, lors de la création d'un ticket de support, veuillez rédiger votre demande en anglais afin que notre équipe d'assistance puisse traiter votre demande efficacement.",
+        languageNote: "📝 Note importante : Lors de la création d'un ticket de support, veuillez rédiger votre demande en anglais afin que notre équipe d'assistance puisse traiter votre demande efficacement.",
       }
     },
     de: {
@@ -215,6 +217,7 @@ const getTranslations = (lang: Language) => {
         myAccount: "Mein Konto",
         language: "Sprache",
         copyright: "Alle Rechte vorbehalten",
+        comingSoon: "Deutsche Version in Kürze verfügbar. Bitte verwenden Sie vorerst die englische Version.",
       },
       home: {
         title: "IT-Support-Portal",
@@ -255,7 +258,7 @@ const getTranslations = (lang: Language) => {
       footer: {
         systemDevelopment: "Dieses System befindet sich in der Entwicklung und ist noch nicht vollständig. Antworten können falsch sein.",
         feedbackContact: "Wenn Sie Feedback haben oder zu diesem Portal beitragen möchten, kontaktieren Sie bitte",
-        languageNote: "📝 Wichtiger Hinweis: Dieses Portal wurde ins Deutsche übersetzt, um die Nutzung zu erleichtern. Bei der Erstellung eines Support-Tickets schreiben Sie Ihre Anfrage jedoch bitte auf Englisch, damit unser Support-Team Ihre Anfrage effektiv bearbeiten kann.",
+        languageNote: "📝 Wichtiger Hinweis: Bei der Erstellung eines Support-Tickets schreiben Sie Ihre Anfrage jedoch bitte auf Englisch, damit unser Support-Team Ihre Anfrage effektiv bearbeiten kann.",
       }
     }
   };

@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Search, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -156,6 +157,15 @@ const FAQ = () => {
 
   return (
     <div className="space-y-6">
+        {(language === "nl" || language === "fr" || language === "de") && (
+          <Alert className="bg-accent/20 border-accent">
+            <Search className="h-4 w-4" />
+            <AlertDescription className="ml-2">
+              {t("common.comingSoon")}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div>
           <h1 className="text-3xl font-bold text-primary mb-2">{t("faq.title")}</h1>
           <p className="text-muted-foreground">
@@ -163,15 +173,17 @@ const FAQ = () => {
           </p>
         </div>
 
-        <div className="relative">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder={t("faq.searchPlaceholder")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+        {language === "en" && (
+          <>
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder={t("faq.searchPlaceholder")}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
 
         {Object.keys(groupedFAQs).length === 0 ? (
           <Card>
@@ -220,6 +232,8 @@ const FAQ = () => {
             ))}
           </div>
         )}
+      </>
+    )}
       </div>
   );
 };
