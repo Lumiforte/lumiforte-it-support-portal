@@ -28,7 +28,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <Link to="/faq">
-                <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+                <Button className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
                   <Search className="mr-2 h-4 w-4" />
                   Search FAQ
                 </Button>
@@ -50,7 +50,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <Link to="/tickets/new">
-                <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+                <Button className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
                   <Plus className="mr-2 h-4 w-4" />
                   New Ticket
                 </Button>
@@ -72,7 +72,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <Link to="/tickets">
-                <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+                <Button className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
                   <Ticket className="mr-2 h-4 w-4" />
                   View Tickets
                 </Button>
@@ -94,7 +94,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <Link to="/documents">
-                <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+                <Button className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
                   <FileText className="mr-2 h-4 w-4" />
                   View Documents
                 </Button>
