@@ -84,6 +84,7 @@ const TicketDetail = () => {
   const [helpdeskUsers, setHelpdeskUsers] = useState<HelpdeskUser[]>([]);
   const [updating, setUpdating] = useState(false);
   const [activities, setActivities] = useState<TicketActivity[]>([]);
+  const [allUsers, setAllUsers] = useState<HelpdeskUser[]>([]);
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -95,6 +96,7 @@ const TicketDetail = () => {
       fetchActivities();
       if (profile?.is_admin || profile?.is_helpdesk) {
         fetchHelpdeskUsers();
+        fetchAllUsers();
       }
     }
   }, [id, profile]);
@@ -159,6 +161,20 @@ const TicketDetail = () => {
       }
     } catch (error: any) {
       console.error("Error fetching helpdesk users:", error);
+    }
+  };
+
+  const fetchAllUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, full_name, email")
+        .order("full_name", { ascending: true });
+
+      if (error) throw error;
+      setAllUsers(data || []);
+    } catch (error: any) {
+      console.error("Error fetching all users:", error);
     }
   };
 
@@ -231,6 +247,14 @@ const TicketDetail = () => {
             Changed category from <span className="font-bold">{activity.old_value}</span> to <span className="font-bold">{activity.new_value}</span>
           </>
         );
+      case "submitter_changed":
+        const oldSubmitter = allUsers.find(u => u.id === activity.old_value);
+        const newSubmitter = allUsers.find(u => u.id === activity.new_value);
+        return (
+          <>
+            Changed submitter from <span className="font-bold">{oldSubmitter?.full_name || oldSubmitter?.email || 'unknown'}</span> to <span className="font-bold">{newSubmitter?.full_name || newSubmitter?.email || 'unknown'}</span>
+          </>
+        );
       case "replied_helpdesk":
         return "Replied (Helpdesk)";
       case "replied_user":
@@ -253,6 +277,34 @@ const TicketDetail = () => {
       toast({
         title: "Success",
         description: "Ticket assigned successfully",
+      });
+
+      fetchTicket();
+      fetchActivities();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleChangeSubmitter = async (userId: string) => {
+    setUpdating(true);
+    try {
+      const { error } = await supabase
+        .from("tickets")
+        .update({ created_by: userId })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Submitter changed successfully",
       });
 
       fetchTicket();
@@ -492,7 +544,26 @@ const TicketDetail = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="text-muted-foreground">Submitted by:</span>
-                    <p className="font-medium">{ticket.creator?.full_name || ticket.creator?.email || 'Unknown'}</p>
+                    {(profile?.is_admin || profile?.is_helpdesk) ? (
+                      <Select
+                        value={ticket.created_by}
+                        onValueChange={handleChangeSubmitter}
+                        disabled={updating}
+                      >
+                        <SelectTrigger className="w-full mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {allUsers.map((user) => (
+                            <SelectItem key={user.id} value={user.id}>
+                              {user.full_name || user.email}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <p className="font-medium">{ticket.creator?.full_name || ticket.creator?.email || 'Unknown'}</p>
+                    )}
                   </div>
                   
                   <div>
