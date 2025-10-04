@@ -221,7 +221,7 @@ const Layout = () => {
 
       <footer className="mt-auto border-t border-border bg-card py-6">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} Lumiforte. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Lumiforte Holding BV. All rights reserved.</p>
           <p className="mt-2">This system is under development and not yet complete. Responses may be incorrect.</p>
           <p className="mt-1">
             If you have feedback or would like to contribute to this portal, please contact{" "}
