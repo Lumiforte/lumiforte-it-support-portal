@@ -28,19 +28,19 @@ const App = () => (
         <LanguageProvider>
           <AuthProvider>
             <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route element={<Layout />}>
-              <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-              <Route path="/faq" element={<ProtectedRoute><FAQ /></ProtectedRoute>} />
-              <Route path="/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
-              <Route path="/tickets/new" element={<ProtectedRoute><CreateTicket /></ProtectedRoute>} />
-              <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetail /></ProtectedRoute>} />
-              <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
-              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
+              <Route path="/auth" element={<Auth />} />
+              <Route element={<Layout />}>
+                <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+                <Route path="/faq" element={<ProtectedRoute><FAQ /></ProtectedRoute>} />
+                <Route path="/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
+                <Route path="/tickets/new" element={<ProtectedRoute><CreateTicket /></ProtectedRoute>} />
+                <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetail /></ProtectedRoute>} />
+                <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
       </LanguageProvider>
     </BrowserRouter>
   </TooltipProvider>
