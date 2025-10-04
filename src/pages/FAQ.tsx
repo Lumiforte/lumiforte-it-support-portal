@@ -99,22 +99,26 @@ const FAQ = () => {
 
   const renderContentWithLinks = (content: string) => {
     const nameKeys = Object.keys(nameToEmail).sort((a, b) => b.length - a.length);
-    const pattern = new RegExp(`(/create-ticket|${nameKeys.map(escapeRegex).join("|")})`, "gi");
-    const parts = content.split(pattern);
+    const linkPattern = /\[Create a support ticket\]/gi;
+    const namePattern = new RegExp(`(${nameKeys.map(escapeRegex).join("|")})`, "gi");
+    
+    // Split by both link pattern and name pattern
+    const combinedPattern = new RegExp(`(\\[Create a support ticket\\]|${nameKeys.map(escapeRegex).join("|")})`, "gi");
+    const parts = content.split(combinedPattern);
 
     return (
       <span>
         {parts.filter(Boolean).map((part, i) => {
           const lower = part.toLowerCase();
 
-          if (lower === "/create-ticket") {
+          if (lower === "[create a support ticket]") {
             return (
               <Link
                 key={`ticket-${i}`}
-                to="/create-ticket"
-                className="text-primary hover:underline font-medium"
+                to="/tickets/new"
+                className="text-primary hover:underline font-medium inline-block"
               >
-                /create-ticket
+                Create a support ticket
               </Link>
             );
           }
@@ -136,9 +140,7 @@ const FAQ = () => {
             );
           }
 
-          return (
-            <span key={`text-${i}`}>{part}</span>
-          );
+          return part;
         })}
       </span>
     );
