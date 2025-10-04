@@ -135,7 +135,16 @@ const Auth = () => {
         body: { email, redirectTo: `${window.location.origin}/auth` },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Show friendlier message on rate limiting
+        const status = (error as any)?.status;
+        if (status === 429) {
+          throw new Error("Er is zojuist al een resetlink verzonden. Probeer over een halve minuut opnieuw.");
+        }
+        // Fallback to server-provided error text if available
+        const message = (data as any)?.error || error.message;
+        throw new Error(message);
+      }
 
       toast({
         title: "Password reset email sent!",

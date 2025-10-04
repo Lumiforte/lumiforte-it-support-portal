@@ -47,13 +47,14 @@ serve(async (req) => {
     const { data, error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
       redirectTo: redirect,
     });
-    
     if (error) {
-      console.error("resetPasswordForEmail error", error);
-      throw error;
+      const status = (error as any)?.status || 429;
+      console.error("resetPasswordForEmail error", { status, message: error.message });
+      return new Response(
+        JSON.stringify({ error: error.message }),
+        { status, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
     }
-
-    console.log("Password reset email sent via Supabase to:", email);
 
     // Supabase now sends the email directly - we just return success
     return new Response(
