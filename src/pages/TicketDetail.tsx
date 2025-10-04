@@ -203,7 +203,10 @@ const TicketDetail = () => {
       case "status_changed":
         return (
           <>
-            Changed status from <span className="font-bold">{activity.old_value}</span> to <span className="font-bold">{activity.new_value}</span>
+            Changed status from <span className="font-bold">{activity.old_value}</span> to{" "}
+            <span className={`font-bold ${(activity.new_value === 'resolved' || activity.new_value === 'closed') ? 'text-green-600' : ''}`}>
+              {activity.new_value}
+            </span>
           </>
         );
       case "assigned":
@@ -733,9 +736,9 @@ const TicketDetail = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {activities.map((activity) => (
-                    <TableRow key={activity.id}>
-                      <TableCell className="font-medium">
+                  {activities.map((activity, index) => (
+                    <TableRow key={activity.id} className={index % 2 === 1 ? "bg-[#F5F3EF]" : ""}>
+                      <TableCell>
                         {activity.profiles?.full_name || activity.profiles?.email || "System"}
                       </TableCell>
                       <TableCell>{getActivityDescription(activity)}</TableCell>
