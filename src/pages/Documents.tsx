@@ -11,8 +11,17 @@ interface Document {
   metadata: Record<string, any>;
 }
 
+// Hardcoded documents from public folder
+const publicDocuments: Document[] = [
+  {
+    name: "instructions_video_intercom.pdf",
+    created_at: new Date().toISOString(),
+    metadata: { size: 0 }
+  }
+];
+
 const Documents = () => {
-  const [documents, setDocuments] = useState<Document[]>([]);
+  const [storageDocuments, setStorageDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -31,7 +40,7 @@ const Documents = () => {
         });
 
       if (error) throw error;
-      setDocuments(data || []);
+      setStorageDocuments(data || []);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -43,7 +52,16 @@ const Documents = () => {
     }
   };
 
+  // Combine public documents with storage documents
+  const documents = [...publicDocuments, ...storageDocuments];
+
   const getPublicUrl = (fileName: string) => {
+    // Check if it's a public document
+    if (publicDocuments.some(doc => doc.name === fileName)) {
+      return `/documents/${fileName}`;
+    }
+    
+    // Otherwise get from storage
     const { data } = supabase.storage
       .from("documents")
       .getPublicUrl(fileName);
@@ -59,6 +77,10 @@ const Documents = () => {
   };
 
   const formatFileName = (fileName: string) => {
+    // Special handling for video intercom
+    if (fileName === "instructions_video_intercom.pdf") {
+      return "Video Intercom Instructions";
+    }
     return fileName.replace(/\.(pdf|docx?|xlsx?|pptx?)$/i, "").replace(/_/g, " ");
   };
 
