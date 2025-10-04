@@ -24,6 +24,27 @@ const FAQ = () => {
   const { toast } = useToast();
   const { t, language } = useLanguage();
 
+  const nameToEmail: Record<string, string> = {
+    "Kevin": "kevin.vanbeeck@lumiforte.com",
+    "Kevin Vanbeeck": "kevin.vanbeeck@lumiforte.com",
+    "Carlo": "carlo.reinacher@lumiforte.com",
+    "Carlo Reinacher": "carlo.reinacher@lumiforte.com",
+    "Bas Moeskops": "bas.moeskops@lumiforte.com",
+    "Bas": "bas.moeskops@lumiforte.com",
+    "Daan van Rijen": "daan.vanrijen@lumiforte.com",
+    "Daan": "daan.vanrijen@lumiforte.com",
+    "Jort Gerritsen": "jort.gerritsen@lumiforte.com",
+    "Jort": "jort.gerritsen@lumiforte.com",
+    "Slava": "slava.konizhevskiy@lumiforte.com",
+    "Slava Konizhevskiy": "slava.konizhevskiy@lumiforte.com",
+    "Rémi": "remi.weber@lumiforte.com",
+    "Remi": "remi.weber@lumiforte.com",
+    "Rémi Weber": "remi.weber@lumiforte.com",
+    "Remi Weber": "remi.weber@lumiforte.com",
+    "Jeroen Vrieselaar": "jeroen.vrieselaar@lumiforte.com",
+    "Jeroen": "jeroen.vrieselaar@lumiforte.com",
+  };
+
   useEffect(() => {
     fetchFAQs();
   }, [language]);
@@ -73,6 +94,66 @@ const FAQ = () => {
     acc[category].push(faq);
     return acc;
   }, {} as Record<string, FAQ[]>);
+
+  const renderContentWithLinks = (content: string) => {
+    const parts: (string | JSX.Element)[] = [];
+    let remainingContent = content;
+    let keyCounter = 0;
+
+    // First handle /create-ticket links
+    const ticketParts = remainingContent.split('/create-ticket');
+    
+    ticketParts.forEach((part, partIndex) => {
+      let currentText = part;
+      
+      // For each part, find and replace names with email links
+      Object.entries(nameToEmail).forEach(([name, email]) => {
+        const regex = new RegExp(`\\b${name}\\b`, 'gi');
+        const matches = currentText.match(regex);
+        
+        if (matches) {
+          const segments = currentText.split(regex);
+          const newParts: (string | JSX.Element)[] = [];
+          
+          segments.forEach((segment, segIndex) => {
+            if (segment) {
+              newParts.push(segment);
+            }
+            if (segIndex < matches.length) {
+              newParts.push(
+                <a
+                  key={`email-${keyCounter++}`}
+                  href={`mailto:${email}`}
+                  className="text-primary hover:underline font-medium"
+                >
+                  {matches[segIndex]}
+                </a>
+              );
+            }
+          });
+          
+          currentText = newParts.map(p => typeof p === 'string' ? p : `__LINK_${keyCounter}__`).join('');
+          parts.push(...newParts.filter(p => typeof p !== 'string'));
+        }
+      });
+      
+      parts.push(currentText);
+      
+      if (partIndex < ticketParts.length - 1) {
+        parts.push(
+          <Link
+            key={`ticket-${keyCounter++}`}
+            to="/create-ticket"
+            className="text-primary hover:underline font-medium"
+          >
+            /create-ticket
+          </Link>
+        );
+      }
+    });
+
+    return <span>{parts}</span>;
+  };
 
   if (loading) {
     return (
@@ -127,19 +208,7 @@ const FAQ = () => {
                         <AccordionContent>
                           <div className="space-y-3">
                             <div className="text-muted-foreground whitespace-pre-line">
-                              {faq.content.split('/create-ticket').map((part, index, array) => (
-                                <span key={index}>
-                                  {part}
-                                  {index < array.length - 1 && (
-                                    <Link 
-                                      to="/create-ticket" 
-                                      className="text-primary hover:underline font-medium"
-                                    >
-                                      /create-ticket
-                                    </Link>
-                                  )}
-                                </span>
-                              ))}
+                              {renderContentWithLinks(faq.content)}
                             </div>
                             {faq.tags.length > 0 && (
                               <div className="flex flex-wrap gap-2">
