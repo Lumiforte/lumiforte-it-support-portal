@@ -210,6 +210,8 @@ const TicketDetail = () => {
         return `Changed assignment`;
       case "priority_changed":
         return `Changed priority from ${activity.old_value} to ${activity.new_value}`;
+      case "category_changed":
+        return `Changed category from ${activity.old_value} to ${activity.new_value}`;
       case "replied_helpdesk":
         return `Replied (Helpdesk)`;
       case "replied_user":
@@ -260,6 +262,62 @@ const TicketDetail = () => {
       toast({
         title: "Success",
         description: "Status updated successfully",
+      });
+
+      fetchTicket();
+      fetchActivities();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handlePriorityChange = async (newPriority: "low" | "medium" | "high" | "urgent") => {
+    setUpdating(true);
+    try {
+      const { error } = await supabase
+        .from("tickets")
+        .update({ priority: newPriority })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Priority updated successfully",
+      });
+
+      fetchTicket();
+      fetchActivities();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleCategoryChange = async (newCategory: string) => {
+    setUpdating(true);
+    try {
+      const { error } = await supabase
+        .from("tickets")
+        .update({ category: newCategory })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Category updated successfully",
       });
 
       fetchTicket();
@@ -472,6 +530,45 @@ const TicketDetail = () => {
                               {user.full_name || user.email}
                             </SelectItem>
                           ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium">Priority:</span>
+                      <Select
+                        value={ticket.priority}
+                        onValueChange={handlePriorityChange}
+                        disabled={updating}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                          <SelectItem value="urgent">Urgent</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium">Category:</span>
+                      <Select
+                        value={ticket.category}
+                        onValueChange={handleCategoryChange}
+                        disabled={updating}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="hardware">Hardware</SelectItem>
+                          <SelectItem value="software">Software</SelectItem>
+                          <SelectItem value="network">Network</SelectItem>
+                          <SelectItem value="access">Access</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
