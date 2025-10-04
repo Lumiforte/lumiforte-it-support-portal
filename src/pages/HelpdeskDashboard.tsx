@@ -175,32 +175,32 @@ const HelpdeskDashboard = () => {
               
               <div className="text-xs text-muted-foreground space-y-1">
                 <div className="flex items-center justify-between">
-                  <span>Indiener:</span>
+                  <span>Submitted by:</span>
                   <span className="font-medium">{ticket.profiles?.full_name || ticket.profiles?.email}</span>
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span>Aangemaakt:</span>
+                  <span>Created:</span>
                   <span className="font-medium">{format(new Date(ticket.created_at), 'dd-MM-yyyy HH:mm')}</span>
                 </div>
                 
                 {ticket.assigned_to && ticket.assigned_user && (
                   <div className="flex items-center justify-between">
-                    <span>Behandelaar:</span>
+                    <span>Assigned to:</span>
                     <span className="font-medium">{ticket.assigned_user.full_name || ticket.assigned_user.email}</span>
                   </div>
                 )}
                 
                 {getStatusDate() && (
                   <div className="flex items-center justify-between">
-                    <span>{ticket.status === 'closed' ? 'Gesloten' : 'Opgelost'}:</span>
+                    <span>{ticket.status === 'closed' ? 'Closed' : 'Resolved'}:</span>
                     <span className="font-medium">{getStatusDate()}</span>
                   </div>
                 )}
                 
                 {!ticket.assigned_to && (
                   <div className="flex items-center justify-between text-muted-foreground/70">
-                    <span>Nog niet toegewezen</span>
+                    <span>Not yet assigned</span>
                   </div>
                 )}
               </div>
