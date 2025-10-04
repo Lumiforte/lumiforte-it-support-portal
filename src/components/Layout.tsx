@@ -16,7 +16,8 @@ import {
   LogOut, 
   User, 
   Shield,
-  Menu
+  Menu,
+  FileText
 } from "lucide-react";
 import lumiforteLogo from "@/assets/lumiforte-logo.png";
 
@@ -58,6 +59,16 @@ const Layout = () => {
                 >
                   <HelpCircle className="h-4 w-4 mr-2" />
                   FAQ
+                </Button>
+              </Link>
+              <Link to="/documents">
+                <Button
+                  variant={isActive("/documents") ? "secondary" : "ghost"}
+                  size="sm"
+                  className={isActive("/documents") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-primary/80"}
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Documents
                 </Button>
               </Link>
               <Link to="/tickets">
@@ -106,6 +117,12 @@ const Layout = () => {
                   <Link to="/faq" className="flex items-center">
                     <HelpCircle className="h-4 w-4 mr-2" />
                     FAQ
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="md:hidden" asChild>
+                  <Link to="/documents" className="flex items-center">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Documents
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="md:hidden" asChild>

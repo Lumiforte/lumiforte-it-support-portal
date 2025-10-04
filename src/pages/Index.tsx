@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { HelpCircle, Ticket, Plus, Search, Clock, CheckCircle } from "lucide-react";
+import { HelpCircle, Ticket, Plus, Search, Clock, CheckCircle, FileText } from "lucide-react";
 
 const Index = () => {
   return (
@@ -13,7 +13,7 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -75,6 +75,28 @@ const Index = () => {
                 <Button className="w-full" variant="outline">
                   <Ticket className="mr-2 h-4 w-4" />
                   View Tickets
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-secondary rounded-lg">
+                  <FileText className="h-6 w-6 text-secondary-foreground" />
+                </div>
+                <CardTitle>Documents</CardTitle>
+              </div>
+              <CardDescription>
+                Access important company documents and resources
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link to="/documents">
+                <Button className="w-full" variant="outline">
+                  <FileText className="mr-2 h-4 w-4" />
+                  View Documents
                 </Button>
               </Link>
             </CardContent>
