@@ -155,10 +155,6 @@ const HelpdeskDashboard = () => {
               <div className="flex-1 min-w-0">
                 <CardTitle className="text-lg mb-2 truncate">{ticket.title}</CardTitle>
                 <p className="text-sm text-muted-foreground line-clamp-2">{ticket.description}</p>
-                <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                  <User className="h-3 w-3" />
-                  <span>{ticket.profiles?.full_name || ticket.profiles?.email}</span>
-                </div>
               </div>
               <div className={`w-1 h-20 rounded-full ${priorityColors[ticket.priority as keyof typeof priorityColors]}`} />
             </div>
@@ -178,6 +174,11 @@ const HelpdeskDashboard = () => {
               </div>
               
               <div className="text-xs text-muted-foreground space-y-1">
+                <div className="flex items-center justify-between">
+                  <span>Indiener:</span>
+                  <span className="font-medium">{ticket.profiles?.full_name || ticket.profiles?.email}</span>
+                </div>
+                
                 <div className="flex items-center justify-between">
                   <span>Aangemaakt:</span>
                   <span className="font-medium">{format(new Date(ticket.created_at), 'dd-MM-yyyy HH:mm')}</span>
