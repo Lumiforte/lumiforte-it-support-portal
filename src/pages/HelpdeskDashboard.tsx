@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Clock, CheckCircle, AlertCircle, XCircle, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { formatDistanceToNow, format } from "date-fns";
+import { formatDistanceToNow, format, differenceInDays } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Ticket {
@@ -146,6 +146,8 @@ const HelpdeskDashboard = () => {
       }
       return null;
     };
+    
+    const daysOpen = differenceInDays(new Date(), new Date(ticket.created_at));
 
     return (
       <Link to={`/tickets/${ticket.id}`}>
@@ -182,6 +184,11 @@ const HelpdeskDashboard = () => {
                 <div className="flex items-center gap-2">
                   <span>Created:</span>
                   <span className="font-medium text-foreground">{format(new Date(ticket.created_at), 'dd-MM-yyyy HH:mm')}</span>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <span>Days open:</span>
+                  <span className="font-medium text-foreground">{daysOpen} {daysOpen === 1 ? 'day' : 'days'}</span>
                 </div>
                 
                 {ticket.assigned_to && ticket.assigned_user && (
