@@ -43,20 +43,49 @@ serve(async (req) => {
 
     const redirect = redirectTo || `${origin}/auth`;
 
-    // Use resetPasswordForEmail instead of admin.generateLink for more reliable tokens
-    const { data, error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
-      redirectTo: redirect,
+    // Generate a password recovery (reset) link using admin API
+    const { data, error } = await supabaseAdmin.auth.admin.generateLink({
+      type: "recovery",
+      email,
+      options: { redirectTo: redirect },
     });
+
     if (error) {
-      const status = (error as any)?.status || 429;
-      console.error("resetPasswordForEmail error", { status, message: error.message });
+      const status = (error as any)?.status || 500;
+      console.error("generateLink error", { status, message: error.message });
       return new Response(
         JSON.stringify({ error: error.message }),
         { status, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Supabase now sends the email directly - we just return success
+    const actionLink = (data as any)?.properties?.action_link || (data as any)?.action_link || null;
+    if (!actionLink) {
+      console.error("No action_link in generateLink response", data);
+      return new Response(
+        JSON.stringify({ error: "Kon geen resetlink genereren" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Send via Resend. Avoid clickable anchor to reduce email scanners auto-opening the link
+    const textBody = `Reset je wachtwoord:\n\nKopieer en plak deze link in je browser (klik niet rechtstreeks):\n${actionLink}\n\nDe link is eenmalig geldig.`;
+
+    await resend.emails.send({
+      from: "Lumiforte Support <onboarding@resend.dev>",
+      to: [email],
+      subject: "Reset your password",
+      text: textBody,
+      html: `
+        <div style="font-family:Inter,Arial,sans-serif;line-height:1.6;color:#0f172a">
+          <h2>Reset je wachtwoord</h2>
+          <p>Kopieer en plak onderstaande link in je browser (klik niet rechtstreeks). De link is eenmalig geldig.</p>
+          <pre style="white-space:pre-wrap;word-break:break-all;background:#f8fafc;padding:12px;border-radius:8px">${actionLink}</pre>
+          <p>Werkt het niet? Vraag via het formulier opnieuw een link aan.</p>
+        </div>
+      `,
+    });
+
     return new Response(
       JSON.stringify({ sent: true }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
