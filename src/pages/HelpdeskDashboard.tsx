@@ -148,6 +148,34 @@ const HelpdeskDashboard = () => {
     };
     
     const daysOpen = differenceInDays(new Date(), new Date(ticket.created_at));
+    
+    // Calculate business days (Monday-Friday)
+    const calculateBusinessDays = (startDate: Date, endDate: Date): number => {
+      let count = 0;
+      const current = new Date(startDate);
+      
+      while (current <= endDate) {
+        const dayOfWeek = current.getDay();
+        // 0 = Sunday, 6 = Saturday
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+          count++;
+        }
+        current.setDate(current.getDate() + 1);
+      }
+      
+      return count;
+    };
+    
+    const businessDaysOpen = calculateBusinessDays(new Date(ticket.created_at), new Date());
+    
+    const getDaysOpenStyle = () => {
+      if (businessDaysOpen > 10) {
+        return "bg-red-600 text-white px-2 py-0.5 rounded font-bold";
+      } else if (businessDaysOpen > 3) {
+        return "bg-yellow-400 text-black px-2 py-0.5 rounded font-bold";
+      }
+      return "font-medium text-foreground";
+    };
 
     return (
       <Link to={`/tickets/${ticket.id}`}>
@@ -197,7 +225,7 @@ const HelpdeskDashboard = () => {
                 
                 <div className="flex items-center gap-2">
                   <span>Days open:</span>
-                  <span className="font-medium text-foreground">{daysOpen} {daysOpen === 1 ? 'day' : 'days'}</span>
+                  <span className={getDaysOpenStyle()}>{daysOpen} {daysOpen === 1 ? 'day' : 'days'}</span>
                 </div>
                 
                 {ticket.assigned_to && ticket.assigned_user && (
