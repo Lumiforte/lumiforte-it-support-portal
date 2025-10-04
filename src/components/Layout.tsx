@@ -35,7 +35,7 @@ const Layout = () => {
               <img 
                 src={lumiforteLogo} 
                 alt="Lumiforte" 
-                className="h-20 w-auto"
+                className="h-26 w-auto"
               />
             </Link>
             
