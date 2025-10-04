@@ -461,7 +461,10 @@ const TicketDetail = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate("/tickets")}
+            onClick={() => {
+              console.log("Back to Tickets clicked");
+              navigate("/tickets");
+            }}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Tickets
