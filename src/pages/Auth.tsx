@@ -31,14 +31,30 @@ const Auth = () => {
   }, [user, navigate, isPasswordRecovery]);
 
   useEffect(() => {
-    // Check if this is a password recovery flow
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    // Check for password recovery or error states from the hash
+    const hash = window.location.hash.substring(1);
+    const hashParams = new URLSearchParams(hash);
+
     const type = hashParams.get('type');
-    
+    const error = hashParams.get('error');
+    const errorCode = hashParams.get('error_code');
+    const errorDescription = hashParams.get('error_description');
+
     if (type === 'recovery') {
       setIsPasswordRecovery(true);
     }
-  }, []);
+
+    // Handle expired/invalid links gracefully
+    if (error === 'access_denied' || errorCode === 'otp_expired') {
+      setIsPasswordRecovery(false);
+      setShowForgotPassword(true);
+      toast({
+        title: 'Resetlink verlopen of ongeldig',
+        description: errorDescription || 'Vraag hieronder een nieuwe resetlink aan.',
+        variant: 'destructive',
+      });
+    }
+  }, [toast]);
 
   // Also handle Supabase event which fires on recovery links
   useEffect(() => {
