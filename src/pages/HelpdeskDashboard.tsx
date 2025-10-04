@@ -26,10 +26,12 @@ interface Ticket {
   assigned_user?: {
     full_name: string | null;
     email: string;
+    user_roles?: Array<{ role: string }>;
   };
   profiles: {
     full_name: string | null;
     email: string;
+    user_roles?: Array<{ role: string }>;
   };
 }
 
@@ -90,11 +92,13 @@ const HelpdeskDashboard = () => {
           *,
           creator:profiles!tickets_created_by_fkey (
             full_name,
-            email
+            email,
+            user_roles (role)
           ),
           assigned_user:profiles!tickets_assigned_to_fkey (
             full_name,
-            email
+            email,
+            user_roles (role)
           )
         `)
         .order("created_at", { ascending: false });
@@ -117,6 +121,12 @@ const HelpdeskDashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getUserDisplayName = (user: { full_name: string | null; email: string; user_roles?: Array<{ role: string }> }) => {
+    const name = user.full_name || user.email;
+    const isHelpdesk = user.user_roles?.some(r => r.role === 'helpdesk');
+    return isHelpdesk ? `${name} (Helpdesk)` : name;
   };
 
   const filterTickets = (status: string) => {
@@ -240,7 +250,7 @@ const HelpdeskDashboard = () => {
               <div className="text-xs text-muted-foreground space-y-1">
                 <div className="flex items-center gap-2">
                   <span>Submitted by:</span>
-                  <span className="font-medium text-foreground">{ticket.profiles?.full_name || ticket.profiles?.email}</span>
+                  <span className="font-medium text-foreground">{getUserDisplayName(ticket.profiles)}</span>
                 </div>
                 
                 <div className="flex items-center gap-2">
@@ -256,7 +266,7 @@ const HelpdeskDashboard = () => {
                 {ticket.assigned_to && ticket.assigned_user && (
                   <div className="flex items-center gap-2">
                     <span>Assigned to:</span>
-                    <span className="font-medium text-foreground">{ticket.assigned_user.full_name || ticket.assigned_user.email}</span>
+                    <span className="font-medium text-foreground">{getUserDisplayName(ticket.assigned_user)}</span>
                   </div>
                 )}
                 
