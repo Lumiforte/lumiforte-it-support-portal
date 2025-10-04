@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, Send, Clock, AlertCircle, CheckCircle, XCircle } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
@@ -42,6 +43,12 @@ interface Message {
   is_admin: boolean;
 }
 
+interface HelpdeskUser {
+  id: string;
+  full_name: string | null;
+  email: string;
+}
+
 const statusConfig = {
   open: { label: "Open", icon: Clock, color: "text-blue-500" },
   in_progress: { label: "In Progress", icon: AlertCircle, color: "text-yellow-500" },
@@ -56,6 +63,8 @@ const TicketDetail = () => {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [helpdeskUsers, setHelpdeskUsers] = useState<HelpdeskUser[]>([]);
+  const [updating, setUpdating] = useState(false);
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -64,8 +73,11 @@ const TicketDetail = () => {
     if (id) {
       fetchTicket();
       fetchMessages();
+      if (profile?.is_admin || profile?.is_helpdesk) {
+        fetchHelpdeskUsers();
+      }
     }
-  }, [id]);
+  }, [id, profile]);
 
   const fetchTicket = async () => {
     try {
@@ -98,6 +110,85 @@ const TicketDetail = () => {
       navigate("/tickets");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchHelpdeskUsers = async () => {
+    try {
+      const { data: rolesData, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .in("role", ["admin", "helpdesk"]);
+
+      if (rolesError) throw rolesError;
+
+      const userIds = rolesData?.map(r => r.user_id) || [];
+
+      if (userIds.length > 0) {
+        const { data: usersData, error: usersError } = await supabase
+          .from("profiles")
+          .select("id, full_name, email")
+          .in("id", userIds);
+
+        if (usersError) throw usersError;
+        setHelpdeskUsers(usersData || []);
+      }
+    } catch (error: any) {
+      console.error("Error fetching helpdesk users:", error);
+    }
+  };
+
+  const handleAssignTicket = async (userId: string) => {
+    setUpdating(true);
+    try {
+      const { error } = await supabase
+        .from("tickets")
+        .update({ assigned_to: userId })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Ticket assigned successfully",
+      });
+
+      fetchTicket();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleStatusChange = async (newStatus: "open" | "in_progress" | "resolved" | "closed") => {
+    setUpdating(true);
+    try {
+      const { error } = await supabase
+        .from("tickets")
+        .update({ status: newStatus })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Status updated successfully",
+      });
+
+      fetchTicket();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -230,44 +321,96 @@ const TicketDetail = () => {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                   <div>
-                    <span className="text-muted-foreground">Aangemaakt:</span>
+                    <span className="text-muted-foreground">Created:</span>
                     <p className="font-medium">{format(new Date(ticket.created_at), 'dd-MM-yyyy HH:mm')}</p>
                   </div>
                   
-                  {ticket.assigned_to && ticket.assigned_user && (
+                  {ticket.assigned_to && ticket.assigned_user ? (
                     <div>
-                      <span className="text-muted-foreground">Behandelaar:</span>
+                      <span className="text-muted-foreground">Assigned to:</span>
                       <p className="font-medium">{ticket.assigned_user.full_name || ticket.assigned_user.email}</p>
                     </div>
-                  )}
-                  
-                  {!ticket.assigned_to && (
+                  ) : (
                     <div>
-                      <span className="text-muted-foreground">Behandelaar:</span>
-                      <p className="font-medium text-muted-foreground">Nog niet toegewezen</p>
+                      <span className="text-muted-foreground">Assigned to:</span>
+                      <p className="font-medium text-muted-foreground">Not yet assigned</p>
                     </div>
                   )}
                   
                   {ticket.resolved_at && (
                     <div>
-                      <span className="text-muted-foreground">Opgelost op:</span>
+                      <span className="text-muted-foreground">Resolved on:</span>
                       <p className="font-medium text-green-600">{format(new Date(ticket.resolved_at), 'dd-MM-yyyy HH:mm')}</p>
                     </div>
                   )}
                   
                   {ticket.closed_at && (
                     <div>
-                      <span className="text-muted-foreground">Gesloten op:</span>
+                      <span className="text-muted-foreground">Closed on:</span>
                       <p className="font-medium text-gray-600">{format(new Date(ticket.closed_at), 'dd-MM-yyyy HH:mm')}</p>
                     </div>
                   )}
                 </div>
+                
+                {(profile?.is_admin || profile?.is_helpdesk) && (
+                  <div className="mt-4 pt-4 border-t space-y-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium">Assign to:</span>
+                      <Select
+                        value={ticket.assigned_to || ""}
+                        onValueChange={handleAssignTicket}
+                        disabled={updating}
+                      >
+                        <SelectTrigger className="w-[250px]">
+                          <SelectValue placeholder="Select team member" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {helpdeskUsers.map((user) => (
+                            <SelectItem key={user.id} value={user.id}>
+                              {user.full_name || user.email}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium">Update status:</span>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant={ticket.status === "in_progress" ? "default" : "outline"}
+                          onClick={() => handleStatusChange("in_progress")}
+                          disabled={updating || ticket.status === "in_progress"}
+                        >
+                          In Progress
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={ticket.status === "resolved" ? "default" : "outline"}
+                          onClick={() => handleStatusChange("resolved")}
+                          disabled={updating || ticket.status === "resolved"}
+                        >
+                          Resolved
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={ticket.status === "closed" ? "default" : "outline"}
+                          onClick={() => handleStatusChange("closed")}
+                          disabled={updating || ticket.status === "closed"}
+                        >
+                          Closed
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <div className="bg-muted rounded-lg p-4">
-              <p className="text-sm font-semibold text-muted-foreground mb-2">Beschrijving:</p>
+              <p className="text-sm font-semibold text-muted-foreground mb-2">Description:</p>
               <p className="whitespace-pre-line">{ticket.description}</p>
             </div>
           </CardContent>
