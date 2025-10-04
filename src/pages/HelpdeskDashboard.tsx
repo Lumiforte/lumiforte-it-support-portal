@@ -51,6 +51,7 @@ const HelpdeskDashboard = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
+  const [checkingUnassigned, setCheckingUnassigned] = useState(false);
   const { user, profile } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -131,6 +132,30 @@ const HelpdeskDashboard = () => {
       closed: t("tickets.statusClosed") || "Closed",
     };
     return statusMap[status] || status;
+  };
+
+  const checkUnassignedTickets = async () => {
+    setCheckingUnassigned(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("check-unassigned-tickets");
+
+      if (error) throw error;
+
+      toast({
+        title: "Check Complete",
+        description: data.ticketsNotified > 0 
+          ? `Notification sent for ${data.ticketsNotified} unassigned ticket(s)`
+          : "No tickets require notification",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to check unassigned tickets",
+        variant: "destructive",
+      });
+    } finally {
+      setCheckingUnassigned(false);
+    }
   };
 
   const TicketCard = ({ ticket }: { ticket: Ticket }) => {
@@ -243,8 +268,10 @@ const HelpdeskDashboard = () => {
                 )}
                 
                 {!ticket.assigned_to && (
-                  <div className="flex items-center gap-2 text-muted-foreground/70">
-                    <span>Not yet assigned</span>
+                  <div className="flex items-center gap-2">
+                    <span className={businessDaysOpen > 2 ? "bg-red-600 text-white px-2 py-0.5 rounded font-bold" : "text-muted-foreground/70"}>
+                      Not yet assigned
+                    </span>
                   </div>
                 )}
               </div>
@@ -265,13 +292,29 @@ const HelpdeskDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-primary mb-2">
-          {t("helpdesk.title") || "Helpdesk Dashboard"}
-        </h1>
-        <p className="text-muted-foreground">
-          {t("helpdesk.subtitle") || "View and manage all support tickets"}
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-primary mb-2">
+            {t("helpdesk.title") || "Helpdesk Dashboard"}
+          </h1>
+          <p className="text-muted-foreground">
+            {t("helpdesk.subtitle") || "View and manage all support tickets"}
+          </p>
+        </div>
+        <Button 
+          onClick={checkUnassignedTickets}
+          disabled={checkingUnassigned}
+          variant="outline"
+        >
+          {checkingUnassigned ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Checking...
+            </>
+          ) : (
+            "Check Unassigned Tickets"
+          )}
+        </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
