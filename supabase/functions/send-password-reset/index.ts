@@ -62,7 +62,9 @@ serve(async (req) => {
       console.log("generateLink data without action_link", data);
       throw new Error("Failed to generate reset link");
     }
-    const sendRes = await resend.emails.send({
+
+    // Send email asynchronously - don't await
+    resend.emails.send({
       from: "Lumiforte Support <onboarding@resend.dev>",
       to: [email],
       subject: "Reset your password",
@@ -73,19 +75,20 @@ serve(async (req) => {
         <p>If the button doesn't work, copy and paste this link in your browser:</p>
         <p><a href="${actionLink}">${actionLink}</a></p>
       `,
+    }).then((sendRes) => {
+      const sendError = (sendRes as any)?.error;
+      if (sendError) {
+        console.error("Resend send error", sendError);
+      } else {
+        console.log("Resend send result", sendRes);
+      }
+    }).catch((err) => {
+      console.error("Email send failed", err);
     });
 
-    // Handle Resend response explicitly
-    const sendError = (sendRes as any)?.error;
-    if (sendError) {
-      console.error("Resend send error", sendError);
-      throw new Error(sendError?.message || "Email send failed");
-    }
-    console.log("Resend send result", sendRes);
-    const emailId = (sendRes as any)?.data?.id ?? (sendRes as any)?.id ?? null;
-
+    // Return immediate response
     return new Response(
-      JSON.stringify({ sent: true, id: emailId }),
+      JSON.stringify({ sent: true }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   } catch (err: any) {
