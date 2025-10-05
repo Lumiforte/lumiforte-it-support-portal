@@ -711,11 +711,16 @@ const AdminPanel = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              setEditingUserId(user.id);
-                              setEditingUserName(user.full_name || "");
-                              setEditingUserEmail(user.email);
-                              setEditingUserCompany(user.company || "");
-                              setEditUserDialogOpen(true);
+                              // Reset eerst de dialog state
+                              setEditUserDialogOpen(false);
+                              // Wacht even voordat we de nieuwe data laden
+                              setTimeout(() => {
+                                setEditingUserId(user.id);
+                                setEditingUserName(user.full_name || "");
+                                setEditingUserEmail(user.email);
+                                setEditingUserCompany(user.company || "");
+                                setEditUserDialogOpen(true);
+                              }, 50);
                             }}
                           >
                             <Edit2 className="h-4 w-4 mr-2" />
@@ -786,7 +791,19 @@ const AdminPanel = () => {
           </Card>
 
           {/* Edit User Dialog */}
-          <Dialog open={editUserDialogOpen} onOpenChange={setEditUserDialogOpen}>
+          <Dialog 
+            open={editUserDialogOpen} 
+            onOpenChange={(open) => {
+              setEditUserDialogOpen(open);
+              if (!open) {
+                // Reset alle velden wanneer dialog sluit
+                setEditingUserId(null);
+                setEditingUserName("");
+                setEditingUserEmail("");
+                setEditingUserCompany("");
+              }
+            }}
+          >
             <DialogContent className="max-w-md">
               <DialogHeader>
                 <DialogTitle>Gebruiker wijzigen</DialogTitle>
