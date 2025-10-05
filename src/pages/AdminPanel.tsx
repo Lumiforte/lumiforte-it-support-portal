@@ -855,8 +855,10 @@ const AdminPanel = () => {
                   <Label htmlFor="editUserName">Volledige naam</Label>
                   <Input
                     id="editUserName"
-                    name="user_full_name"
-                    autoComplete="name"
+                    name="user_display_name"
+                    autoComplete="off"
+                    data-lpignore="true"
+                    data-1p-ignore="true"
                     type="text"
                     value={editingUserName}
                     onChange={(e) => setEditingUserName(e.target.value)}
