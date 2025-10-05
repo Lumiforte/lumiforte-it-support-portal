@@ -101,9 +101,17 @@ const TicketDetail = () => {
   const [submitterSearchValue, setSubmitterSearchValue] = useState("");
   const [assignSearchOpen, setAssignSearchOpen] = useState(false);
   const [assignSearchValue, setAssignSearchValue] = useState("");
+  const [isHelpdeskUser, setIsHelpdeskUser] = useState(false);
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Check if user is helpdesk/admin
+    if (profile) {
+      setIsHelpdeskUser(profile.is_admin || profile.is_helpdesk);
+    }
+  }, [profile]);
 
   useEffect(() => {
     if (id) {
@@ -561,7 +569,7 @@ const TicketDetail = () => {
             size="default"
             onClick={() => {
               // Navigate to appropriate page based on user role
-              if (profile?.is_admin || profile?.is_helpdesk) {
+              if (isHelpdeskUser) {
                 navigate("/helpdesk-dashboard");
               } else {
                 navigate("/tickets");
