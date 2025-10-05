@@ -36,7 +36,7 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'
 
 const Analytics = () => {
   const [loading, setLoading] = useState(true);
-  const [period, setPeriod] = useState<"30days" | "ytd">("30days");
+  const [period, setPeriod] = useState<"30days" | "ytd">("ytd");
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
   const [stats, setStats] = useState<TicketStats>({ total: 0, open: 0, in_progress: 0, resolved: 0, closed: 0 });
   const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
