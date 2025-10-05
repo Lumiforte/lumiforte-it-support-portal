@@ -893,14 +893,15 @@ const AdminPanel = () => {
                       <SelectValue placeholder="Select agent" />
                     </SelectTrigger>
                     <SelectContent>
-                      {users
-                        .filter(u => u.user_roles.some(r => r.role === 'helpdesk'))
-                        .map(u => (
-                          <SelectItem key={u.id} value={u.id}>
-                            {u.full_name || u.email}
-                          </SelectItem>
-                        ))
-                      }
+                      {users.map(u => (
+                        <SelectItem key={u.id} value={u.id}>
+                          {u.full_name || u.email}
+                          {u.user_roles.some(r => r.role === 'helpdesk') ? 
+                            " (Helpdesk)" : 
+                            u.user_roles.some(r => r.role === 'admin') ? " (Admin)" : ""
+                          }
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
