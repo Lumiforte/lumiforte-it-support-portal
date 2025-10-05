@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Clock, CheckCircle, AlertCircle, XCircle, User } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, Clock, CheckCircle, AlertCircle, XCircle, User, ArrowUpDown, Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow, format, differenceInDays } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -55,6 +56,8 @@ const HelpdeskDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
   const [checkingUnassigned, setCheckingUnassigned] = useState(false);
+  const [sortBy, setSortBy] = useState<"created" | "status" | "daysOpen">("created");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const { user, profile } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -131,8 +134,44 @@ const HelpdeskDashboard = () => {
   };
 
   const filterTickets = (status: string) => {
-    if (status === "all") return tickets;
-    return tickets.filter((ticket) => ticket.status === status);
+    let filtered = tickets;
+    
+    // Apply status filter
+    if (status !== "all") {
+      filtered = filtered.filter((ticket) => ticket.status === status);
+    }
+    
+    return filtered;
+  };
+  
+  const calculateBusinessDays = (startDate: Date, endDate: Date): number => {
+    let count = 0;
+    const current = new Date(startDate);
+    
+    while (current <= endDate) {
+      const dayOfWeek = current.getDay();
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        count++;
+      }
+      current.setDate(current.getDate() + 1);
+    }
+    
+    return count;
+  };
+  
+  const sortTickets = (ticketsToSort: Ticket[]) => {
+    return [...ticketsToSort].sort((a, b) => {
+      if (sortBy === "status") {
+        const statusOrder = { open: 0, in_progress: 1, resolved: 2, closed: 3 };
+        return statusOrder[a.status as keyof typeof statusOrder] - statusOrder[b.status as keyof typeof statusOrder];
+      } else if (sortBy === "daysOpen") {
+        const aDays = calculateBusinessDays(new Date(a.created_at), new Date());
+        const bDays = calculateBusinessDays(new Date(b.created_at), new Date());
+        return bDays - aDays; // Descending order
+      }
+      // Default: sort by created_at (newest first)
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
   };
 
   const getStatusLabel = (status: string) => {
@@ -169,7 +208,7 @@ const HelpdeskDashboard = () => {
     }
   };
 
-  const TicketCard = ({ ticket }: { ticket: Ticket }) => {
+  const TicketRow = ({ ticket, index }: { ticket: Ticket; index: number }) => {
     const statusInfo = statusConfig[ticket.status as keyof typeof statusConfig];
     const StatusIcon = statusInfo?.icon || Clock;
     
@@ -184,24 +223,6 @@ const HelpdeskDashboard = () => {
     };
     
     const daysOpen = differenceInDays(new Date(), new Date(ticket.created_at));
-    
-    // Calculate business days (Monday-Friday)
-    const calculateBusinessDays = (startDate: Date, endDate: Date): number => {
-      let count = 0;
-      const current = new Date(startDate);
-      
-      while (current <= endDate) {
-        const dayOfWeek = current.getDay();
-        // 0 = Sunday, 6 = Saturday
-        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-          count++;
-        }
-        current.setDate(current.getDate() + 1);
-      }
-      
-      return count;
-    };
-    
     const businessDaysOpen = calculateBusinessDays(new Date(ticket.created_at), new Date());
     
     const getDaysOpenStyle = () => {
@@ -215,83 +236,58 @@ const HelpdeskDashboard = () => {
 
     return (
       <Link to={`/tickets/${ticket.id}`}>
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardHeader>
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <CardTitle className="text-lg mb-2 truncate">{ticket.title}</CardTitle>
-                <p className="text-sm text-muted-foreground line-clamp-2">{ticket.description}</p>
-              </div>
-              <div className={`w-1 h-20 rounded-full ${priorityColors[ticket.priority as keyof typeof priorityColors]}`} />
+        <div className={`grid grid-cols-12 gap-3 p-3 hover:shadow-md transition-shadow cursor-pointer border-b ${
+          index % 2 === 0 ? 'bg-background' : 'bg-accent/10'
+        }`}>
+          {/* Priority indicator */}
+          <div className="col-span-12 md:col-span-1 flex md:justify-center items-center">
+            <div className={`w-3 h-3 rounded-full ${priorityColors[ticket.priority as keyof typeof priorityColors]}`} title={ticket.priority} />
+          </div>
+          
+          {/* Title & Description */}
+          <div className="col-span-12 md:col-span-4">
+            <div className="font-semibold text-sm truncate mb-1">{ticket.title}</div>
+            <div className="text-xs text-muted-foreground line-clamp-1">{ticket.description}</div>
+          </div>
+          
+          {/* Status & Category */}
+          <div className="col-span-6 md:col-span-2 flex flex-col gap-1">
+            <Badge variant="outline" className="w-fit text-xs">
+              <StatusIcon className="h-3 w-3 mr-1" />
+              {getStatusLabel(ticket.status)}
+            </Badge>
+            <Badge variant="outline" className="w-fit text-xs capitalize">
+              {ticket.category}
+            </Badge>
+          </div>
+          
+          {/* Submitted by */}
+          <div className="col-span-6 md:col-span-2">
+            <div className="text-xs text-muted-foreground">Submitted by:</div>
+            <div className="text-xs font-medium truncate">{getUserDisplayName(ticket.profiles)}</div>
+          </div>
+          
+          {/* Days open */}
+          <div className="col-span-6 md:col-span-1">
+            <div className="text-xs text-muted-foreground">Days open:</div>
+            <div className={`text-xs ${getDaysOpenStyle()}`}>{daysOpen}</div>
+          </div>
+          
+          {/* Assigned to */}
+          <div className="col-span-6 md:col-span-2">
+            <div className="text-xs text-muted-foreground">
+              {ticket.assigned_to ? "Assigned:" : "Status:"}
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline">
-                    <StatusIcon className="h-3 w-3 mr-1" />
-                    {getStatusLabel(ticket.status)}
-                  </Badge>
-                  <Badge 
-                    variant="outline" 
-                    className={`capitalize ${
-                      ticket.priority === 'high' 
-                        ? 'text-orange-600 font-bold border-orange-600' 
-                        : ticket.priority === 'urgent'
-                        ? 'bg-red-600 text-white font-bold border-red-600'
-                        : ''
-                    }`}
-                  >
-                    {ticket.priority}
-                  </Badge>
-                  <Badge variant="outline" className="capitalize">
-                    {ticket.category}
-                  </Badge>
-                </div>
-              </div>
-              
-              <div className="text-xs text-muted-foreground space-y-1">
-                <div className="flex items-center gap-2">
-                  <span>Submitted by:</span>
-                  <span className="font-medium text-foreground">{getUserDisplayName(ticket.profiles)}</span>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <span>Created:</span>
-                  <span className="font-medium text-foreground">{format(new Date(ticket.created_at), 'dd-MM-yyyy HH:mm')}</span>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <span>Days open:</span>
-                  <span className={getDaysOpenStyle()}>{daysOpen} {daysOpen === 1 ? 'day' : 'days'}</span>
-                </div>
-                
-                {ticket.assigned_to && ticket.assigned_user && (
-                  <div className="flex items-center gap-2">
-                    <span>Assigned to:</span>
-                    <span className="font-medium text-foreground">{getUserDisplayName(ticket.assigned_user)}</span>
-                  </div>
-                )}
-                
-                {getStatusDate() && (
-                  <div className="flex items-center gap-2">
-                    <span>{ticket.status === 'closed' ? 'Closed' : 'Resolved'}:</span>
-                    <span className="font-medium text-foreground">{getStatusDate()}</span>
-                  </div>
-                )}
-                
-                {!ticket.assigned_to && (
-                  <div className="flex items-center gap-2">
-                    <span className={businessDaysOpen > 2 ? "bg-red-600 text-white px-2 py-0.5 rounded font-bold" : "text-muted-foreground/70"}>
-                      Not yet assigned
-                    </span>
-                  </div>
-                )}
-              </div>
+            <div className="text-xs font-medium truncate">
+              {ticket.assigned_to && ticket.assigned_user 
+                ? getUserDisplayName(ticket.assigned_user)
+                : <span className={businessDaysOpen > 2 ? "bg-red-600 text-white px-1.5 py-0.5 rounded font-bold" : "text-muted-foreground"}>
+                    Unassigned
+                  </span>
+              }
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </Link>
     );
   };
@@ -306,7 +302,7 @@ const HelpdeskDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold text-primary mb-2">
             {t("helpdesk.title") || "Helpdesk Dashboard"}
@@ -315,56 +311,84 @@ const HelpdeskDashboard = () => {
             {t("helpdesk.subtitle") || "View and manage all support tickets"}
           </p>
         </div>
-        <Button 
-          onClick={checkUnassignedTickets}
-          disabled={checkingUnassigned}
-          variant="outline"
-        >
-          {checkingUnassigned ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Checking...
-            </>
-          ) : (
-            "Check Unassigned Tickets"
-          )}
-        </Button>
+        
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Filter status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="open">Open</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="resolved">Resolved</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+            <Select value={sortBy} onValueChange={(value) => setSortBy(value as "created" | "status" | "daysOpen")}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="created">Created Date</SelectItem>
+                <SelectItem value="status">Status</SelectItem>
+                <SelectItem value="daysOpen">Days Open</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <Button 
+            onClick={checkUnassignedTickets}
+            disabled={checkingUnassigned}
+            variant="outline"
+            size="sm"
+          >
+            {checkingUnassigned ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Checking...
+              </>
+            ) : (
+              "Check Unassigned"
+            )}
+          </Button>
+        </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="all">
-            {t("common.all") || "All"} ({tickets.length})
-          </TabsTrigger>
-          <TabsTrigger value="open">
-            {getStatusLabel("open")} ({filterTickets("open").length})
-          </TabsTrigger>
-          <TabsTrigger value="in_progress">
-            {getStatusLabel("in_progress")} ({filterTickets("in_progress").length})
-          </TabsTrigger>
-          <TabsTrigger value="resolved">
-            {getStatusLabel("resolved")} ({filterTickets("resolved").length})
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value={activeTab} className="space-y-4">
-          {filterTickets(activeTab === "all" ? "all" : activeTab).length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground">
-                  {activeTab === "all" 
-                    ? t("helpdesk.noTickets") || "No tickets found."
-                    : `${t("common.no") || "No"} ${getStatusLabel(activeTab)} ${t("common.tickets") || "tickets"}.`}
-                </p>
-              </CardContent>
-            </Card>
+      <Card>
+        <CardContent className="p-0">
+          {sortTickets(filterTickets(statusFilter)).length === 0 ? (
+            <div className="py-12 text-center">
+              <p className="text-muted-foreground">
+                {t("helpdesk.noTickets") || "No tickets found."}
+              </p>
+            </div>
           ) : (
-            filterTickets(activeTab === "all" ? "all" : activeTab).map((ticket) => (
-              <TicketCard key={ticket.id} ticket={ticket} />
-            ))
+            <div className="divide-y">
+              {/* Header */}
+              <div className="grid grid-cols-12 gap-3 p-3 bg-muted/50 font-semibold text-xs text-muted-foreground hidden md:grid">
+                <div className="col-span-1 text-center">Priority</div>
+                <div className="col-span-4">Ticket</div>
+                <div className="col-span-2">Status</div>
+                <div className="col-span-2">Submitted By</div>
+                <div className="col-span-1">Days</div>
+                <div className="col-span-2">Assigned To</div>
+              </div>
+              
+              {/* Rows */}
+              {sortTickets(filterTickets(statusFilter)).map((ticket, index) => (
+                <TicketRow key={ticket.id} ticket={ticket} index={index} />
+              ))}
+            </div>
           )}
-        </TabsContent>
-      </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };
