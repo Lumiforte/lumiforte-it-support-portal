@@ -855,9 +855,8 @@ const AdminPanel = () => {
                   <Label htmlFor="editUserName">Volledige naam</Label>
                   <Input
                     id="editUserName"
-                    name="full_name"
-                    autoComplete="off"
-                    autoCapitalize="words"
+                    name="user_full_name"
+                    autoComplete="name"
                     type="text"
                     value={editingUserName}
                     onChange={(e) => setEditingUserName(e.target.value)}
@@ -868,7 +867,7 @@ const AdminPanel = () => {
                   <Label htmlFor="editUserEmail">E-mailadres</Label>
                   <Input
                     id="editUserEmail"
-                    name="email"
+                    name="user_email"
                     autoComplete="email"
                     type="email"
                     value={editingUserEmail}
