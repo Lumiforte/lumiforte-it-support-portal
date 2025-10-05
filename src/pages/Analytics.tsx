@@ -6,10 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Loader2, TrendingUp, Users, Ticket, CheckCircle, Building2, Filter } from "lucide-react";
+import { Loader2, TrendingUp, Users, Ticket, CheckCircle, Building2, Filter, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { format, subDays, startOfYear } from "date-fns";
+import { format, subDays, startOfYear, differenceInHours, differenceInDays } from "date-fns";
 import { COMPANIES, getCompanyColor } from "@/lib/companies";
 
 interface TicketStats {
@@ -18,6 +18,7 @@ interface TicketStats {
   in_progress: number;
   resolved: number;
   closed: number;
+  avgResolutionTimeHours?: number;
 }
 
 interface CategoryData {
@@ -32,6 +33,11 @@ interface UserData {
   company?: string | null;
 }
 
+interface ResolutionTimeData {
+  range: string;
+  count: number;
+}
+
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
 const Analytics = () => {
@@ -43,6 +49,8 @@ const Analytics = () => {
   const [userData, setUserData] = useState<UserData[]>([]);
   const [assigneeData, setAssigneeData] = useState<UserData[]>([]);
   const [companyData, setCompanyData] = useState<CategoryData[]>([]);
+  const [resolutionTimeData, setResolutionTimeData] = useState<ResolutionTimeData[]>([]);
+  const [avgCategoryResolutionTime, setAvgCategoryResolutionTime] = useState<CategoryData[]>([]);
   const { profile } = useAuth();
   const { toast } = useToast();
 
@@ -151,6 +159,70 @@ const Analytics = () => {
       const companies = Array.from(companyMap.entries()).map(([name, count]) => ({ name, count }))
         .sort((a, b) => b.count - a.count);
       setCompanyData(companies);
+
+      // Calculate resolution time data
+      const resolvedTickets = filteredTickets?.filter(t => t.resolved_at || t.closed_at) || [];
+      const resolutionTimes: number[] = [];
+      
+      resolvedTickets.forEach(ticket => {
+        const endDate = new Date(ticket.resolved_at || ticket.closed_at!);
+        const startDate = new Date(ticket.created_at);
+        const hoursToResolve = differenceInHours(endDate, startDate);
+        resolutionTimes.push(hoursToResolve);
+      });
+
+      // Calculate average resolution time
+      const avgResolutionTime = resolutionTimes.length > 0
+        ? resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length
+        : 0;
+
+      // Update stats with average resolution time
+      setStats({
+        ...ticketStats,
+        avgResolutionTimeHours: avgResolutionTime
+      });
+
+      // Group by time ranges
+      const timeRanges = [
+        { range: "< 1 day", count: 0, max: 24 },
+        { range: "1-3 days", count: 0, max: 72 },
+        { range: "3-7 days", count: 0, max: 168 },
+        { range: "1-2 weeks", count: 0, max: 336 },
+        { range: "> 2 weeks", count: 0, max: Infinity }
+      ];
+
+      resolutionTimes.forEach(hours => {
+        if (hours < 24) timeRanges[0].count++;
+        else if (hours < 72) timeRanges[1].count++;
+        else if (hours < 168) timeRanges[2].count++;
+        else if (hours < 336) timeRanges[3].count++;
+        else timeRanges[4].count++;
+      });
+
+      setResolutionTimeData(timeRanges.filter(r => r.count > 0));
+
+      // Calculate average resolution time per category
+      const categoryResolutionMap = new Map<string, { total: number; count: number }>();
+      resolvedTickets.forEach(ticket => {
+        const endDate = new Date(ticket.resolved_at || ticket.closed_at!);
+        const startDate = new Date(ticket.created_at);
+        const daysToResolve = differenceInDays(endDate, startDate);
+        
+        const existing = categoryResolutionMap.get(ticket.category) || { total: 0, count: 0 };
+        categoryResolutionMap.set(ticket.category, {
+          total: existing.total + daysToResolve,
+          count: existing.count + 1
+        });
+      });
+
+      const categoryResolution = Array.from(categoryResolutionMap.entries())
+        .map(([name, data]) => ({
+          name,
+          count: Math.round(data.total / data.count * 10) / 10 // Average days, rounded to 1 decimal
+        }))
+        .sort((a, b) => b.count - a.count);
+      setAvgCategoryResolutionTime(categoryResolution);
+
 
     } catch (error: any) {
       toast({
@@ -299,14 +371,44 @@ const Analytics = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Companies</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Avg Resolution Time</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{companyData.length}</div>
+            <div className="text-2xl font-bold">
+              {stats.avgResolutionTimeHours !== undefined && stats.avgResolutionTimeHours > 0
+                ? stats.avgResolutionTimeHours < 48
+                  ? `${Math.round(stats.avgResolutionTimeHours)}h`
+                  : `${Math.round(stats.avgResolutionTimeHours / 24)}d`
+                : "N/A"
+              }
+            </div>
+            <p className="text-xs text-muted-foreground">
+              For resolved tickets
+            </p>
           </CardContent>
         </Card>
       </div>
+
+      {/* Resolution Time Card */}
+      {resolutionTimeData.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Resolution Time Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={resolutionTimeData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="range" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#8884d8" name="Tickets" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Charts */}
       <div className="grid gap-6 md:grid-cols-2">
@@ -413,6 +515,26 @@ const Analytics = () => {
             </ResponsiveContainer>
           </CardContent>
         </Card>
+
+        {/* Average Resolution Time by Category */}
+        {avgCategoryResolutionTime.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Avg Resolution Time by Category</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={avgCategoryResolutionTime} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" label={{ value: 'Days', position: 'insideBottom', offset: -5 }} />
+                  <YAxis dataKey="name" type="category" width={150} />
+                  <Tooltip formatter={(value) => `${value} days`} />
+                  <Bar dataKey="count" fill="#FFBB28" name="Avg Days to Resolve" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
