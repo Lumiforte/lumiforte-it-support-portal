@@ -5,17 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle, Mail, UserX, UserCheck, Edit2, ArrowRightLeft, UserPlus, Search, ChevronsUpDown, Check } from "lucide-react";
+import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle, Mail, UserX, UserCheck, Edit2, ArrowRightLeft, UserPlus, Search } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { cn } from "@/lib/utils";
 import { COMPANIES } from "@/lib/companies";
 
 interface TicketWithUser {
@@ -77,7 +74,6 @@ const AdminPanel = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [editCompanyDialogOpen, setEditCompanyDialogOpen] = useState(false);
   const [editingUserCompany, setEditingUserCompany] = useState("");
-  const [companySearchOpen, setCompanySearchOpen] = useState(false);
   const [companyUpdateLoading, setCompanyUpdateLoading] = useState(false);
   const { toast } = useToast();
 
@@ -871,52 +867,23 @@ const AdminPanel = () => {
                                 <DialogContent>
                                   <DialogHeader>
                                     <DialogTitle>Edit Company</DialogTitle>
+                                    <DialogDescription>Select the company for this user.</DialogDescription>
                                   </DialogHeader>
                                   <div className="space-y-4">
                                     <div className="space-y-2">
-                                      <Label htmlFor="company">Company</Label>
-                                      <Popover open={companySearchOpen} onOpenChange={setCompanySearchOpen}>
-                                        <PopoverTrigger asChild>
-                                          <Button
-                                            id="company"
-                                            variant="outline"
-                                            role="combobox"
-                                            aria-expanded={companySearchOpen}
-                                            className="w-full justify-between"
-                                          >
-                                            {editingUserCompany || "Select company..."}
-                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                          </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-full p-0">
-                                          <Command>
-                                            <CommandInput placeholder="Search company..." />
-                                            <CommandList>
-                                              <CommandEmpty>No company found.</CommandEmpty>
-                                              <CommandGroup>
-                                                {COMPANIES.map((companyOption) => (
-                                                  <CommandItem
-                                                    key={companyOption.value}
-                                                    value={companyOption.value}
-                                                    onSelect={(currentValue) => {
-                                                      setEditingUserCompany(currentValue === editingUserCompany ? "" : currentValue);
-                                                      setCompanySearchOpen(false);
-                                                    }}
-                                                  >
-                                                    <Check
-                                                      className={cn(
-                                                        "mr-2 h-4 w-4",
-                                                        editingUserCompany === companyOption.value ? "opacity-100" : "opacity-0"
-                                                      )}
-                                                    />
-                                                    {companyOption.label}
-                                                  </CommandItem>
-                                                ))}
-                                              </CommandGroup>
-                                            </CommandList>
-                                          </Command>
-                                        </PopoverContent>
-                                      </Popover>
+                                      <Label htmlFor="companySelectExisting">Company</Label>
+                                      <Select value={editingUserCompany} onValueChange={setEditingUserCompany}>
+                                        <SelectTrigger id="companySelectExisting">
+                                          <SelectValue placeholder="Select company..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {COMPANIES.map((companyOption) => (
+                                            <SelectItem key={companyOption.value} value={companyOption.value}>
+                                              {companyOption.label}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
                                     </div>
                                     <Button 
                                       onClick={handleCompanyUpdate} 
@@ -949,52 +916,23 @@ const AdminPanel = () => {
                               <DialogContent>
                                 <DialogHeader>
                                   <DialogTitle>Edit Company</DialogTitle>
+                                  <DialogDescription>Select the company for this user.</DialogDescription>
                                 </DialogHeader>
                                 <div className="space-y-4">
                                   <div className="space-y-2">
-                                    <Label htmlFor="company">Company</Label>
-                                    <Popover open={companySearchOpen} onOpenChange={setCompanySearchOpen}>
-                                      <PopoverTrigger asChild>
-                                        <Button
-                                          id="company"
-                                          variant="outline"
-                                          role="combobox"
-                                          aria-expanded={companySearchOpen}
-                                          className="w-full justify-between"
-                                        >
-                                          {editingUserCompany || "Select company..."}
-                                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                        </Button>
-                                      </PopoverTrigger>
-                                      <PopoverContent className="w-full p-0">
-                                        <Command>
-                                          <CommandInput placeholder="Search company..." />
-                                          <CommandList>
-                                            <CommandEmpty>No company found.</CommandEmpty>
-                                            <CommandGroup>
-                                              {COMPANIES.map((companyOption) => (
-                                                <CommandItem
-                                                  key={companyOption.value}
-                                                  value={companyOption.value}
-                                                  onSelect={(currentValue) => {
-                                                    setEditingUserCompany(currentValue === editingUserCompany ? "" : currentValue);
-                                                    setCompanySearchOpen(false);
-                                                  }}
-                                                >
-                                                  <Check
-                                                    className={cn(
-                                                      "mr-2 h-4 w-4",
-                                                      editingUserCompany === companyOption.value ? "opacity-100" : "opacity-0"
-                                                    )}
-                                                  />
-                                                  {companyOption.label}
-                                                </CommandItem>
-                                              ))}
-                                            </CommandGroup>
-                                          </CommandList>
-                                        </Command>
-                                      </PopoverContent>
-                                    </Popover>
+                                    <Label htmlFor="companySelect">Company</Label>
+                                    <Select value={editingUserCompany} onValueChange={setEditingUserCompany}>
+                                      <SelectTrigger id="companySelect">
+                                        <SelectValue placeholder="Select company..." />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {COMPANIES.map((companyOption) => (
+                                          <SelectItem key={companyOption.value} value={companyOption.value}>
+                                            {companyOption.label}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
                                   </div>
                                   <Button 
                                     onClick={handleCompanyUpdate} 
