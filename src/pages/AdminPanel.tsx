@@ -641,7 +641,7 @@ const AdminPanel = () => {
                       <div
                         key={user.id}
                         className={`flex items-center justify-between p-3 ${
-                          index % 2 === 0 ? 'bg-muted/30' : 'bg-background'
+                          index % 2 === 0 ? 'bg-accent/40' : 'bg-background'
                         }`}
                       >
                         <div className="flex-1 min-w-0">
