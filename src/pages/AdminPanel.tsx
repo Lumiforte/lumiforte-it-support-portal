@@ -711,16 +711,17 @@ const AdminPanel = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              // Reset eerst de dialog state
-                              setEditUserDialogOpen(false);
-                              // Wacht even voordat we de nieuwe data laden
-                              setTimeout(() => {
-                                setEditingUserId(user.id);
-                                setEditingUserName(user.full_name || "");
-                                setEditingUserEmail(user.email);
-                                setEditingUserCompany(user.company || "");
-                                setEditUserDialogOpen(true);
-                              }, 50);
+                              console.log('Opening dialog for user:', {
+                                id: user.id,
+                                name: user.full_name,
+                                email: user.email,
+                                company: user.company
+                              });
+                              setEditingUserId(user.id);
+                              setEditingUserName(user.full_name || "");
+                              setEditingUserEmail(user.email);
+                              setEditingUserCompany(user.company || "");
+                              setEditUserDialogOpen(true);
                             }}
                           >
                             <Edit2 className="h-4 w-4 mr-2" />
@@ -816,6 +817,7 @@ const AdminPanel = () => {
                   <Label htmlFor="editUserName">Volledige naam</Label>
                   <Input
                     id="editUserName"
+                    type="text"
                     value={editingUserName}
                     onChange={(e) => setEditingUserName(e.target.value)}
                     placeholder="Jan Jansen"
