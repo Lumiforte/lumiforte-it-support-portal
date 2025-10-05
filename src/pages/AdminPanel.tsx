@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle } from "lucide-react";
+import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle, Mail } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface TicketWithUser {
@@ -49,6 +51,9 @@ const AdminPanel = () => {
   });
   const [loading, setLoading] = useState(true);
   const [usersLoading, setUsersLoading] = useState(true);
+  const [oldEmail, setOldEmail] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [emailUpdateLoading, setEmailUpdateLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -217,6 +222,46 @@ const AdminPanel = () => {
     }
   };
 
+  const handleEmailUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!oldEmail || !newEmail) {
+      toast({
+        title: "Error",
+        description: "Please fill in both email fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setEmailUpdateLoading(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('update-user-email', {
+        body: { oldEmail, newEmail }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: data.message || "Email address successfully updated",
+      });
+
+      setOldEmail("");
+      setNewEmail("");
+      fetchUsers();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update email address",
+        variant: "destructive",
+      });
+    } finally {
+      setEmailUpdateLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -236,6 +281,7 @@ const AdminPanel = () => {
         <TabsList>
           <TabsTrigger value="tickets">Tickets</TabsTrigger>
           <TabsTrigger value="users">Users & Roles</TabsTrigger>
+          <TabsTrigger value="email">Change Email</TabsTrigger>
         </TabsList>
 
         <TabsContent value="tickets" className="space-y-6">
@@ -413,6 +459,50 @@ const AdminPanel = () => {
                   )}
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="email">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Mail className="h-5 w-5" />
+                Change User Email Address
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleEmailUpdate} className="space-y-4 max-w-md">
+                <div className="space-y-2">
+                  <Label htmlFor="oldEmail">Current Email Address</Label>
+                  <Input
+                    id="oldEmail"
+                    type="email"
+                    placeholder="jeroen@mardenkro.com"
+                    value={oldEmail}
+                    onChange={(e) => setOldEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="newEmail">New Email Address</Label>
+                  <Input
+                    id="newEmail"
+                    type="email"
+                    placeholder="pietje@lumiforte.dev"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <Button type="submit" disabled={emailUpdateLoading}>
+                  {emailUpdateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Update Email Address
+                </Button>
+                <p className="text-sm text-muted-foreground">
+                  This will update the email address in both the authentication system and the user profile. All ticket history will be preserved.
+                </p>
+              </form>
             </CardContent>
           </Card>
         </TabsContent>
