@@ -8,10 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, Send, Clock, AlertCircle, CheckCircle, XCircle, Activity } from "lucide-react";
+import { Loader2, ArrowLeft, Send, Clock, AlertCircle, CheckCircle, XCircle, Activity, Check, ChevronsUpDown } from "lucide-react";
 import { formatDistanceToNow, format, differenceInDays } from "date-fns";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 interface Ticket {
   id: string;
@@ -85,6 +88,8 @@ const TicketDetail = () => {
   const [updating, setUpdating] = useState(false);
   const [activities, setActivities] = useState<TicketActivity[]>([]);
   const [allUsers, setAllUsers] = useState<HelpdeskUser[]>([]);
+  const [submitterSearchOpen, setSubmitterSearchOpen] = useState(false);
+  const [submitterSearchValue, setSubmitterSearchValue] = useState("");
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -554,22 +559,63 @@ const TicketDetail = () => {
                   <div>
                     <span className="text-muted-foreground">Submitted by:</span>
                     {(profile?.is_admin || profile?.is_helpdesk) ? (
-                      <Select
-                        value={ticket.created_by}
-                        onValueChange={handleChangeSubmitter}
-                        disabled={updating}
-                      >
-                        <SelectTrigger className="w-full mt-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {allUsers.map((user) => (
-                            <SelectItem key={user.id} value={user.id}>
-                              {user.full_name || user.email}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Popover open={submitterSearchOpen} onOpenChange={setSubmitterSearchOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={submitterSearchOpen}
+                            className="w-full justify-between mt-1"
+                            disabled={updating}
+                          >
+                            {ticket.creator?.full_name || ticket.creator?.email || 'Select user...'}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[300px] p-0">
+                          <Command>
+                            <CommandInput 
+                              placeholder="Search users..." 
+                              value={submitterSearchValue}
+                              onValueChange={setSubmitterSearchValue}
+                            />
+                            <CommandList>
+                              <CommandEmpty>No user found.</CommandEmpty>
+                              <CommandGroup>
+                                {allUsers
+                                  .filter(u => 
+                                    (u.full_name?.toLowerCase().includes(submitterSearchValue.toLowerCase()) || 
+                                    u.email.toLowerCase().includes(submitterSearchValue.toLowerCase()))
+                                  )
+                                  .map((user) => (
+                                    <CommandItem
+                                      key={user.id}
+                                      value={user.id}
+                                      onSelect={() => {
+                                        handleChangeSubmitter(user.id);
+                                        setSubmitterSearchOpen(false);
+                                        setSubmitterSearchValue("");
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          ticket.created_by === user.id ? "opacity-100" : "opacity-0"
+                                        )}
+                                      />
+                                      <div className="flex flex-col">
+                                        <span>{user.full_name || user.email}</span>
+                                        {user.full_name && (
+                                          <span className="text-xs text-muted-foreground">{user.email}</span>
+                                        )}
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     ) : (
                       <p className="font-medium">{ticket.creator?.full_name || ticket.creator?.email || 'Unknown'}</p>
                     )}
