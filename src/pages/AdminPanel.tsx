@@ -67,6 +67,8 @@ const AdminPanel = () => {
   const [fromHelpdesk, setFromHelpdesk] = useState("");
   const [toHelpdesk, setToHelpdesk] = useState("");
   const [transferLoading, setTransferLoading] = useState(false);
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [sortByRole, setSortByRole] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -425,6 +427,35 @@ const AdminPanel = () => {
     );
   };
 
+  const getFilteredAndSortedUsers = () => {
+    let filteredUsers = users;
+
+    // Filter by role
+    if (roleFilter !== "all") {
+      filteredUsers = filteredUsers.filter(user => 
+        user.user_roles.some(r => r.role === roleFilter)
+      );
+    }
+
+    // Sort by role
+    if (sortByRole) {
+      filteredUsers = [...filteredUsers].sort((a, b) => {
+        const aHasAdmin = a.user_roles.some(r => r.role === 'admin');
+        const bHasAdmin = b.user_roles.some(r => r.role === 'admin');
+        const aHasHelpdesk = a.user_roles.some(r => r.role === 'helpdesk');
+        const bHasHelpdesk = b.user_roles.some(r => r.role === 'helpdesk');
+        
+        if (aHasAdmin && !bHasAdmin) return -1;
+        if (!aHasAdmin && bHasAdmin) return 1;
+        if (aHasHelpdesk && !bHasHelpdesk) return -1;
+        if (!aHasHelpdesk && bHasHelpdesk) return 1;
+        return 0;
+      });
+    }
+
+    return filteredUsers;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -634,10 +665,10 @@ const AdminPanel = () => {
                 </div>
               ) : (
                 <div className="space-y-1">
-                  {users.length === 0 ? (
+                  {getFilteredAndSortedUsers().length === 0 ? (
                     <p className="text-center text-muted-foreground py-8">No users found.</p>
                   ) : (
-                    users.map((user, index) => (
+                    getFilteredAndSortedUsers().map((user, index) => (
                       <div
                         key={user.id}
                         className={`flex items-center justify-between p-3 ${
