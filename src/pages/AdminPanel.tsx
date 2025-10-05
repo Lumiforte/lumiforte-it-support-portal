@@ -70,6 +70,7 @@ const AdminPanel = () => {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [sortByRole, setSortByRole] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [companyFilter, setCompanyFilter] = useState<string>("all");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -424,6 +425,11 @@ const AdminPanel = () => {
       );
     }
 
+    // Filter by company
+    if (companyFilter !== "all") {
+      filteredUsers = filteredUsers.filter(user => user.company === companyFilter);
+    }
+
     // Sort by role
     if (sortByRole) {
       filteredUsers = [...filteredUsers].sort((a, b) => {
@@ -668,6 +674,17 @@ const AdminPanel = () => {
                       <SelectItem value="user">Users Only</SelectItem>
                     </SelectContent>
                   </Select>
+                  <Select value={companyFilter} onValueChange={setCompanyFilter}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Filter by company" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Companies</SelectItem>
+                      {COMPANIES.map(company => (
+                        <SelectItem key={company.value} value={company.value}>{company.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <Button
                     variant={sortByRole ? "default" : "outline"}
                     size="sm"
@@ -700,11 +717,13 @@ const AdminPanel = () => {
                             <h4 className="font-semibold truncate">
                               {user.full_name || user.email}
                             </h4>
+                            {user.company && (
+                              <Badge variant="outline" className="text-xs">
+                                {user.company}
+                              </Badge>
+                            )}
                           </div>
-                          <p className="text-sm text-muted-foreground mb-1">{user.email}</p>
-                          {user.company && (
-                            <p className="text-xs text-muted-foreground/70">{user.company}</p>
-                          )}
+                          <p className="text-sm text-muted-foreground">{user.email}</p>
                         </div>
                         <div className="flex items-center gap-3 ml-4">
                           <Button
