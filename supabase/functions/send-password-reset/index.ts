@@ -68,13 +68,8 @@ serve(async (req) => {
       );
     }
 
-    // Send via Resend. Avoid clickable anchor to reduce email scanners auto-opening the link
-    // Obfuscate link to avoid email security scanners auto-opening it
-    const safeDisplayLink = actionLink
-      .replaceAll('.', '[.]')
-      .replace('https://', 'https[:]//');
-
-    const textBody = `Reset je wachtwoord:\n\nBelangrijk: e-mailscanners kunnen resetlinks automatisch openen waardoor ze verlopen.\nKopieer onderstaande link, plak in je browser en vervang [:] door : en [.] door .\n\n${safeDisplayLink}\n\nDe link is eenmalig geldig. Niet klikken in je mailclient.`;
+    // Send via Resend
+    const textBody = `Reset je wachtwoord\n\nKlik op de onderstaande link om je wachtwoord te resetten:\n\n${actionLink}\n\nDe link is geldig voor 1 uur.`;
 
     await resend.emails.send({
       from: "Lumiforte Support <noreply@lumiforte.dev>",
@@ -84,10 +79,13 @@ serve(async (req) => {
       html: `
         <div style="font-family:Inter,Arial,sans-serif;line-height:1.6;color:#0f172a">
           <h2>Reset je wachtwoord</h2>
-          <p><strong>Belangrijk:</strong> sommige e-mailbeveiligers openen links automatisch waardoor ze verlopen.</p>
-          <p>Kopieer de onderstaande link, plak hem in je browser en vervang <code>[:]</code> door <code>:</code> en <code>[.]</code> door <code>.</code>.</p>
-          <pre style="white-space:pre-wrap;word-break:break-all;background:#f8fafc;padding:12px;border-radius:8px">${safeDisplayLink}</pre>
-          <p>Werkt het niet? Vraag via het formulier opnieuw een link aan.</p>
+          <p>Klik op de onderstaande knop om je wachtwoord te resetten:</p>
+          <p style="margin:24px 0">
+            <a href="${actionLink}" style="display:inline-block;padding:12px 24px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600">Reset wachtwoord</a>
+          </p>
+          <p style="color:#64748b;font-size:14px">Of kopieer deze link naar je browser:</p>
+          <p style="word-break:break-all;background:#f8fafc;padding:12px;border-radius:8px;font-size:13px">${actionLink}</p>
+          <p style="color:#64748b;font-size:14px;margin-top:24px">Deze link is geldig voor 1 uur.</p>
         </div>
       `,
     });
