@@ -641,12 +641,12 @@ const AdminPanel = () => {
                       <div
                         key={user.id}
                         className={`flex items-center justify-between p-3 ${
-                          index % 2 === 0 ? 'bg-accent/5' : 'bg-background'
+                          index % 2 === 0 ? 'bg-muted/30' : 'bg-background'
                         }`}
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-semibold truncate text-sm">
+                            <h4 className="font-semibold truncate">
                               {user.full_name || user.email}
                             </h4>
                             <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
@@ -689,7 +689,7 @@ const AdminPanel = () => {
                             </Dialog>
                           </div>
                           <div className="flex items-center gap-2">
-                            <p className="text-xs text-muted-foreground">{user.email}</p>
+                            <p className="text-sm text-muted-foreground">{user.email}</p>
                             <Dialog open={editEmailDialogOpen} onOpenChange={setEditEmailDialogOpen}>
                               <DialogTrigger asChild>
                                 <Button 
@@ -738,7 +738,7 @@ const AdminPanel = () => {
                         </div>
                         <div className="flex items-center gap-3 ml-4">
                           <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-2">
                               <Checkbox
                                 id={`${user.id}-admin`}
                                 checked={user.user_roles.some(r => r.role === 'admin')}
@@ -748,12 +748,12 @@ const AdminPanel = () => {
                               />
                               <label
                                 htmlFor={`${user.id}-admin`}
-                                className="text-xs font-medium cursor-pointer"
+                                className="text-sm font-medium cursor-pointer"
                               >
                                 Admin
                               </label>
                             </div>
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-2">
                               <Checkbox
                                 id={`${user.id}-helpdesk`}
                                 checked={user.user_roles.some(r => r.role === 'helpdesk')}
@@ -763,12 +763,12 @@ const AdminPanel = () => {
                               />
                               <label
                                 htmlFor={`${user.id}-helpdesk`}
-                                className="text-xs font-medium cursor-pointer"
+                                className="text-sm font-medium cursor-pointer"
                               >
                                 Helpdesk
                               </label>
                             </div>
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-2">
                               <Checkbox
                                 id={`${user.id}-user`}
                                 checked={user.user_roles.some(r => r.role === 'user')}
@@ -778,7 +778,7 @@ const AdminPanel = () => {
                               />
                               <label
                                 htmlFor={`${user.id}-user`}
-                                className="text-xs font-medium cursor-pointer"
+                                className="text-sm font-medium cursor-pointer"
                               >
                                 User
                               </label>
@@ -787,10 +787,9 @@ const AdminPanel = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-7 text-xs"
                             onClick={() => handleToggleUserActive(user.id, false)}
                           >
-                            <UserX className="h-3 w-3 mr-1.5" />
+                            <UserX className="h-4 w-4 mr-2" />
                             Deactivate
                           </Button>
                         </div>
