@@ -71,6 +71,7 @@ const AdminPanel = () => {
   const [sortByRole, setSortByRole] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [companyFilter, setCompanyFilter] = useState<string>("all");
+  const [nameReadonly, setNameReadonly] = useState(true);
   const { toast } = useToast();
  
   useEffect(() => {
@@ -84,6 +85,7 @@ const AdminPanel = () => {
     if (editUserDialogOpen && editingUserId) {
       const u = users.find((x) => x.id === editingUserId);
       if (u) {
+        setNameReadonly(true);
         setEditingUserName(u.full_name || "");
         setEditingUserEmail(u.email);
         setEditingUserCompany(u.company || "");
@@ -834,7 +836,9 @@ const AdminPanel = () => {
             open={editUserDialogOpen} 
             onOpenChange={(open) => {
               setEditUserDialogOpen(open);
-              if (!open) {
+              if (open) {
+                setNameReadonly(true);
+              } else {
                 // Reset alle velden wanneer dialog sluit
                 setEditingUserId(null);
                 setEditingUserName("");
@@ -857,10 +861,15 @@ const AdminPanel = () => {
                     id="editUserName"
                     name="user_display_name"
                     autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    inputMode="text"
                     data-lpignore="true"
                     data-1p-ignore="true"
                     type="text"
                     value={editingUserName}
+                    readOnly={nameReadonly}
+                    onFocus={() => setNameReadonly(false)}
                     onChange={(e) => setEditingUserName(e.target.value)}
                     placeholder="Jan Jansen"
                   />
