@@ -37,6 +37,7 @@ interface UserWithRoles {
   id: string;
   email: string;
   full_name: string | null;
+  company: string | null;
   created_at: string;
   user_roles: Array<{ role: string; id: string }>;
 }
@@ -762,7 +763,7 @@ const AdminPanel = () => {
                               </DialogContent>
                             </Dialog>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 mb-1">
                             <p className="text-sm text-muted-foreground">{user.email}</p>
                             <Dialog open={editEmailDialogOpen} onOpenChange={setEditEmailDialogOpen}>
                               <DialogTrigger asChild>
@@ -809,6 +810,9 @@ const AdminPanel = () => {
                               </DialogContent>
                             </Dialog>
                           </div>
+                          {user.company && (
+                            <p className="text-xs text-muted-foreground/70">{user.company}</p>
+                          )}
                         </div>
                         <div className="flex items-center gap-3 ml-4">
                           <div className="flex items-center gap-4">

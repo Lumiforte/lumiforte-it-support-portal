@@ -7,8 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Languages, Check } from "lucide-react";
+import { Loader2, Languages, Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { COMPANIES } from "@/lib/companies";
 
 const Profile = () => {
   const { profile, user } = useAuth();
@@ -17,26 +21,34 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [company, setCompany] = useState("");
+  const [companyOpen, setCompanyOpen] = useState(false);
 
   useEffect(() => {
     if (profile) {
       setFullName(profile.full_name || "");
       setPhoneNumber("");
+      setCompany("");
       
-      // Fetch phone number from profile
-      const fetchPhoneNumber = async () => {
+      // Fetch phone number and company from profile
+      const fetchProfileDetails = async () => {
         const { data } = await supabase
           .from("profiles")
-          .select("phone_number")
+          .select("phone_number, company")
           .eq("id", profile.id)
           .single();
         
-        if (data?.phone_number) {
-          setPhoneNumber(data.phone_number);
+        if (data) {
+          if (data.phone_number) {
+            setPhoneNumber(data.phone_number);
+          }
+          if (data.company) {
+            setCompany(data.company);
+          }
         }
       };
       
-      fetchPhoneNumber();
+      fetchProfileDetails();
     }
   }, [profile]);
 
@@ -53,6 +65,7 @@ const Profile = () => {
         .update({
           full_name: fullName.trim(),
           phone_number: phoneNumber.trim() || null,
+          company: company || null,
         })
         .eq("id", user.id);
 
@@ -112,6 +125,52 @@ const Profile = () => {
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder={t("profile.phoneNumberPlaceholder")}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="company">Company</Label>
+              <Popover open={companyOpen} onOpenChange={setCompanyOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="company"
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={companyOpen}
+                    className="w-full justify-between"
+                  >
+                    {company || "Select company..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0">
+                  <Command>
+                    <CommandInput placeholder="Search company..." />
+                    <CommandList>
+                      <CommandEmpty>No company found.</CommandEmpty>
+                      <CommandGroup>
+                        {COMPANIES.map((companyOption) => (
+                          <CommandItem
+                            key={companyOption.value}
+                            value={companyOption.value}
+                            onSelect={(currentValue) => {
+                              setCompany(currentValue === company ? "" : currentValue);
+                              setCompanyOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                company === companyOption.value ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {companyOption.label}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
 
             <div className="space-y-2">
