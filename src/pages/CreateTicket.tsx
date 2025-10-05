@@ -202,8 +202,8 @@ const CreateTicket = () => {
                     <AlertDescription className="text-orange-700 dark:text-orange-300">
                       For urgent issues, it is best to call one of our IT staff directly:
                       <div className="mt-2 space-y-1 font-medium">
-                        <div>• Jeroen Vrieselaar: <a href="tel:+31613234260" className="underline hover:text-orange-900">+31 6 13 23 42 60</a></div>
-                        <div>• Jort Gerritsen: <a href="tel:+31651394935" className="underline hover:text-orange-900">+31 6 51 39 49 35</a></div>
+                        <div>• Jeroen Vrieselaar: <a href="tel:+31655387622" className="underline hover:text-orange-900">+31 6 5538 7622</a></div>
+                        <div>• Jort Gerritsen: <a href="tel:+31646372789" className="underline hover:text-orange-900">+31 6 4637 2789</a></div>
                       </div>
                     </AlertDescription>
                   </Alert>
