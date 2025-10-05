@@ -577,86 +577,110 @@ const AdminPanel = () => {
 
         <TabsContent value="users">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>User Management</CardTitle>
-              <Dialog open={addUserDialogOpen} onOpenChange={setAddUserDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    New User
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Add New User</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="newEmail">Email Address *</Label>
-                      <Input
-                        id="newEmail"
-                        type="email"
-                        value={newUserData.email}
-                        onChange={(e) => setNewUserData(prev => ({ ...prev, email: e.target.value }))}
-                        placeholder="gebruiker@email.com"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="newPassword">Wachtwoord *</Label>
-                      <Input
-                        id="newPassword"
-                        type="password"
-                        value={newUserData.password}
-                        onChange={(e) => setNewUserData(prev => ({ ...prev, password: e.target.value }))}
-                        placeholder="Minimaal 6 karakters"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="newFullName">Volledige naam</Label>
-                      <Input
-                        id="newFullName"
-                        value={newUserData.fullName}
-                        onChange={(e) => setNewUserData(prev => ({ ...prev, fullName: e.target.value }))}
-                        placeholder="Jan Jansen"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Roles</Label>
-                      <div className="flex gap-4">
-                        <div className="flex items-center gap-2">
-                          <Checkbox
-                            id="role-user"
-                            checked={newUserRoles.includes('user')}
-                            onCheckedChange={() => toggleNewUserRole('user')}
+            <CardHeader>
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle>User Management</CardTitle>
+                  <Dialog open={addUserDialogOpen} onOpenChange={setAddUserDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        New User
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Add New User</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="newEmail">Email Address *</Label>
+                          <Input
+                            id="newEmail"
+                            type="email"
+                            value={newUserData.email}
+                            onChange={(e) => setNewUserData(prev => ({ ...prev, email: e.target.value }))}
+                            placeholder="gebruiker@email.com"
                           />
-                          <label htmlFor="role-user" className="text-sm cursor-pointer">User</label>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Checkbox
-                            id="role-helpdesk"
-                            checked={newUserRoles.includes('helpdesk')}
-                            onCheckedChange={() => toggleNewUserRole('helpdesk')}
+                        <div className="space-y-2">
+                          <Label htmlFor="newPassword">Wachtwoord *</Label>
+                          <Input
+                            id="newPassword"
+                            type="password"
+                            value={newUserData.password}
+                            onChange={(e) => setNewUserData(prev => ({ ...prev, password: e.target.value }))}
+                            placeholder="Minimaal 6 karakters"
                           />
-                          <label htmlFor="role-helpdesk" className="text-sm cursor-pointer">Helpdesk</label>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Checkbox
-                            id="role-admin"
-                            checked={newUserRoles.includes('admin')}
-                            onCheckedChange={() => toggleNewUserRole('admin')}
+                        <div className="space-y-2">
+                          <Label htmlFor="newFullName">Volledige naam</Label>
+                          <Input
+                            id="newFullName"
+                            value={newUserData.fullName}
+                            onChange={(e) => setNewUserData(prev => ({ ...prev, fullName: e.target.value }))}
+                            placeholder="Jan Jansen"
                           />
-                          <label htmlFor="role-admin" className="text-sm cursor-pointer">Admin</label>
                         </div>
+                        <div className="space-y-2">
+                          <Label>Roles</Label>
+                          <div className="flex gap-4">
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                id="role-user"
+                                checked={newUserRoles.includes('user')}
+                                onCheckedChange={() => toggleNewUserRole('user')}
+                              />
+                              <label htmlFor="role-user" className="text-sm cursor-pointer">User</label>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                id="role-helpdesk"
+                                checked={newUserRoles.includes('helpdesk')}
+                                onCheckedChange={() => toggleNewUserRole('helpdesk')}
+                              />
+                              <label htmlFor="role-helpdesk" className="text-sm cursor-pointer">Helpdesk</label>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                id="role-admin"
+                                checked={newUserRoles.includes('admin')}
+                                onCheckedChange={() => toggleNewUserRole('admin')}
+                              />
+                              <label htmlFor="role-admin" className="text-sm cursor-pointer">Admin</label>
+                            </div>
+                          </div>
+                          <p className="text-xs text-muted-foreground">If no role selected, &apos;User&apos; will be assigned automatically</p>
+                        </div>
+                        <Button onClick={handleCreateUser} disabled={createUserLoading} className="w-full">
+                          {createUserLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                          Create User
+                        </Button>
                       </div>
-                      <p className="text-xs text-muted-foreground">If no role selected, &apos;User&apos; will be assigned automatically</p>
-                    </div>
-                    <Button onClick={handleCreateUser} disabled={createUserLoading} className="w-full">
-                      {createUserLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Create User
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Select value={roleFilter} onValueChange={setRoleFilter}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Filter by role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Users</SelectItem>
+                      <SelectItem value="admin">Admins Only</SelectItem>
+                      <SelectItem value="helpdesk">Helpdesk Only</SelectItem>
+                      <SelectItem value="user">Users Only</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    variant={sortByRole ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSortByRole(!sortByRole)}
+                  >
+                    Sort by Role
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               {usersLoading ? (
