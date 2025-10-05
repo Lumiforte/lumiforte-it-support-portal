@@ -9,5 +9,6 @@ export const TICKET_CATEGORIES = [
   { value: "salesforce", label: "Salesforce" },
   { value: "websites", label: "Websites" },
   { value: "intranet", label: "Intranet" },
+  { value: "licenses", label: "Licenses" },
   { value: "other", label: "Other" },
 ] as const;
