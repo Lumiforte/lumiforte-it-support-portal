@@ -69,6 +69,14 @@ interface TicketActivity {
     full_name: string | null;
     email: string;
   } | null;
+  old_user_profile?: {
+    full_name: string | null;
+    email: string;
+  } | null;
+  new_user_profile?: {
+    full_name: string | null;
+    email: string;
+  } | null;
 }
 
 const statusConfig = {
@@ -196,19 +204,49 @@ const TicketDetail = () => {
 
       if (error) throw error;
 
-      // Fetch user profiles for activities
+      // Fetch user profiles for activities and for old_value/new_value user references
       const activitiesWithProfiles = await Promise.all(
         (data || []).map(async (activity) => {
+          let actorProfile = null;
+          let oldUserProfile = null;
+          let newUserProfile = null;
+          
+          // Fetch actor profile
           if (activity.user_id) {
             const { data: profileData } = await supabase
               .from("profiles")
               .select("full_name, email")
               .eq("id", activity.user_id)
-              .single();
-            
-            return { ...activity, profiles: profileData };
+              .maybeSingle();
+            actorProfile = profileData;
           }
-          return { ...activity, profiles: null };
+          
+          // For assigned and submitter_changed actions, fetch referenced user profiles
+          if (activity.action_type === 'assigned' || activity.action_type === 'submitter_changed') {
+            if (activity.old_value) {
+              const { data: oldProfile } = await supabase
+                .from("profiles")
+                .select("full_name, email")
+                .eq("id", activity.old_value)
+                .maybeSingle();
+              oldUserProfile = oldProfile;
+            }
+            if (activity.new_value) {
+              const { data: newProfile } = await supabase
+                .from("profiles")
+                .select("full_name, email")
+                .eq("id", activity.new_value)
+                .maybeSingle();
+              newUserProfile = newProfile;
+            }
+          }
+          
+          return { 
+            ...activity, 
+            profiles: actorProfile,
+            old_user_profile: oldUserProfile,
+            new_user_profile: newUserProfile
+          };
         })
       );
 
@@ -235,10 +273,10 @@ const TicketDetail = () => {
         );
       case "assigned":
         if (!activity.old_value && activity.new_value) {
-          const assignedUser = helpdeskUsers.find(u => u.id === activity.new_value);
+          const assignedUserName = activity.new_user_profile?.full_name || activity.new_user_profile?.email || 'someone';
           return (
             <>
-              Assigned to <span className="font-bold">{assignedUser?.full_name || assignedUser?.email || 'someone'}</span>
+              Assigned to <span className="font-bold">{assignedUserName}</span>
             </>
           );
         }
@@ -256,11 +294,11 @@ const TicketDetail = () => {
           </>
         );
       case "submitter_changed":
-        const oldSubmitter = allUsers.find(u => u.id === activity.old_value);
-        const newSubmitter = allUsers.find(u => u.id === activity.new_value);
+        const oldSubmitterName = activity.old_user_profile?.full_name || activity.old_user_profile?.email || 'unknown';
+        const newSubmitterName = activity.new_user_profile?.full_name || activity.new_user_profile?.email || 'unknown';
         return (
           <>
-            Changed submitter from <span className="font-bold">{oldSubmitter?.full_name || oldSubmitter?.email || 'unknown'}</span> to <span className="font-bold">{newSubmitter?.full_name || newSubmitter?.email || 'unknown'}</span>
+            Changed submitter from <span className="font-bold">{oldSubmitterName}</span> to <span className="font-bold">{newSubmitterName}</span>
           </>
         );
       case "replied_helpdesk":
