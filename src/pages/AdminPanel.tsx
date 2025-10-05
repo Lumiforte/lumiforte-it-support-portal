@@ -254,6 +254,13 @@ const AdminPanel = () => {
   const handleUpdateUser = async () => {
     if (!editingUserId) return;
     
+    console.log('Updating user with:', {
+      userId: editingUserId,
+      name: editingUserName,
+      email: editingUserEmail,
+      company: editingUserCompany
+    });
+    
     setUserUpdateLoading(true);
     try {
       // Update profile (name and company)
@@ -261,7 +268,7 @@ const AdminPanel = () => {
         .from("profiles")
         .update({ 
           full_name: editingUserName.trim() || null,
-          company: editingUserCompany || null 
+          company: editingUserCompany && editingUserCompany.trim() !== "" ? editingUserCompany : null 
         })
         .eq("id", editingUserId);
 
@@ -285,7 +292,7 @@ const AdminPanel = () => {
         description: "The user information has been updated successfully.",
       });
 
-      fetchUsers();
+      await fetchUsers();
       setEditUserDialogOpen(false);
       setEditingUserId(null);
       setEditingUserName("");
