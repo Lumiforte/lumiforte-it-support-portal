@@ -18,9 +18,7 @@ import {
   User, 
   Shield,
   Menu,
-  Headset,
-  Languages,
-  Check
+  Headset
 } from "lucide-react";
 import lumiforteLogo from "@/assets/lumiforte-logo.png";
 
@@ -103,47 +101,6 @@ const Layout = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="h-8 px-3 bg-background hover:bg-primary hover:text-primary-foreground"
-                >
-                  <Languages className="h-4 w-4 mr-2" />
-                  {language.toUpperCase()}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuLabel>Language</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setLanguage("en")} className="cursor-pointer">
-                  <span className="flex items-center justify-between w-full">
-                    <span>English</span>
-                    {language === "en" && <Check className="h-4 w-4" />}
-                  </span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setLanguage("nl")} className="cursor-pointer">
-                  <span className="flex items-center justify-between w-full">
-                    <span>Nederlands</span>
-                    {language === "nl" && <Check className="h-4 w-4" />}
-                  </span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setLanguage("fr")} className="cursor-pointer">
-                  <span className="flex items-center justify-between w-full">
-                    <span>Français</span>
-                    {language === "fr" && <Check className="h-4 w-4" />}
-                  </span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setLanguage("de")} className="cursor-pointer">
-                  <span className="flex items-center justify-between w-full">
-                    <span>Deutsch</span>
-                    {language === "de" && <Check className="h-4 w-4" />}
-                  </span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary/80">
