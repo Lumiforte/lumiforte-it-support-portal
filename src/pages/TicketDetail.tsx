@@ -90,6 +90,8 @@ const TicketDetail = () => {
   const [allUsers, setAllUsers] = useState<HelpdeskUser[]>([]);
   const [submitterSearchOpen, setSubmitterSearchOpen] = useState(false);
   const [submitterSearchValue, setSubmitterSearchValue] = useState("");
+  const [assignSearchOpen, setAssignSearchOpen] = useState(false);
+  const [assignSearchValue, setAssignSearchValue] = useState("");
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -663,22 +665,62 @@ const TicketDetail = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium min-w-[80px]">Assign to:</span>
-                        <Select
-                          value={ticket.assigned_to || ""}
-                          onValueChange={handleAssignTicket}
-                          disabled={updating}
-                        >
-                          <SelectTrigger className="flex-1">
-                            <SelectValue placeholder="Select team member" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {helpdeskUsers.map((user) => (
-                              <SelectItem key={user.id} value={user.id}>
-                                {user.full_name || user.email}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Popover open={assignSearchOpen} onOpenChange={setAssignSearchOpen}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={assignSearchOpen}
+                              className="flex-1 justify-between"
+                              disabled={updating}
+                            >
+                              {ticket.assigned_to
+                                ? helpdeskUsers.find((user) => user.id === ticket.assigned_to)?.full_name ||
+                                  helpdeskUsers.find((user) => user.id === ticket.assigned_to)?.email ||
+                                  "Select team member"
+                                : "Select team member"}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[300px] p-0">
+                            <Command>
+                              <CommandInput 
+                                placeholder="Search users..." 
+                                value={assignSearchValue}
+                                onValueChange={setAssignSearchValue}
+                              />
+                              <CommandList>
+                                <CommandEmpty>No users found.</CommandEmpty>
+                                <CommandGroup>
+                                  {helpdeskUsers
+                                    .filter(user => 
+                                      user.full_name?.toLowerCase().includes(assignSearchValue.toLowerCase()) ||
+                                      user.email.toLowerCase().includes(assignSearchValue.toLowerCase())
+                                    )
+                                    .map((user) => (
+                                      <CommandItem
+                                        key={user.id}
+                                        value={user.id}
+                                        onSelect={() => {
+                                          handleAssignTicket(user.id);
+                                          setAssignSearchOpen(false);
+                                          setAssignSearchValue("");
+                                        }}
+                                      >
+                                        <Check
+                                          className={cn(
+                                            "mr-2 h-4 w-4",
+                                            ticket.assigned_to === user.id ? "opacity-100" : "opacity-0"
+                                          )}
+                                        />
+                                        {user.full_name || user.email}
+                                      </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
                       </div>
                       
                       <div className="flex items-center gap-2">
