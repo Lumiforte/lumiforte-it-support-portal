@@ -127,20 +127,20 @@ const Tickets = () => {
               </div>
               
               <div className="text-xs text-muted-foreground space-y-1">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
                   <span>Created:</span>
                   <span className="font-medium">{format(new Date(ticket.created_at), 'dd-MM-yyyy HH:mm')}</span>
                 </div>
                 
                 {ticket.assigned_to && ticket.assigned_user && (
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
                     <span>Assigned to:</span>
                     <span className="font-medium">{ticket.assigned_user.full_name || ticket.assigned_user.email}</span>
                   </div>
                 )}
                 
                 {getStatusDate() && (
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
                     <span>{ticket.status === 'closed' ? 'Closed' : 'Resolved'}:</span>
                     <span className="font-medium">{getStatusDate()}</span>
                   </div>
