@@ -5,14 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle, Mail, UserX, UserCheck, Edit2, ArrowRightLeft, UserPlus, Search } from "lucide-react";
+import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle, Mail, UserX, UserCheck, Edit2, ArrowRightLeft, UserPlus, Search, ChevronsUpDown, Check } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
+import { COMPANIES } from "@/lib/companies";
 
 interface TicketWithUser {
   id: string;
@@ -71,6 +75,10 @@ const AdminPanel = () => {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [sortByRole, setSortByRole] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [editCompanyDialogOpen, setEditCompanyDialogOpen] = useState(false);
+  const [editingUserCompany, setEditingUserCompany] = useState("");
+  const [companySearchOpen, setCompanySearchOpen] = useState(false);
+  const [companyUpdateLoading, setCompanyUpdateLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -275,6 +283,38 @@ const AdminPanel = () => {
       });
     } finally {
       setEmailUpdateLoading(false);
+    }
+  };
+
+  const handleCompanyUpdate = async () => {
+    if (!editingUserId) return;
+    
+    setCompanyUpdateLoading(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ company: editingUserCompany || null })
+        .eq("id", editingUserId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Company updated",
+        description: "The user's company has been updated successfully.",
+      });
+
+      fetchUsers();
+      setEditCompanyDialogOpen(false);
+      setEditingUserId(null);
+      setEditingUserCompany("");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setCompanyUpdateLoading(false);
     }
   };
 
@@ -811,7 +851,161 @@ const AdminPanel = () => {
                             </Dialog>
                           </div>
                           {user.company && (
-                            <p className="text-xs text-muted-foreground/70">{user.company}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-xs text-muted-foreground/70">{user.company}</p>
+                              <Dialog open={editCompanyDialogOpen} onOpenChange={setEditCompanyDialogOpen}>
+                                <DialogTrigger asChild>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    className="h-6 w-6 p-0"
+                                    onClick={() => {
+                                      setEditingUserId(user.id);
+                                      setEditingUserCompany(user.company || "");
+                                      setEditCompanyDialogOpen(true);
+                                    }}
+                                  >
+                                    <Edit2 className="h-3 w-3" />
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Edit Company</DialogTitle>
+                                  </DialogHeader>
+                                  <div className="space-y-4">
+                                    <div className="space-y-2">
+                                      <Label htmlFor="company">Company</Label>
+                                      <Popover open={companySearchOpen} onOpenChange={setCompanySearchOpen}>
+                                        <PopoverTrigger asChild>
+                                          <Button
+                                            id="company"
+                                            variant="outline"
+                                            role="combobox"
+                                            aria-expanded={companySearchOpen}
+                                            className="w-full justify-between"
+                                          >
+                                            {editingUserCompany || "Select company..."}
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                          </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-full p-0">
+                                          <Command>
+                                            <CommandInput placeholder="Search company..." />
+                                            <CommandList>
+                                              <CommandEmpty>No company found.</CommandEmpty>
+                                              <CommandGroup>
+                                                {COMPANIES.map((companyOption) => (
+                                                  <CommandItem
+                                                    key={companyOption.value}
+                                                    value={companyOption.value}
+                                                    onSelect={(currentValue) => {
+                                                      setEditingUserCompany(currentValue === editingUserCompany ? "" : currentValue);
+                                                      setCompanySearchOpen(false);
+                                                    }}
+                                                  >
+                                                    <Check
+                                                      className={cn(
+                                                        "mr-2 h-4 w-4",
+                                                        editingUserCompany === companyOption.value ? "opacity-100" : "opacity-0"
+                                                      )}
+                                                    />
+                                                    {companyOption.label}
+                                                  </CommandItem>
+                                                ))}
+                                              </CommandGroup>
+                                            </CommandList>
+                                          </Command>
+                                        </PopoverContent>
+                                      </Popover>
+                                    </div>
+                                    <Button 
+                                      onClick={handleCompanyUpdate} 
+                                      disabled={companyUpdateLoading}
+                                    >
+                                      {companyUpdateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                      Save
+                                    </Button>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                            </div>
+                          )}
+                          {!user.company && (
+                            <Dialog open={editCompanyDialogOpen} onOpenChange={setEditCompanyDialogOpen}>
+                              <DialogTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  className="text-xs text-muted-foreground/70 h-auto p-1"
+                                  onClick={() => {
+                                    setEditingUserId(user.id);
+                                    setEditingUserCompany("");
+                                    setEditCompanyDialogOpen(true);
+                                  }}
+                                >
+                                  + Add company
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>Edit Company</DialogTitle>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="company">Company</Label>
+                                    <Popover open={companySearchOpen} onOpenChange={setCompanySearchOpen}>
+                                      <PopoverTrigger asChild>
+                                        <Button
+                                          id="company"
+                                          variant="outline"
+                                          role="combobox"
+                                          aria-expanded={companySearchOpen}
+                                          className="w-full justify-between"
+                                        >
+                                          {editingUserCompany || "Select company..."}
+                                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-full p-0">
+                                        <Command>
+                                          <CommandInput placeholder="Search company..." />
+                                          <CommandList>
+                                            <CommandEmpty>No company found.</CommandEmpty>
+                                            <CommandGroup>
+                                              {COMPANIES.map((companyOption) => (
+                                                <CommandItem
+                                                  key={companyOption.value}
+                                                  value={companyOption.value}
+                                                  onSelect={(currentValue) => {
+                                                    setEditingUserCompany(currentValue === editingUserCompany ? "" : currentValue);
+                                                    setCompanySearchOpen(false);
+                                                  }}
+                                                >
+                                                  <Check
+                                                    className={cn(
+                                                      "mr-2 h-4 w-4",
+                                                      editingUserCompany === companyOption.value ? "opacity-100" : "opacity-0"
+                                                    )}
+                                                  />
+                                                  {companyOption.label}
+                                                </CommandItem>
+                                              ))}
+                                            </CommandGroup>
+                                          </CommandList>
+                                        </Command>
+                                      </PopoverContent>
+                                    </Popover>
+                                  </div>
+                                  <Button 
+                                    onClick={handleCompanyUpdate} 
+                                    disabled={companyUpdateLoading}
+                                  >
+                                    {companyUpdateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    Save
+                                  </Button>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
                           )}
                         </div>
                         <div className="flex items-center gap-3 ml-4">

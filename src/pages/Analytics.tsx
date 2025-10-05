@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, TrendingUp, Users, Ticket, CheckCircle } from "lucide-react";
+import { Loader2, TrendingUp, Users, Ticket, CheckCircle, Building2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { format, subDays, startOfYear } from "date-fns";
@@ -36,6 +36,7 @@ const Analytics = () => {
   const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
   const [userData, setUserData] = useState<UserData[]>([]);
   const [assigneeData, setAssigneeData] = useState<UserData[]>([]);
+  const [companyData, setCompanyData] = useState<CategoryData[]>([]);
   const { profile } = useAuth();
   const { toast } = useToast();
 
@@ -66,7 +67,8 @@ const Analytics = () => {
           *,
           creator:profiles!tickets_created_by_fkey (
             full_name,
-            email
+            email,
+            company
           ),
           assigned_user:profiles!tickets_assigned_to_fkey (
             full_name,
@@ -122,6 +124,17 @@ const Analytics = () => {
       const assignees = Array.from(assigneeMap.values())
         .sort((a, b) => b.assigned - a.assigned);
       setAssigneeData(assignees);
+
+      // Calculate company data
+      const companyMap = new Map<string, number>();
+      tickets?.forEach(ticket => {
+        const companyName = ticket.creator?.company || "Unknown / Not Set";
+        const count = companyMap.get(companyName) || 0;
+        companyMap.set(companyName, count + 1);
+      });
+      const companies = Array.from(companyMap.entries()).map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count);
+      setCompanyData(companies);
 
     } catch (error: any) {
       toast({
@@ -198,11 +211,11 @@ const Analytics = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Closed</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Companies</CardTitle>
+            <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.closed}</div>
+            <div className="text-2xl font-bold">{companyData.length}</div>
           </CardContent>
         </Card>
       </div>
@@ -286,6 +299,24 @@ const Analytics = () => {
                 <YAxis dataKey="name" type="category" width={150} />
                 <Tooltip />
                 <Bar dataKey="assigned" fill="#0088FE" name="Tickets Assigned" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Company Distribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Tickets by Company</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={companyData} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
+                <YAxis dataKey="name" type="category" width={200} />
+                <Tooltip />
+                <Bar dataKey="count" fill="#FF8042" name="Tickets" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
