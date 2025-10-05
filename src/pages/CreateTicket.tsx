@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, AlertCircle, Phone } from "lucide-react";
 
@@ -18,12 +19,55 @@ const CreateTicket = () => {
   const [priority, setPriority] = useState("medium");
   const [category, setCategory] = useState("");
   const [loading, setLoading] = useState(false);
+  const [profilePhone, setProfilePhone] = useState<string | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [isPhoneCorrect, setIsPhoneCorrect] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  useEffect(() => {
+    fetchUserProfile();
+  }, [user]);
+
+  const fetchUserProfile = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("phone_number")
+        .eq("id", user.id)
+        .single();
+      
+      if (error) throw error;
+      
+      if (data?.phone_number) {
+        setProfilePhone(data.phone_number);
+        setPhoneNumber(data.phone_number);
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
+
+  const validatePhoneNumber = (phone: string): boolean => {
+    // Format: +country code + area code + subscriber number
+    // Example: +31612345678 or +31 6 12345678 or +31-6-12345678
+    const phoneRegex = /^\+\d{1,3}[\s-]?\d{1,4}[\s-]?\d{4,}$/;
+    return phoneRegex.test(phone.replace(/\s/g, ''));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate phone number
+    if (!phoneNumber || (!isPhoneCorrect && !validatePhoneNumber(phoneNumber))) {
+      setPhoneError("Please enter a valid phone number in the format: +country area subscriber (e.g., +31 6 12345678)");
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -35,6 +79,7 @@ const CreateTicket = () => {
           description,
           priority: priority as "low" | "medium" | "high" | "urgent",
           category,
+          phone_number: phoneNumber,
         }])
         .select()
         .single();
@@ -51,7 +96,8 @@ const CreateTicket = () => {
             priority: data.priority,
             category: data.category,
             userName: user?.user_metadata?.full_name || user?.email || 'Unknown',
-            userEmail: user?.email || 'Unknown'
+            userEmail: user?.email || 'Unknown',
+            phoneNumber: phoneNumber
           }
         });
       } catch (emailError) {
@@ -161,6 +207,59 @@ const CreateTicket = () => {
                       </div>
                     </AlertDescription>
                   </Alert>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <Label>Contact Phone Number *</Label>
+                {profilePhone && (
+                  <div className="flex items-start space-x-2 p-3 border rounded-md bg-muted/50">
+                    <Checkbox
+                      id="phoneCorrect"
+                      checked={isPhoneCorrect}
+                      onCheckedChange={(checked) => {
+                        setIsPhoneCorrect(checked as boolean);
+                        setPhoneError("");
+                        if (checked) {
+                          setPhoneNumber(profilePhone);
+                        }
+                      }}
+                    />
+                    <div className="grid gap-1.5 leading-none">
+                      <label
+                        htmlFor="phoneCorrect"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        My phone number is: {profilePhone}
+                      </label>
+                      <p className="text-sm text-muted-foreground">
+                        Check this if the number above is correct
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
+                {(!profilePhone || !isPhoneCorrect) && (
+                  <div className="space-y-2">
+                    <Input
+                      id="phoneNumber"
+                      type="tel"
+                      placeholder="+31 6 12345678"
+                      value={phoneNumber}
+                      onChange={(e) => {
+                        setPhoneNumber(e.target.value);
+                        setPhoneError("");
+                      }}
+                      className={phoneError ? "border-destructive" : ""}
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Format: +landcode netnummer abonneenummer (bijv. +31 6 12345678)
+                    </p>
+                    {phoneError && (
+                      <p className="text-xs text-destructive">{phoneError}</p>
+                    )}
+                  </div>
                 )}
               </div>
 

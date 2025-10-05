@@ -174,6 +174,7 @@ export type Database = {
           created_by: string
           description: string
           id: string
+          phone_number: string | null
           priority: Database["public"]["Enums"]["ticket_priority"] | null
           resolved_at: string | null
           status: Database["public"]["Enums"]["ticket_status"] | null
@@ -188,6 +189,7 @@ export type Database = {
           created_by: string
           description: string
           id?: string
+          phone_number?: string | null
           priority?: Database["public"]["Enums"]["ticket_priority"] | null
           resolved_at?: string | null
           status?: Database["public"]["Enums"]["ticket_status"] | null
@@ -202,6 +204,7 @@ export type Database = {
           created_by?: string
           description?: string
           id?: string
+          phone_number?: string | null
           priority?: Database["public"]["Enums"]["ticket_priority"] | null
           resolved_at?: string | null
           status?: Database["public"]["Enums"]["ticket_status"] | null
