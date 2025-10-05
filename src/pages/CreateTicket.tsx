@@ -125,6 +125,10 @@ const CreateTicket = () => {
                     <SelectItem value="email">Email</SelectItem>
                     <SelectItem value="account">Account Access</SelectItem>
                     <SelectItem value="printer">Printing</SelectItem>
+                    <SelectItem value="intercom">Intercom Baarle-Nassau</SelectItem>
+                    <SelectItem value="salesforce">Salesforce</SelectItem>
+                    <SelectItem value="websites">Websites</SelectItem>
+                    <SelectItem value="intranet">Intranet</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
