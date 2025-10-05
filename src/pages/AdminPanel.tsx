@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle, Mail, UserX, UserCheck, Edit2, ArrowRightLeft } from "lucide-react";
+import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle, Mail, UserX, UserCheck, Edit2, ArrowRightLeft, UserPlus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface TicketWithUser {
@@ -60,6 +60,10 @@ const AdminPanel = () => {
   const [editingUserEmail, setEditingUserEmail] = useState("");
   const [newUserEmail, setNewUserEmail] = useState("");
   const [emailUpdateLoading, setEmailUpdateLoading] = useState(false);
+  const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
+  const [newUserData, setNewUserData] = useState({ email: "", password: "", fullName: "" });
+  const [newUserRoles, setNewUserRoles] = useState<string[]>([]);
+  const [createUserLoading, setCreateUserLoading] = useState(false);
   const [fromHelpdesk, setFromHelpdesk] = useState("");
   const [toHelpdesk, setToHelpdesk] = useState("");
   const [transferLoading, setTransferLoading] = useState(false);
@@ -370,6 +374,57 @@ const AdminPanel = () => {
     }
   };
 
+  const handleCreateUser = async () => {
+    if (!newUserData.email || !newUserData.password) {
+      toast({
+        title: "Error",
+        description: "Email en wachtwoord zijn verplicht",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setCreateUserLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-user', {
+        body: {
+          email: newUserData.email,
+          password: newUserData.password,
+          fullName: newUserData.fullName,
+          roles: newUserRoles.length > 0 ? newUserRoles : ['user']
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: data.message,
+      });
+
+      setNewUserData({ email: "", password: "", fullName: "" });
+      setNewUserRoles([]);
+      setAddUserDialogOpen(false);
+      fetchUsers();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Kon gebruiker niet aanmaken",
+        variant: "destructive",
+      });
+    } finally {
+      setCreateUserLoading(false);
+    }
+  };
+
+  const toggleNewUserRole = (role: string) => {
+    setNewUserRoles(prev => 
+      prev.includes(role) 
+        ? prev.filter(r => r !== role)
+        : [...prev, role]
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -491,8 +546,86 @@ const AdminPanel = () => {
 
         <TabsContent value="users">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>User Management</CardTitle>
+              <Dialog open={addUserDialogOpen} onOpenChange={setAddUserDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Nieuwe gebruiker
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Nieuwe gebruiker toevoegen</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="newEmail">Email adres *</Label>
+                      <Input
+                        id="newEmail"
+                        type="email"
+                        value={newUserData.email}
+                        onChange={(e) => setNewUserData(prev => ({ ...prev, email: e.target.value }))}
+                        placeholder="gebruiker@email.com"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="newPassword">Wachtwoord *</Label>
+                      <Input
+                        id="newPassword"
+                        type="password"
+                        value={newUserData.password}
+                        onChange={(e) => setNewUserData(prev => ({ ...prev, password: e.target.value }))}
+                        placeholder="Minimaal 6 karakters"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="newFullName">Volledige naam</Label>
+                      <Input
+                        id="newFullName"
+                        value={newUserData.fullName}
+                        onChange={(e) => setNewUserData(prev => ({ ...prev, fullName: e.target.value }))}
+                        placeholder="Jan Jansen"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Rollen</Label>
+                      <div className="flex gap-4">
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            id="role-user"
+                            checked={newUserRoles.includes('user')}
+                            onCheckedChange={() => toggleNewUserRole('user')}
+                          />
+                          <label htmlFor="role-user" className="text-sm cursor-pointer">User</label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            id="role-helpdesk"
+                            checked={newUserRoles.includes('helpdesk')}
+                            onCheckedChange={() => toggleNewUserRole('helpdesk')}
+                          />
+                          <label htmlFor="role-helpdesk" className="text-sm cursor-pointer">Helpdesk</label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            id="role-admin"
+                            checked={newUserRoles.includes('admin')}
+                            onCheckedChange={() => toggleNewUserRole('admin')}
+                          />
+                          <label htmlFor="role-admin" className="text-sm cursor-pointer">Admin</label>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground">Als geen rol geselecteerd, wordt automatisch 'User' toegewezen</p>
+                    </div>
+                    <Button onClick={handleCreateUser} disabled={createUserLoading} className="w-full">
+                      {createUserLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Gebruiker aanmaken
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </CardHeader>
             <CardContent>
               {usersLoading ? (
