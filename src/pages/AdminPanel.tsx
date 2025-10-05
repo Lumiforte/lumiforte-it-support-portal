@@ -89,6 +89,11 @@ const AdminPanel = () => {
         setEditingUserName(u.full_name || "");
         setEditingUserEmail(u.email);
         setEditingUserCompany(u.company || "");
+        // Re-apply after a short delay to override aggressive autofill
+        const t = setTimeout(() => {
+          setEditingUserName(u.full_name || "");
+        }, 200);
+        return () => clearTimeout(t);
       }
     }
   }, [editUserDialogOpen, editingUserId, users]);
@@ -853,8 +858,13 @@ const AdminPanel = () => {
                 <DialogDescription>
                   Pas de gegevens van de gebruiker aan.
                 </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
+                </DialogHeader>
+              <form autoComplete="off" className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleUpdateUser(); }}>
+                <div className="sr-only">
+                  <input type="text" name="name" autoComplete="name" tabIndex={-1} />
+                  <input type="email" name="email" autoComplete="email" tabIndex={-1} />
+                  <input type="password" name="password" autoComplete="new-password" tabIndex={-1} />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="editUserName">Volledige naam</Label>
                   <Input
@@ -902,14 +912,14 @@ const AdminPanel = () => {
                   </Select>
                 </div>
                 <Button 
-                  onClick={handleUpdateUser} 
+                  type="submit"
                   disabled={userUpdateLoading}
                   className="w-full"
                 >
                   {userUpdateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Opslaan
                 </Button>
-              </div>
+              </form>
             </DialogContent>
           </Dialog>
         </TabsContent>
