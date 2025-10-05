@@ -31,14 +31,14 @@ const Layout = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 w-full border-b border-border bg-primary shadow-sm">
+      <header className="sticky top-0 z-50 w-full border-b border-border bg-primary shadow-sm overflow-hidden">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center gap-2">
               <img 
                 src={lumiforteLogo} 
                 alt="Lumiforte" 
-                className="h-26 w-auto"
+                className="h-10 w-auto"
               />
             </Link>
             
