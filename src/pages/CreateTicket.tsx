@@ -8,8 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, AlertCircle, Phone } from "lucide-react";
 
 const CreateTicket = () => {
   const [title, setTitle] = useState("");
@@ -147,6 +148,20 @@ const CreateTicket = () => {
                     <SelectItem value="urgent">Urgent - Work stopped</SelectItem>
                   </SelectContent>
                 </Select>
+                
+                {priority === "urgent" && (
+                  <Alert className="mt-4 border-orange-500 bg-orange-50 dark:bg-orange-950/20">
+                    <Phone className="h-4 w-4 text-orange-600" />
+                    <AlertTitle className="text-orange-800 dark:text-orange-400">Een beller is sneller!</AlertTitle>
+                    <AlertDescription className="text-orange-700 dark:text-orange-300">
+                      Bij urgente problemen kunt u het beste direct bellen met één van onze IT-medewerkers:
+                      <div className="mt-2 space-y-1 font-medium">
+                        <div>• Jeroen Vrieselaar: <a href="tel:+31613234260" className="underline hover:text-orange-900">+31 6 13 23 42 60</a></div>
+                        <div>• Jort Gerritsen: <a href="tel:+31651394935" className="underline hover:text-orange-900">+31 6 51 39 49 35</a></div>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                )}
               </div>
 
               <div className="space-y-2">
