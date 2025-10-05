@@ -58,6 +58,7 @@ const AdminPanel = () => {
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editingUserName, setEditingUserName] = useState("");
   const [nameUpdateLoading, setNameUpdateLoading] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [fromHelpdesk, setFromHelpdesk] = useState("");
   const [toHelpdesk, setToHelpdesk] = useState("");
   const [transferLoading, setTransferLoading] = useState(false);
@@ -317,6 +318,7 @@ const AdminPanel = () => {
 
       setEditingUserId(null);
       setEditingUserName("");
+      setEditDialogOpen(false);
       fetchUsers();
     } catch (error: any) {
       toast({
@@ -513,7 +515,7 @@ const AdminPanel = () => {
                             <h4 className="font-semibold truncate">
                               {user.full_name || user.email}
                             </h4>
-                            <Dialog>
+                            <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
                               <DialogTrigger asChild>
                                 <Button 
                                   variant="ghost" 
@@ -521,6 +523,7 @@ const AdminPanel = () => {
                                   onClick={() => {
                                     setEditingUserId(user.id);
                                     setEditingUserName(user.full_name || "");
+                                    setEditDialogOpen(true);
                                   }}
                                 >
                                   <Edit2 className="h-4 w-4" />
