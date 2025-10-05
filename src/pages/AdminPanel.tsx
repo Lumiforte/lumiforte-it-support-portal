@@ -9,8 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle, Mail } from "lucide-react";
+import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle, Mail, UserX, UserCheck, Edit2, ArrowRightLeft } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface TicketWithUser {
@@ -54,6 +55,12 @@ const AdminPanel = () => {
   const [oldEmail, setOldEmail] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [emailUpdateLoading, setEmailUpdateLoading] = useState(false);
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [editingUserName, setEditingUserName] = useState("");
+  const [nameUpdateLoading, setNameUpdateLoading] = useState(false);
+  const [fromHelpdesk, setFromHelpdesk] = useState("");
+  const [toHelpdesk, setToHelpdesk] = useState("");
+  const [transferLoading, setTransferLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -262,6 +269,105 @@ const AdminPanel = () => {
     }
   };
 
+  const handleToggleUserActive = async (userId: string, isBanned: boolean) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('manage-user', {
+        body: { 
+          userId, 
+          action: isBanned ? 'unban' : 'ban'
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: data.message,
+      });
+
+      fetchUsers();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update user status",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUpdateName = async () => {
+    if (!editingUserId || !editingUserName) return;
+
+    setNameUpdateLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('manage-user', {
+        body: { 
+          userId: editingUserId, 
+          action: 'update_name',
+          fullName: editingUserName
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: data.message,
+      });
+
+      setEditingUserId(null);
+      setEditingUserName("");
+      fetchUsers();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update name",
+        variant: "destructive",
+      });
+    } finally {
+      setNameUpdateLoading(false);
+    }
+  };
+
+  const handleTransferTickets = async () => {
+    if (!fromHelpdesk || !toHelpdesk) {
+      toast({
+        title: "Error",
+        description: "Selecteer beide helpdesk medewerkers",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setTransferLoading(true);
+    try {
+      const { error } = await supabase
+        .from("tickets")
+        .update({ assigned_to: toHelpdesk })
+        .eq("assigned_to", fromHelpdesk)
+        .in("status", ["open", "in_progress"]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Tickets succesvol overgedragen",
+      });
+
+      setFromHelpdesk("");
+      setToHelpdesk("");
+      fetchTickets();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to transfer tickets",
+        variant: "destructive",
+      });
+    } finally {
+      setTransferLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -282,6 +388,7 @@ const AdminPanel = () => {
           <TabsTrigger value="tickets">Tickets</TabsTrigger>
           <TabsTrigger value="users">Users & Roles</TabsTrigger>
           <TabsTrigger value="email">Change Email</TabsTrigger>
+          <TabsTrigger value="transfer">Transfer Tickets</TabsTrigger>
         </TabsList>
 
         <TabsContent value="tickets" className="space-y-6">
@@ -402,57 +509,105 @@ const AdminPanel = () => {
                         className="flex items-center justify-between p-4 border rounded-lg"
                       >
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold truncate">
-                            {user.full_name || user.email}
-                          </h4>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-semibold truncate">
+                              {user.full_name || user.email}
+                            </h4>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditingUserId(user.id);
+                                    setEditingUserName(user.full_name || "");
+                                  }}
+                                >
+                                  <Edit2 className="h-4 w-4" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>Wijzig naam</DialogTitle>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="editName">Volledige naam</Label>
+                                    <Input
+                                      id="editName"
+                                      value={editingUserName}
+                                      onChange={(e) => setEditingUserName(e.target.value)}
+                                    />
+                                  </div>
+                                  <Button 
+                                    onClick={handleUpdateName} 
+                                    disabled={nameUpdateLoading}
+                                  >
+                                    {nameUpdateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    Opslaan
+                                  </Button>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
                           <p className="text-sm text-muted-foreground">{user.email}</p>
                         </div>
-                        <div className="flex items-center gap-6 ml-4">
-                          <div className="flex items-center gap-2">
-                            <Checkbox
-                              id={`${user.id}-admin`}
-                              checked={user.user_roles.some(r => r.role === 'admin')}
-                              onCheckedChange={(checked) => 
-                                handleRoleChange(user.id, 'admin', checked as boolean)
-                              }
-                            />
-                            <label
-                              htmlFor={`${user.id}-admin`}
-                              className="text-sm font-medium cursor-pointer"
-                            >
-                              Admin
-                            </label>
+                        <div className="flex items-center gap-4 ml-4">
+                          <div className="flex items-center gap-6">
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                id={`${user.id}-admin`}
+                                checked={user.user_roles.some(r => r.role === 'admin')}
+                                onCheckedChange={(checked) => 
+                                  handleRoleChange(user.id, 'admin', checked as boolean)
+                                }
+                              />
+                              <label
+                                htmlFor={`${user.id}-admin`}
+                                className="text-sm font-medium cursor-pointer"
+                              >
+                                Admin
+                              </label>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                id={`${user.id}-helpdesk`}
+                                checked={user.user_roles.some(r => r.role === 'helpdesk')}
+                                onCheckedChange={(checked) => 
+                                  handleRoleChange(user.id, 'helpdesk', checked as boolean)
+                                }
+                              />
+                              <label
+                                htmlFor={`${user.id}-helpdesk`}
+                                className="text-sm font-medium cursor-pointer"
+                              >
+                                Helpdesk
+                              </label>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                id={`${user.id}-user`}
+                                checked={user.user_roles.some(r => r.role === 'user')}
+                                onCheckedChange={(checked) => 
+                                  handleRoleChange(user.id, 'user', checked as boolean)
+                                }
+                              />
+                              <label
+                                htmlFor={`${user.id}-user`}
+                                className="text-sm font-medium cursor-pointer"
+                              >
+                                User
+                              </label>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Checkbox
-                              id={`${user.id}-helpdesk`}
-                              checked={user.user_roles.some(r => r.role === 'helpdesk')}
-                              onCheckedChange={(checked) => 
-                                handleRoleChange(user.id, 'helpdesk', checked as boolean)
-                              }
-                            />
-                            <label
-                              htmlFor={`${user.id}-helpdesk`}
-                              className="text-sm font-medium cursor-pointer"
-                            >
-                              Helpdesk
-                            </label>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Checkbox
-                              id={`${user.id}-user`}
-                              checked={user.user_roles.some(r => r.role === 'user')}
-                              onCheckedChange={(checked) => 
-                                handleRoleChange(user.id, 'user', checked as boolean)
-                              }
-                            />
-                            <label
-                              htmlFor={`${user.id}-user`}
-                              className="text-sm font-medium cursor-pointer"
-                            >
-                              User
-                            </label>
-                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleToggleUserActive(user.id, false)}
+                          >
+                            <UserX className="h-4 w-4 mr-2" />
+                            Deactiveer
+                          </Button>
                         </div>
                       </div>
                     ))
@@ -503,6 +658,64 @@ const AdminPanel = () => {
                   This will update the email address in both the authentication system and the user profile. All ticket history will be preserved.
                 </p>
               </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="transfer">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ArrowRightLeft className="h-5 w-5" />
+                Transfer Open/In Progress Tickets
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4 max-w-md">
+                <div className="space-y-2">
+                  <Label htmlFor="fromHelpdesk">Van helpdesk medewerker</Label>
+                  <Select value={fromHelpdesk} onValueChange={setFromHelpdesk}>
+                    <SelectTrigger id="fromHelpdesk">
+                      <SelectValue placeholder="Selecteer medewerker" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {users
+                        .filter(u => u.user_roles.some(r => r.role === 'helpdesk'))
+                        .map(u => (
+                          <SelectItem key={u.id} value={u.id}>
+                            {u.full_name || u.email}
+                          </SelectItem>
+                        ))
+                      }
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="toHelpdesk">Naar helpdesk medewerker</Label>
+                  <Select value={toHelpdesk} onValueChange={setToHelpdesk}>
+                    <SelectTrigger id="toHelpdesk">
+                      <SelectValue placeholder="Selecteer medewerker" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {users
+                        .filter(u => u.user_roles.some(r => r.role === 'helpdesk') && u.id !== fromHelpdesk)
+                        .map(u => (
+                          <SelectItem key={u.id} value={u.id}>
+                            {u.full_name || u.email}
+                          </SelectItem>
+                        ))
+                      }
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button onClick={handleTransferTickets} disabled={transferLoading}>
+                  {transferLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Transfer Tickets
+                </Button>
+                <p className="text-sm text-muted-foreground">
+                  Alle open en in progress tickets van de eerste medewerker worden overgedragen aan de tweede medewerker.
+                </p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
