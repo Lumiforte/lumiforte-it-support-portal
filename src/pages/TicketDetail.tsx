@@ -521,7 +521,7 @@ const TicketDetail = () => {
           <Button
             variant="outline"
             size="default"
-            onClick={() => navigate("/tickets")}
+            onClick={() => navigate(-1)}
             className="cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
