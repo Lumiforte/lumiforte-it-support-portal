@@ -72,6 +72,8 @@ const AdminPanel = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [companyFilter, setCompanyFilter] = useState<string>("all");
   const [nameReadonly, setNameReadonly] = useState(true);
+  const [nameFieldToken, setNameFieldToken] = useState<string>("");
+  const [userTypingName, setUserTypingName] = useState(false);
   const { toast } = useToast();
  
   useEffect(() => {
@@ -86,6 +88,8 @@ const AdminPanel = () => {
       const u = users.find((x) => x.id === editingUserId);
       if (u) {
         setNameReadonly(true);
+        setUserTypingName(false);
+        setNameFieldToken(`${Date.now()}-${Math.random().toString(36).slice(2)}`);
         setEditingUserName(u.full_name || "");
         setEditingUserEmail(u.email);
         setEditingUserCompany(u.company || "");
@@ -97,6 +101,17 @@ const AdminPanel = () => {
       }
     }
   }, [editUserDialogOpen, editingUserId, users]);
+
+  // Guard against password manager overwriting full name with email
+  useEffect(() => {
+    if (!editUserDialogOpen || !editingUserId) return;
+    const u = users.find((x) => x.id === editingUserId);
+    if (!u) return;
+    if (!userTypingName && editingUserName && editingUserName.includes('@')) {
+      setEditingUserName(u.full_name || "");
+    }
+  }, [editingUserName, userTypingName, editUserDialogOpen, editingUserId, users]);
+
 
   const fetchTickets = async () => {
     try {
@@ -866,30 +881,34 @@ const AdminPanel = () => {
                   <input type="password" name="password" autoComplete="new-password" tabIndex={-1} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="editUserName">Volledige naam</Label>
+                  <Label htmlFor={`editUserName-${nameFieldToken}`}>Volledige naam</Label>
                   <Input
-                    id="editUserName"
-                    name="user_display_name"
+                    id={`editUserName-${nameFieldToken}`}
+                    name={`user_display_name_${nameFieldToken}`}
                     autoComplete="off"
                     autoCorrect="off"
                     spellCheck={false}
                     inputMode="text"
                     data-lpignore="true"
                     data-1p-ignore="true"
+                    data-lastpass-ignore="true"
                     type="text"
                     value={editingUserName}
                     readOnly={nameReadonly}
                     onFocus={() => setNameReadonly(false)}
-                    onChange={(e) => setEditingUserName(e.target.value)}
+                    onChange={(e) => { setUserTypingName(true); setEditingUserName(e.target.value); }}
                     placeholder="Jan Jansen"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="editUserEmail">E-mailadres</Label>
+                  <Label htmlFor={`editUserEmail-${nameFieldToken}`}>E-mailadres</Label>
                   <Input
-                    id="editUserEmail"
-                    name="user_email"
-                    autoComplete="email"
+                    id={`editUserEmail-${nameFieldToken}`}
+                    name={`user_email_${nameFieldToken}`}
+                    autoComplete="off"
+                    data-lpignore="true"
+                    data-1p-ignore="true"
+                    data-lastpass-ignore="true"
                     type="email"
                     value={editingUserEmail}
                     onChange={(e) => setEditingUserEmail(e.target.value)}
