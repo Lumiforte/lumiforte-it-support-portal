@@ -37,7 +37,7 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'
 const Analytics = () => {
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<"30days" | "ytd">("ytd");
-  const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
+  const [selectedCompanies, setSelectedCompanies] = useState<string[]>(["ALL"]);
   const [stats, setStats] = useState<TicketStats>({ total: 0, open: 0, in_progress: 0, resolved: 0, closed: 0 });
   const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
   const [userData, setUserData] = useState<UserData[]>([]);
@@ -86,9 +86,9 @@ const Analytics = () => {
 
       if (error) throw error;
 
-      // Filter by selected companies if any
+      // Filter by selected companies if any (except "ALL")
       let filteredTickets = tickets || [];
-      if (selectedCompanies.length > 0) {
+      if (selectedCompanies.length > 0 && !selectedCompanies.includes("ALL")) {
         filteredTickets = filteredTickets.filter(t => 
           t.creator?.company && selectedCompanies.includes(t.creator.company)
         );
@@ -164,11 +164,23 @@ const Analytics = () => {
   };
 
   const toggleCompany = (companyValue: string) => {
-    setSelectedCompanies(prev =>
-      prev.includes(companyValue)
-        ? prev.filter(c => c !== companyValue)
-        : [...prev, companyValue]
-    );
+    setSelectedCompanies(prev => {
+      // If clicking "ALL", clear others and select only ALL
+      if (companyValue === "ALL") {
+        return ["ALL"];
+      }
+      
+      // Remove "ALL" if selecting a specific company
+      const withoutAll = prev.filter(c => c !== "ALL");
+      
+      if (withoutAll.includes(companyValue)) {
+        const newSelection = withoutAll.filter(c => c !== companyValue);
+        // If nothing selected, default back to ALL
+        return newSelection.length === 0 ? ["ALL"] : newSelection;
+      } else {
+        return [...withoutAll, companyValue];
+      }
+    });
   };
 
   if (loading) {
@@ -209,6 +221,19 @@ const Analytics = () => {
             <PopoverContent className="w-64 bg-popover z-50">
               <div className="space-y-2">
                 <h4 className="font-medium text-sm mb-3">Select Companies</h4>
+                <div className="flex items-center space-x-2 pb-2 border-b">
+                  <Checkbox
+                    id="company-ALL"
+                    checked={selectedCompanies.includes("ALL")}
+                    onCheckedChange={() => toggleCompany("ALL")}
+                  />
+                  <label
+                    htmlFor="company-ALL"
+                    className="text-sm font-medium cursor-pointer flex-1"
+                  >
+                    All Companies
+                  </label>
+                </div>
                 {COMPANIES.map((company) => (
                   <div key={company.value} className="flex items-center space-x-2">
                     <Checkbox
@@ -228,16 +253,6 @@ const Analytics = () => {
                     />
                   </div>
                 ))}
-                {selectedCompanies.length > 0 && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="w-full mt-2"
-                    onClick={() => setSelectedCompanies([])}
-                  >
-                    Clear All
-                  </Button>
-                )}
               </div>
             </PopoverContent>
           </Popover>

@@ -1,7 +1,6 @@
 export const COMPANIES = [
   { value: "Lumiforte EMEA SAS", label: "Lumiforte EMEA SAS", color: "#0088FE" },
   { value: "Lumiforte EMEA BV", label: "Lumiforte EMEA BV", color: "#00C49F" },
-  { value: "Lumiforte Holding BV", label: "Lumiforte Holding BV", color: "#FFBB28" },
   { value: "Lumiforte Americas Ltd.", label: "Lumiforte Americas Ltd.", color: "#FF8042" },
   { value: "Lumiforte Asia / Lumiray", label: "Lumiforte Asia / Lumiray", color: "#8884d8" },
   { value: "Sportlines GmbH", label: "Sportlines GmbH", color: "#82ca9d" },
