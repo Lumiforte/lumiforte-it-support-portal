@@ -239,7 +239,7 @@ const AdminPanel = () => {
     if (!editingUserEmail || !newUserEmail) {
       toast({
         title: "Error",
-        description: "Vul beide email velden in",
+        description: "Please fill in both email fields",
         variant: "destructive",
       });
       return;
@@ -256,7 +256,7 @@ const AdminPanel = () => {
 
       toast({
         title: "Success",
-        description: data.message || "Email adres succesvol gewijzigd",
+        description: data.message || "Email address successfully updated",
       });
 
       setEditingUserEmail("");
@@ -266,7 +266,7 @@ const AdminPanel = () => {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Kon email adres niet wijzigen",
+        description: error.message || "Failed to update email address",
         variant: "destructive",
       });
     } finally {
@@ -339,7 +339,7 @@ const AdminPanel = () => {
     if (!fromHelpdesk || !toHelpdesk) {
       toast({
         title: "Error",
-        description: "Selecteer beide helpdesk medewerkers",
+        description: "Please select both helpdesk agents",
         variant: "destructive",
       });
       return;
@@ -357,7 +357,7 @@ const AdminPanel = () => {
 
       toast({
         title: "Success",
-        description: "Tickets succesvol overgedragen",
+        description: "Tickets transferred successfully",
       });
 
       setFromHelpdesk("");
@@ -378,7 +378,7 @@ const AdminPanel = () => {
     if (!newUserData.email || !newUserData.password) {
       toast({
         title: "Error",
-        description: "Email en wachtwoord zijn verplicht",
+        description: "Email and password are required",
         variant: "destructive",
       });
       return;
@@ -409,7 +409,7 @@ const AdminPanel = () => {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Kon gebruiker niet aanmaken",
+        description: error.message || "Failed to create user",
         variant: "destructive",
       });
     } finally {
@@ -552,16 +552,16 @@ const AdminPanel = () => {
                 <DialogTrigger asChild>
                   <Button>
                     <UserPlus className="mr-2 h-4 w-4" />
-                    Nieuwe gebruiker
+                    New User
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Nieuwe gebruiker toevoegen</DialogTitle>
+                    <DialogTitle>Add New User</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="newEmail">Email adres *</Label>
+                      <Label htmlFor="newEmail">Email Address *</Label>
                       <Input
                         id="newEmail"
                         type="email"
@@ -590,7 +590,7 @@ const AdminPanel = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Rollen</Label>
+                      <Label>Roles</Label>
                       <div className="flex gap-4">
                         <div className="flex items-center gap-2">
                           <Checkbox
@@ -617,11 +617,11 @@ const AdminPanel = () => {
                           <label htmlFor="role-admin" className="text-sm cursor-pointer">Admin</label>
                         </div>
                       </div>
-                      <p className="text-xs text-muted-foreground">Als geen rol geselecteerd, wordt automatisch 'User' toegewezen</p>
+                      <p className="text-xs text-muted-foreground">If no role selected, &apos;User&apos; will be assigned automatically</p>
                     </div>
                     <Button onClick={handleCreateUser} disabled={createUserLoading} className="w-full">
                       {createUserLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Gebruiker aanmaken
+                      Create User
                     </Button>
                   </div>
                 </DialogContent>
@@ -663,11 +663,11 @@ const AdminPanel = () => {
                               </DialogTrigger>
                               <DialogContent>
                                 <DialogHeader>
-                                  <DialogTitle>Wijzig naam</DialogTitle>
+                                  <DialogTitle>Edit Name</DialogTitle>
                                 </DialogHeader>
                                 <div className="space-y-4">
                                   <div className="space-y-2">
-                                    <Label htmlFor="editName">Volledige naam</Label>
+                                    <Label htmlFor="editName">Full Name</Label>
                                     <Input
                                       id="editName"
                                       value={editingUserName}
@@ -679,7 +679,7 @@ const AdminPanel = () => {
                                     disabled={nameUpdateLoading}
                                   >
                                     {nameUpdateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    Opslaan
+                                    Save
                                   </Button>
                                 </div>
                               </DialogContent>
@@ -703,21 +703,21 @@ const AdminPanel = () => {
                               </DialogTrigger>
                               <DialogContent>
                                 <DialogHeader>
-                                  <DialogTitle>Wijzig email adres</DialogTitle>
+                                  <DialogTitle>Edit Email Address</DialogTitle>
                                 </DialogHeader>
                                 <div className="space-y-4">
                                   <div className="space-y-2">
-                                    <Label>Huidig email adres</Label>
+                                    <Label>Current Email Address</Label>
                                     <Input value={editingUserEmail} disabled />
                                   </div>
                                   <div className="space-y-2">
-                                    <Label htmlFor="newEmail">Nieuw email adres</Label>
+                                    <Label htmlFor="newEmail">New Email Address</Label>
                                     <Input
                                       id="newEmail"
                                       type="email"
                                       value={newUserEmail}
                                       onChange={(e) => setNewUserEmail(e.target.value)}
-                                      placeholder="nieuw@email.com"
+                                      placeholder="new@email.com"
                                     />
                                   </div>
                                   <Button 
@@ -725,7 +725,7 @@ const AdminPanel = () => {
                                     disabled={emailUpdateLoading}
                                   >
                                     {emailUpdateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    Opslaan
+                                    Save
                                   </Button>
                                 </div>
                               </DialogContent>
@@ -786,7 +786,7 @@ const AdminPanel = () => {
                             onClick={() => handleToggleUserActive(user.id, false)}
                           >
                             <UserX className="h-4 w-4 mr-2" />
-                            Deactiveer
+                            Deactivate
                           </Button>
                         </div>
                       </div>
@@ -809,10 +809,10 @@ const AdminPanel = () => {
             <CardContent>
               <div className="space-y-4 max-w-md">
                 <div className="space-y-2">
-                  <Label htmlFor="fromHelpdesk">Van helpdesk medewerker</Label>
+                  <Label htmlFor="fromHelpdesk">From helpdesk agent</Label>
                   <Select value={fromHelpdesk} onValueChange={setFromHelpdesk}>
                     <SelectTrigger id="fromHelpdesk">
-                      <SelectValue placeholder="Selecteer medewerker" />
+                      <SelectValue placeholder="Select agent" />
                     </SelectTrigger>
                     <SelectContent>
                       {users
@@ -827,10 +827,10 @@ const AdminPanel = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="toHelpdesk">Naar helpdesk medewerker</Label>
+                  <Label htmlFor="toHelpdesk">To helpdesk agent</Label>
                   <Select value={toHelpdesk} onValueChange={setToHelpdesk}>
                     <SelectTrigger id="toHelpdesk">
-                      <SelectValue placeholder="Selecteer medewerker" />
+                      <SelectValue placeholder="Select agent" />
                     </SelectTrigger>
                     <SelectContent>
                       {users
@@ -849,7 +849,7 @@ const AdminPanel = () => {
                   Transfer Tickets
                 </Button>
                 <p className="text-sm text-muted-foreground">
-                  Alle open en in progress tickets van de eerste medewerker worden overgedragen aan de tweede medewerker.
+                  All open and in progress tickets from the first agent will be transferred to the second agent.
                 </p>
               </div>
             </CardContent>
