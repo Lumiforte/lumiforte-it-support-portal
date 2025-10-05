@@ -204,6 +204,7 @@ const CreateTicket = () => {
                       <div className="mt-2 space-y-1 font-medium">
                         <div>• Jeroen Vrieselaar: <a href="tel:+31655387622" className="underline hover:text-orange-900">+31 6 5538 7622</a></div>
                         <div>• Jort Gerritsen: <a href="tel:+31646372789" className="underline hover:text-orange-900">+31 6 4637 2789</a></div>
+                        <div>• TCC smart IT solutions: <a href="tel:+31433630362" className="underline hover:text-orange-900">+31 43 363 0362</a></div>
                       </div>
                     </AlertDescription>
                   </Alert>
