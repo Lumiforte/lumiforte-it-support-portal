@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle, Mail, UserX, UserCheck, Edit2, ArrowRightLeft, UserPlus } from "lucide-react";
+import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle, Mail, UserX, UserCheck, Edit2, ArrowRightLeft, UserPlus, Search } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface TicketWithUser {
@@ -69,6 +69,7 @@ const AdminPanel = () => {
   const [transferLoading, setTransferLoading] = useState(false);
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [sortByRole, setSortByRole] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -430,6 +431,15 @@ const AdminPanel = () => {
   const getFilteredAndSortedUsers = () => {
     let filteredUsers = users;
 
+    // Filter by search term
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase().trim();
+      filteredUsers = filteredUsers.filter(user => 
+        user.full_name?.toLowerCase().includes(searchLower) ||
+        user.email.toLowerCase().includes(searchLower)
+      );
+    }
+
     // Filter by role
     if (roleFilter !== "all") {
       filteredUsers = filteredUsers.filter(user => 
@@ -661,6 +671,15 @@ const AdminPanel = () => {
                   </Dialog>
                 </div>
                 <div className="flex items-center gap-2">
+                  <div className="relative flex-1 max-w-sm">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Zoek op naam of e-mail..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
                   <Select value={roleFilter} onValueChange={setRoleFilter}>
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Filter by role" />
