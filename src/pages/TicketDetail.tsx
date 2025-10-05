@@ -559,7 +559,14 @@ const TicketDetail = () => {
           <Button
             variant="outline"
             size="default"
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              // Navigate to appropriate page based on user role
+              if (profile?.is_admin || profile?.is_helpdesk) {
+                navigate("/helpdesk-dashboard");
+              } else {
+                navigate("/tickets");
+              }
+            }}
             className="cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
