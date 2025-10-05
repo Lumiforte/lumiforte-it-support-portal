@@ -1,5 +1,5 @@
 import { useState, useEffect, ReactNode } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -564,22 +564,21 @@ const TicketDetail = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center gap-4 relative z-10 mb-4">
-          <Button
-            variant="outline"
-            size="default"
-            onClick={() => {
-              // Navigate to appropriate page based on user role
-              if (isHelpdeskUser) {
-                navigate("/helpdesk-dashboard");
-              } else {
-                navigate("/tickets");
-              }
-            }}
-            className="cursor-pointer"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Tickets
-          </Button>
+          {isHelpdeskUser ? (
+            <Link to="/helpdesk-dashboard">
+              <Button variant="outline" size="default">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Tickets
+              </Button>
+            </Link>
+          ) : (
+            <Link to="/tickets">
+              <Button variant="outline" size="default">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Tickets
+              </Button>
+            </Link>
+          )}
         </div>
 
         <Card>
