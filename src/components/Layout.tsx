@@ -18,7 +18,9 @@ import {
   User, 
   Shield,
   Menu,
-  Headset
+  Headset,
+  Languages,
+  Check
 } from "lucide-react";
 import lumiforteLogo from "@/assets/lumiforte-logo.png";
 
@@ -101,56 +103,46 @@ const Layout = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="hidden md:flex items-center gap-1 mr-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setLanguage("en")}
-                className={`h-8 px-3 border-2 font-semibold transition-colors ${
-                  language === "en" 
-                    ? "bg-primary text-primary-foreground" 
-                    : "bg-background hover:bg-primary hover:text-primary-foreground"
-                }`}
-              >
-                EN
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setLanguage("nl")}
-                className={`h-8 px-3 border-2 font-semibold transition-colors ${
-                  language === "nl" 
-                    ? "bg-primary text-primary-foreground" 
-                    : "bg-background hover:bg-primary hover:text-primary-foreground"
-                }`}
-              >
-                NL
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setLanguage("fr")}
-                className={`h-8 px-3 border-2 font-semibold transition-colors ${
-                  language === "fr" 
-                    ? "bg-primary text-primary-foreground" 
-                    : "bg-background hover:bg-primary hover:text-primary-foreground"
-                }`}
-              >
-                FR
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setLanguage("de")}
-                className={`h-8 px-3 border-2 font-semibold transition-colors ${
-                  language === "de" 
-                    ? "bg-primary text-primary-foreground" 
-                    : "bg-background hover:bg-primary hover:text-primary-foreground"
-                }`}
-              >
-                DE
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="h-8 px-3 bg-background hover:bg-primary hover:text-primary-foreground"
+                >
+                  <Languages className="h-4 w-4 mr-2" />
+                  {language.toUpperCase()}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuLabel>Language</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setLanguage("en")} className="cursor-pointer">
+                  <span className="flex items-center justify-between w-full">
+                    <span>English</span>
+                    {language === "en" && <Check className="h-4 w-4" />}
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLanguage("nl")} className="cursor-pointer">
+                  <span className="flex items-center justify-between w-full">
+                    <span>Nederlands</span>
+                    {language === "nl" && <Check className="h-4 w-4" />}
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLanguage("fr")} className="cursor-pointer">
+                  <span className="flex items-center justify-between w-full">
+                    <span>Français</span>
+                    {language === "fr" && <Check className="h-4 w-4" />}
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLanguage("de")} className="cursor-pointer">
+                  <span className="flex items-center justify-between w-full">
+                    <span>Deutsch</span>
+                    {language === "de" && <Check className="h-4 w-4" />}
+                  </span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -169,52 +161,6 @@ const Layout = () => {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <div className="md:hidden px-2 py-1.5">
-                  <div className="text-xs font-semibold text-muted-foreground mb-2">{t("common.language")}</div>
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setLanguage("en")}
-                      className={`h-8 px-3 flex-1 border-2 font-semibold ${
-                        language === "en" ? "bg-primary text-primary-foreground" : ""
-                      }`}
-                    >
-                      EN
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setLanguage("nl")}
-                      className={`h-8 px-3 flex-1 border-2 font-semibold ${
-                        language === "nl" ? "bg-primary text-primary-foreground" : ""
-                      }`}
-                    >
-                      NL
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setLanguage("fr")}
-                      className={`h-8 px-3 flex-1 border-2 font-semibold ${
-                        language === "fr" ? "bg-primary text-primary-foreground" : ""
-                      }`}
-                    >
-                      FR
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setLanguage("de")}
-                      className={`h-8 px-3 flex-1 border-2 font-semibold ${
-                        language === "de" ? "bg-primary text-primary-foreground" : ""
-                      }`}
-                    >
-                      DE
-                    </Button>
-                  </div>
-                </div>
-                <DropdownMenuSeparator className="md:hidden" />
                 <DropdownMenuItem className="md:hidden" asChild>
                   <Link to="/" className="flex items-center">
                     <Home className="h-4 w-4 mr-2" />
