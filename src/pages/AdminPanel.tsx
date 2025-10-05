@@ -52,13 +52,14 @@ const AdminPanel = () => {
   });
   const [loading, setLoading] = useState(true);
   const [usersLoading, setUsersLoading] = useState(true);
-  const [oldEmail, setOldEmail] = useState("");
-  const [newEmail, setNewEmail] = useState("");
-  const [emailUpdateLoading, setEmailUpdateLoading] = useState(false);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editingUserName, setEditingUserName] = useState("");
   const [nameUpdateLoading, setNameUpdateLoading] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editEmailDialogOpen, setEditEmailDialogOpen] = useState(false);
+  const [editingUserEmail, setEditingUserEmail] = useState("");
+  const [newUserEmail, setNewUserEmail] = useState("");
+  const [emailUpdateLoading, setEmailUpdateLoading] = useState(false);
   const [fromHelpdesk, setFromHelpdesk] = useState("");
   const [toHelpdesk, setToHelpdesk] = useState("");
   const [transferLoading, setTransferLoading] = useState(false);
@@ -230,13 +231,11 @@ const AdminPanel = () => {
     }
   };
 
-  const handleEmailUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!oldEmail || !newEmail) {
+  const handleEmailUpdate = async () => {
+    if (!editingUserEmail || !newUserEmail) {
       toast({
         title: "Error",
-        description: "Please fill in both email fields",
+        description: "Vul beide email velden in",
         variant: "destructive",
       });
       return;
@@ -246,23 +245,24 @@ const AdminPanel = () => {
     
     try {
       const { data, error } = await supabase.functions.invoke('update-user-email', {
-        body: { oldEmail, newEmail }
+        body: { oldEmail: editingUserEmail, newEmail: newUserEmail }
       });
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: data.message || "Email address successfully updated",
+        description: data.message || "Email adres succesvol gewijzigd",
       });
 
-      setOldEmail("");
-      setNewEmail("");
+      setEditingUserEmail("");
+      setNewUserEmail("");
+      setEditEmailDialogOpen(false);
       fetchUsers();
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Failed to update email address",
+        description: error.message || "Kon email adres niet wijzigen",
         variant: "destructive",
       });
     } finally {
@@ -389,7 +389,6 @@ const AdminPanel = () => {
         <TabsList>
           <TabsTrigger value="tickets">Tickets</TabsTrigger>
           <TabsTrigger value="users">Users & Roles</TabsTrigger>
-          <TabsTrigger value="email">Change Email</TabsTrigger>
           <TabsTrigger value="transfer">Transfer Tickets</TabsTrigger>
         </TabsList>
 
@@ -553,7 +552,52 @@ const AdminPanel = () => {
                               </DialogContent>
                             </Dialog>
                           </div>
-                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                            <Dialog open={editEmailDialogOpen} onOpenChange={setEditEmailDialogOpen}>
+                              <DialogTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditingUserEmail(user.email);
+                                    setNewUserEmail("");
+                                    setEditEmailDialogOpen(true);
+                                  }}
+                                >
+                                  <Edit2 className="h-4 w-4" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>Wijzig email adres</DialogTitle>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                  <div className="space-y-2">
+                                    <Label>Huidig email adres</Label>
+                                    <Input value={editingUserEmail} disabled />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="newEmail">Nieuw email adres</Label>
+                                    <Input
+                                      id="newEmail"
+                                      type="email"
+                                      value={newUserEmail}
+                                      onChange={(e) => setNewUserEmail(e.target.value)}
+                                      placeholder="nieuw@email.com"
+                                    />
+                                  </div>
+                                  <Button 
+                                    onClick={handleEmailUpdate} 
+                                    disabled={emailUpdateLoading}
+                                  >
+                                    {emailUpdateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    Opslaan
+                                  </Button>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
                         </div>
                         <div className="flex items-center gap-4 ml-4">
                           <div className="flex items-center gap-6">
@@ -617,50 +661,6 @@ const AdminPanel = () => {
                   )}
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="email">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Mail className="h-5 w-5" />
-                Change User Email Address
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleEmailUpdate} className="space-y-4 max-w-md">
-                <div className="space-y-2">
-                  <Label htmlFor="oldEmail">Current Email Address</Label>
-                  <Input
-                    id="oldEmail"
-                    type="email"
-                    placeholder="jeroen@mardenkro.com"
-                    value={oldEmail}
-                    onChange={(e) => setOldEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="newEmail">New Email Address</Label>
-                  <Input
-                    id="newEmail"
-                    type="email"
-                    placeholder="pietje@lumiforte.dev"
-                    value={newEmail}
-                    onChange={(e) => setNewEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <Button type="submit" disabled={emailUpdateLoading}>
-                  {emailUpdateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Update Email Address
-                </Button>
-                <p className="text-sm text-muted-foreground">
-                  This will update the email address in both the authentication system and the user profile. All ticket history will be preserved.
-                </p>
-              </form>
             </CardContent>
           </Card>
         </TabsContent>
