@@ -15,6 +15,7 @@ import { Loader2, ArrowLeft, Send, Clock, AlertCircle, CheckCircle, XCircle, Act
 import { formatDistanceToNow, format, differenceInDays } from "date-fns";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { TICKET_CATEGORIES } from "@/lib/ticketCategories";
 
 interface Ticket {
   id: string;
@@ -753,11 +754,11 @@ const TicketDetail = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="hardware">Hardware</SelectItem>
-                            <SelectItem value="software">Software</SelectItem>
-                            <SelectItem value="network">Network</SelectItem>
-                            <SelectItem value="access">Access</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
+                            {TICKET_CATEGORIES.map((cat) => (
+                              <SelectItem key={cat.value} value={cat.value}>
+                                {cat.label}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>

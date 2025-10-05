@@ -12,6 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, AlertCircle, Phone } from "lucide-react";
+import { TICKET_CATEGORIES } from "@/lib/ticketCategories";
 
 const CreateTicket = () => {
   const [title, setTitle] = useState("");
@@ -166,17 +167,11 @@ const CreateTicket = () => {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="hardware">Hardware</SelectItem>
-                    <SelectItem value="software">Software</SelectItem>
-                    <SelectItem value="network">Network</SelectItem>
-                    <SelectItem value="email">Email</SelectItem>
-                    <SelectItem value="account">Account Access</SelectItem>
-                    <SelectItem value="printer">Printing</SelectItem>
-                    <SelectItem value="intercom">Intercom Baarle-Nassau</SelectItem>
-                    <SelectItem value="salesforce">Salesforce</SelectItem>
-                    <SelectItem value="websites">Websites</SelectItem>
-                    <SelectItem value="intranet">Intranet</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
+                    {TICKET_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
