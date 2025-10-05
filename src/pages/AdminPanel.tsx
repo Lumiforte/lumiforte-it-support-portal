@@ -54,12 +54,15 @@ const AdminPanel = () => {
   });
   const [loading, setLoading] = useState(true);
   const [usersLoading, setUsersLoading] = useState(true);
-  const [editUserDialogOpen, setEditUserDialogOpen] = useState(false);
-  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [editingUserNameId, setEditingUserNameId] = useState<string | null>(null);
   const [editingUserName, setEditingUserName] = useState("");
+  const [editNameLoading, setEditNameLoading] = useState(false);
+  const [editingUserEmailId, setEditingUserEmailId] = useState<string | null>(null);
   const [editingUserEmail, setEditingUserEmail] = useState("");
+  const [editEmailLoading, setEditEmailLoading] = useState(false);
+  const [editingUserCompanyId, setEditingUserCompanyId] = useState<string | null>(null);
   const [editingUserCompany, setEditingUserCompany] = useState("");
-  const [userUpdateLoading, setUserUpdateLoading] = useState(false);
+  const [editCompanyLoading, setEditCompanyLoading] = useState(false);
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [newUserData, setNewUserData] = useState({ email: "", password: "", fullName: "" });
   const [newUserRoles, setNewUserRoles] = useState<string[]>([]);
@@ -71,9 +74,6 @@ const AdminPanel = () => {
   const [sortByRole, setSortByRole] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [companyFilter, setCompanyFilter] = useState<string>("all");
-  const [nameReadonly, setNameReadonly] = useState(true);
-  const [nameFieldToken, setNameFieldToken] = useState<string>("");
-  const [userTypingName, setUserTypingName] = useState(false);
   const { toast } = useToast();
  
   useEffect(() => {
@@ -81,36 +81,6 @@ const AdminPanel = () => {
     fetchStats();
     fetchUsers();
   }, []);
-
-  // Ensure the edit dialog always opens with the correct, fresh user data
-  useEffect(() => {
-    if (editUserDialogOpen && editingUserId) {
-      const u = users.find((x) => x.id === editingUserId);
-      if (u) {
-        setNameReadonly(true);
-        setUserTypingName(false);
-        setNameFieldToken(`${Date.now()}-${Math.random().toString(36).slice(2)}`);
-        setEditingUserName(u.full_name || "");
-        setEditingUserEmail(u.email);
-        setEditingUserCompany(u.company || "");
-        // Re-apply after a short delay to override aggressive autofill
-        const t = setTimeout(() => {
-          setEditingUserName(u.full_name || "");
-        }, 200);
-        return () => clearTimeout(t);
-      }
-    }
-  }, [editUserDialogOpen, editingUserId, users]);
-
-  // Guard against password manager overwriting full name with email
-  useEffect(() => {
-    if (!editUserDialogOpen || !editingUserId) return;
-    const u = users.find((x) => x.id === editingUserId);
-    if (!u) return;
-    if (!userTypingName && editingUserName && editingUserName.includes('@')) {
-      setEditingUserName(u.full_name || "");
-    }
-  }, [editingUserName, userTypingName, editUserDialogOpen, editingUserId, users]);
 
 
   const fetchTickets = async () => {
@@ -273,52 +243,83 @@ const AdminPanel = () => {
     }
   };
 
-  const handleUpdateUser = async () => {
-    if (!editingUserId) return;
-    
-    console.log('Updating user with:', {
-      userId: editingUserId,
-      name: editingUserName,
-      email: editingUserEmail,
-      company: editingUserCompany
-    });
-    
-    setUserUpdateLoading(true);
+  const handleUpdateUserName = async (userId: string) => {
+    setEditNameLoading(true);
     try {
-      // Update profile (name and company)
-      const { error: profileError } = await supabase
+      const { error } = await supabase
         .from("profiles")
-        .update({ 
-          full_name: editingUserName.trim() || null,
-          company: editingUserCompany && editingUserCompany.trim() !== "" ? editingUserCompany : null 
-        })
-        .eq("id", editingUserId);
+        .update({ full_name: editingUserName.trim() || null })
+        .eq("id", userId);
 
-      if (profileError) throw profileError;
-
-      // Update email if changed
-      const currentUser = users.find(u => u.id === editingUserId);
-      if (currentUser && editingUserEmail !== currentUser.email) {
-        const { error: emailError } = await supabase.functions.invoke("update-user-email", {
-          body: { 
-            userId: editingUserId,
-            newEmail: editingUserEmail 
-          }
-        });
-
-        if (emailError) throw emailError;
-      }
+      if (error) throw error;
 
       toast({
-        title: "User updated",
-        description: "The user information has been updated successfully.",
+        title: "Success",
+        description: "User name updated successfully",
       });
 
-      await fetchUsers();
-      setEditUserDialogOpen(false);
-      setEditingUserId(null);
+      fetchUsers();
+      setEditingUserNameId(null);
       setEditingUserName("");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setEditNameLoading(false);
+    }
+  };
+
+  const handleUpdateUserEmail = async (userId: string) => {
+    setEditEmailLoading(true);
+    try {
+      const { error } = await supabase.functions.invoke("update-user-email", {
+        body: { 
+          userId,
+          newEmail: editingUserEmail 
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "User email updated successfully",
+      });
+
+      fetchUsers();
+      setEditingUserEmailId(null);
       setEditingUserEmail("");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setEditEmailLoading(false);
+    }
+  };
+
+  const handleUpdateUserCompany = async (userId: string) => {
+    setEditCompanyLoading(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ company: editingUserCompany || null })
+        .eq("id", userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "User company updated successfully",
+      });
+
+      fetchUsers();
+      setEditingUserCompanyId(null);
       setEditingUserCompany("");
     } catch (error: any) {
       toast({
@@ -327,7 +328,7 @@ const AdminPanel = () => {
         variant: "destructive",
       });
     } finally {
-      setUserUpdateLoading(false);
+      setEditCompanyLoading(false);
     }
   };
 
@@ -753,8 +754,8 @@ const AdminPanel = () => {
                           index % 2 === 0 ? 'bg-accent/40' : 'bg-background'
                         }`}
                       >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <div className="flex items-center gap-2">
                             <h4 className="font-semibold truncate">
                               {user.full_name || user.email}
                             </h4>
@@ -763,30 +764,145 @@ const AdminPanel = () => {
                                 {user.company}
                               </Badge>
                             )}
+                            {editingUserNameId === user.id ? (
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  value={editingUserName}
+                                  onChange={(e) => setEditingUserName(e.target.value)}
+                                  className="h-8 max-w-[200px]"
+                                  placeholder="Full name"
+                                />
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleUpdateUserName(user.id)}
+                                  disabled={editNameLoading}
+                                >
+                                  {editNameLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                  Save
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => {
+                                    setEditingUserNameId(null);
+                                    setEditingUserName("");
+                                  }}
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setEditingUserNameId(user.id);
+                                  setEditingUserName(user.full_name || "");
+                                }}
+                              >
+                                <Edit2 className="h-3 w-3" />
+                              </Button>
+                            )}
                           </div>
-                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                          
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                            {editingUserEmailId === user.id ? (
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  type="email"
+                                  value={editingUserEmail}
+                                  onChange={(e) => setEditingUserEmail(e.target.value)}
+                                  className="h-8 max-w-[200px]"
+                                  placeholder="Email"
+                                />
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleUpdateUserEmail(user.id)}
+                                  disabled={editEmailLoading}
+                                >
+                                  {editEmailLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                  Save
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => {
+                                    setEditingUserEmailId(null);
+                                    setEditingUserEmail("");
+                                  }}
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setEditingUserEmailId(user.id);
+                                  setEditingUserEmail(user.email);
+                                }}
+                              >
+                                <Edit2 className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            {editingUserCompanyId === user.id ? (
+                              <div className="flex items-center gap-2">
+                                <Select value={editingUserCompany} onValueChange={setEditingUserCompany}>
+                                  <SelectTrigger className="h-8 max-w-[200px]">
+                                    <SelectValue placeholder="Select company..." />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {COMPANIES.map((companyOption) => (
+                                      <SelectItem key={companyOption.value} value={companyOption.value}>
+                                        {companyOption.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleUpdateUserCompany(user.id)}
+                                  disabled={editCompanyLoading}
+                                >
+                                  {editCompanyLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                  Save
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => {
+                                    setEditingUserCompanyId(null);
+                                    setEditingUserCompany("");
+                                  }}
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <p className="text-xs text-muted-foreground">
+                                  Company: {user.company || "Not set"}
+                                </p>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditingUserCompanyId(user.id);
+                                    setEditingUserCompany(user.company || "");
+                                  }}
+                                >
+                                  <Edit2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                         <div className="flex items-center gap-3 ml-4">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              console.log('Opening dialog for user:', {
-                                id: user.id,
-                                name: user.full_name,
-                                email: user.email,
-                                company: user.company
-                              });
-                              setEditingUserId(user.id);
-                              setEditingUserName(user.full_name || "");
-                              setEditingUserEmail(user.email);
-                              setEditingUserCompany(user.company || "");
-                              setEditUserDialogOpen(true);
-                            }}
-                          >
-                            <Edit2 className="h-4 w-4 mr-2" />
-                            Wijzigen
-                          </Button>
                           <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
                               <Checkbox
@@ -850,97 +966,6 @@ const AdminPanel = () => {
               )}
             </CardContent>
           </Card>
-
-          {/* Edit User Dialog */}
-          <Dialog 
-            open={editUserDialogOpen} 
-            onOpenChange={(open) => {
-              setEditUserDialogOpen(open);
-              if (open) {
-                setNameReadonly(true);
-              } else {
-                // Reset alle velden wanneer dialog sluit
-                setEditingUserId(null);
-                setEditingUserName("");
-                setEditingUserEmail("");
-                setEditingUserCompany("");
-              }
-            }}
-          >
-            <DialogContent className="max-w-md" key={editingUserId || 'new'}>
-              <DialogHeader>
-                <DialogTitle>Gebruiker wijzigen</DialogTitle>
-                <DialogDescription>
-                  Pas de gegevens van de gebruiker aan.
-                </DialogDescription>
-                </DialogHeader>
-              <form autoComplete="off" className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleUpdateUser(); }}>
-                <div className="sr-only">
-                  <input type="text" name="name" autoComplete="name" tabIndex={-1} />
-                  <input type="email" name="email" autoComplete="email" tabIndex={-1} />
-                  <input type="password" name="password" autoComplete="new-password" tabIndex={-1} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`editUserName-${nameFieldToken}`}>Volledige naam</Label>
-                  <Input
-                    id={`editUserName-${nameFieldToken}`}
-                    name={`user_display_name_${nameFieldToken}`}
-                    autoComplete="off"
-                    autoCorrect="off"
-                    spellCheck={false}
-                    inputMode="text"
-                    data-lpignore="true"
-                    data-1p-ignore="true"
-                    data-lastpass-ignore="true"
-                    type="text"
-                    value={editingUserName}
-                    readOnly={nameReadonly}
-                    onFocus={() => setNameReadonly(false)}
-                    onChange={(e) => { setUserTypingName(true); setEditingUserName(e.target.value); }}
-                    placeholder="Jan Jansen"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`editUserEmail-${nameFieldToken}`}>E-mailadres</Label>
-                  <Input
-                    id={`editUserEmail-${nameFieldToken}`}
-                    name={`user_email_${nameFieldToken}`}
-                    autoComplete="off"
-                    data-lpignore="true"
-                    data-1p-ignore="true"
-                    data-lastpass-ignore="true"
-                    type="email"
-                    value={editingUserEmail}
-                    onChange={(e) => setEditingUserEmail(e.target.value)}
-                    placeholder="gebruiker@email.com"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="editUserCompany">Bedrijf</Label>
-                  <Select value={editingUserCompany} onValueChange={setEditingUserCompany}>
-                    <SelectTrigger id="editUserCompany">
-                      <SelectValue placeholder="Selecteer bedrijf..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {COMPANIES.map((companyOption) => (
-                        <SelectItem key={companyOption.value} value={companyOption.value}>
-                          {companyOption.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button 
-                  type="submit"
-                  disabled={userUpdateLoading}
-                  className="w-full"
-                >
-                  {userUpdateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Opslaan
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
         </TabsContent>
 
         <TabsContent value="transfer">
