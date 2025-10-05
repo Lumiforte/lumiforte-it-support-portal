@@ -18,7 +18,8 @@ import {
   User, 
   Shield,
   Menu,
-  Headset
+  Headset,
+  BarChart3
 } from "lucide-react";
 import lumiforteLogo from "@/assets/lumiforte-logo.png";
 
@@ -85,6 +86,18 @@ const Layout = () => {
                   </Button>
                 </Link>
               )}
+              {(profile?.is_helpdesk || profile?.is_admin) && (
+                <Link to="/analytics">
+                  <Button
+                    variant={isActive("/analytics") ? "secondary" : "ghost"}
+                    size="sm"
+                    className={isActive("/analytics") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-primary/80"}
+                  >
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    Analytics
+                  </Button>
+                </Link>
+              )}
               {profile?.is_admin && (
                 <Link to="/admin">
                   <Button
@@ -141,6 +154,14 @@ const Layout = () => {
                     <Link to="/helpdesk" className="flex items-center">
                       <Headset className="h-4 w-4 mr-2" />
                       {t("common.helpdesk")}
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                {(profile?.is_helpdesk || profile?.is_admin) && (
+                  <DropdownMenuItem className="md:hidden" asChild>
+                    <Link to="/analytics" className="flex items-center">
+                      <BarChart3 className="h-4 w-4 mr-2" />
+                      Analytics
                     </Link>
                   </DropdownMenuItem>
                 )}
