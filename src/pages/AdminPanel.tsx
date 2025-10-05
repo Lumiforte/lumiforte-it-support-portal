@@ -72,12 +72,24 @@ const AdminPanel = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [companyFilter, setCompanyFilter] = useState<string>("all");
   const { toast } = useToast();
-
+ 
   useEffect(() => {
     fetchTickets();
     fetchStats();
     fetchUsers();
   }, []);
+
+  // Ensure the edit dialog always opens with the correct, fresh user data
+  useEffect(() => {
+    if (editUserDialogOpen && editingUserId) {
+      const u = users.find((x) => x.id === editingUserId);
+      if (u) {
+        setEditingUserName(u.full_name || "");
+        setEditingUserEmail(u.email);
+        setEditingUserCompany(u.company || "");
+      }
+    }
+  }, [editUserDialogOpen, editingUserId, users]);
 
   const fetchTickets = async () => {
     try {
@@ -824,7 +836,7 @@ const AdminPanel = () => {
               }
             }}
           >
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-md" key={editingUserId || 'new'}>
               <DialogHeader>
                 <DialogTitle>Gebruiker wijzigen</DialogTitle>
                 <DialogDescription>
@@ -836,6 +848,9 @@ const AdminPanel = () => {
                   <Label htmlFor="editUserName">Volledige naam</Label>
                   <Input
                     id="editUserName"
+                    name="full_name"
+                    autoComplete="off"
+                    autoCapitalize="words"
                     type="text"
                     value={editingUserName}
                     onChange={(e) => setEditingUserName(e.target.value)}
@@ -846,6 +861,8 @@ const AdminPanel = () => {
                   <Label htmlFor="editUserEmail">E-mailadres</Label>
                   <Input
                     id="editUserEmail"
+                    name="email"
+                    autoComplete="email"
                     type="email"
                     value={editingUserEmail}
                     onChange={(e) => setEditingUserEmail(e.target.value)}
