@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Languages, Check } from "lucide-react";
 
 const Profile = () => {
   const { profile, user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -111,6 +112,47 @@ const Profile = () => {
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder={t("profile.phoneNumberPlaceholder")}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="language">
+                <Languages className="inline h-4 w-4 mr-2" />
+                {t("profile.language")}
+              </Label>
+              <Select value={language} onValueChange={(value) => setLanguage(value as any)}>
+                <SelectTrigger id="language">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en">
+                    <span className="flex items-center justify-between w-full">
+                      English
+                      {language === "en" && <Check className="h-4 w-4 ml-2" />}
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="nl">
+                    <span className="flex items-center justify-between w-full">
+                      Nederlands
+                      {language === "nl" && <Check className="h-4 w-4 ml-2" />}
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="fr">
+                    <span className="flex items-center justify-between w-full">
+                      Français
+                      {language === "fr" && <Check className="h-4 w-4 ml-2" />}
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="de">
+                    <span className="flex items-center justify-between w-full">
+                      Deutsch
+                      {language === "de" && <Check className="h-4 w-4 ml-2" />}
+                    </span>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                {t("profile.languageDescription")}
+              </p>
             </div>
 
             <Button type="submit" disabled={loading} className="w-full">

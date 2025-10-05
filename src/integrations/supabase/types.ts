@@ -65,6 +65,7 @@ export type Database = {
           full_name: string | null
           id: string
           phone_number: string | null
+          preferred_language: string | null
         }
         Insert: {
           created_at?: string | null
@@ -72,6 +73,7 @@ export type Database = {
           full_name?: string | null
           id: string
           phone_number?: string | null
+          preferred_language?: string | null
         }
         Update: {
           created_at?: string | null
@@ -79,6 +81,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           phone_number?: string | null
+          preferred_language?: string | null
         }
         Relationships: []
       }

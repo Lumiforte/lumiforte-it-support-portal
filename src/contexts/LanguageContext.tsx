@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 type Language = "en" | "nl" | "fr" | "de";
 
@@ -23,7 +24,43 @@ interface LanguageProviderProps {
 }
 
 export const LanguageProvider = ({ children }: LanguageProviderProps) => {
-  const [language, setLanguage] = useState<Language>("en");
+  const [language, setLanguageState] = useState<Language>("en");
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    // Load user's preferred language from profile
+    const loadUserLanguage = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("preferred_language")
+          .eq("id", user.id)
+          .single();
+        
+        if (profile?.preferred_language) {
+          setLanguageState(profile.preferred_language as Language);
+        }
+      }
+      setIsLoaded(true);
+    };
+
+    loadUserLanguage();
+  }, []);
+
+  const setLanguage = async (lang: Language) => {
+    setLanguageState(lang);
+    
+    // Save to user profile if logged in
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from("profiles")
+        .update({ preferred_language: lang })
+        .eq("id", user.id);
+    }
+  };
 
   const t = (key: string): string => {
     const translations = getTranslations(language);
@@ -65,15 +102,17 @@ const getTranslations = (lang: Language) => {
       profile: {
         title: "My Profile",
         subtitle: "Manage your personal information",
-        fullName: "Full Name",
-        email: "Email Address",
-        phoneNumber: "Phone Number",
-        phoneNumberPlaceholder: "+31 6 12345678",
-        save: "Save Changes",
-        saving: "Saving...",
-        successMessage: "Profile updated successfully",
-        errorMessage: "Failed to update profile",
-      },
+      fullName: "Full Name",
+      email: "Email Address",
+      phoneNumber: "Phone Number",
+      phoneNumberPlaceholder: "+31 6 12345678",
+      save: "Save Changes",
+      saving: "Saving...",
+      successMessage: "Profile updated successfully",
+      errorMessage: "Failed to update profile",
+      language: "Preferred Language",
+      languageDescription: "Your language preference will be saved and applied automatically when you sign in",
+    },
       helpdesk: {
         title: "Helpdesk Dashboard",
         subtitle: "View and manage all support tickets",
@@ -141,15 +180,17 @@ const getTranslations = (lang: Language) => {
       profile: {
         title: "Mijn Profiel",
         subtitle: "Beheer uw persoonlijke gegevens",
-        fullName: "Volledige Naam",
-        email: "E-mailadres",
-        phoneNumber: "Telefoonnummer",
-        phoneNumberPlaceholder: "+31 6 12345678",
-        save: "Wijzigingen Opslaan",
-        saving: "Opslaan...",
-        successMessage: "Profiel succesvol bijgewerkt",
-        errorMessage: "Profiel bijwerken mislukt",
-      },
+      fullName: "Volledige Naam",
+      email: "E-mailadres",
+      phoneNumber: "Telefoonnummer",
+      phoneNumberPlaceholder: "+31 6 12345678",
+      save: "Wijzigingen Opslaan",
+      saving: "Opslaan...",
+      successMessage: "Profiel succesvol bijgewerkt",
+      errorMessage: "Profiel bijwerken mislukt",
+      language: "Voorkeurstaal",
+      languageDescription: "Uw taalvoorkeur wordt opgeslagen en automatisch toegepast wanneer u inlogt",
+    },
       helpdesk: {
         title: "Helpdesk Dashboard",
         subtitle: "Bekijk en beheer alle supporttickets",
@@ -217,15 +258,17 @@ const getTranslations = (lang: Language) => {
       profile: {
         title: "Mon Profil",
         subtitle: "Gérez vos informations personnelles",
-        fullName: "Nom Complet",
-        email: "Adresse E-mail",
-        phoneNumber: "Numéro de Téléphone",
-        phoneNumberPlaceholder: "+33 6 12 34 56 78",
-        save: "Enregistrer les Modifications",
-        saving: "Enregistrement...",
-        successMessage: "Profil mis à jour avec succès",
-        errorMessage: "Échec de la mise à jour du profil",
-      },
+      fullName: "Nom Complet",
+      email: "Adresse E-mail",
+      phoneNumber: "Numéro de Téléphone",
+      phoneNumberPlaceholder: "+33 6 12 34 56 78",
+      save: "Enregistrer les Modifications",
+      saving: "Enregistrement...",
+      successMessage: "Profil mis à jour avec succès",
+      errorMessage: "Échec de la mise à jour du profil",
+      language: "Langue Préférée",
+      languageDescription: "Votre préférence linguistique sera enregistrée et appliquée automatiquement lorsque vous vous connectez",
+    },
       helpdesk: {
         title: "Tableau de bord Service d'assistance",
         subtitle: "Voir et gérer tous les tickets d'assistance",
@@ -293,15 +336,17 @@ const getTranslations = (lang: Language) => {
       profile: {
         title: "Mein Profil",
         subtitle: "Verwalten Sie Ihre persönlichen Informationen",
-        fullName: "Vollständiger Name",
-        email: "E-Mail-Adresse",
-        phoneNumber: "Telefonnummer",
-        phoneNumberPlaceholder: "+49 151 12345678",
-        save: "Änderungen Speichern",
-        saving: "Speichern...",
-        successMessage: "Profil erfolgreich aktualisiert",
-        errorMessage: "Profil konnte nicht aktualisiert werden",
-      },
+      fullName: "Vollständiger Name",
+      email: "E-Mail-Adresse",
+      phoneNumber: "Telefonnummer",
+      phoneNumberPlaceholder: "+49 151 12345678",
+      save: "Änderungen Speichern",
+      saving: "Speichern...",
+      successMessage: "Profil erfolgreich aktualisiert",
+      errorMessage: "Profil konnte nicht aktualisiert werden",
+      language: "Bevorzugte Sprache",
+      languageDescription: "Ihre Spracheinstellung wird gespeichert und automatisch angewendet, wenn Sie sich anmelden",
+    },
       helpdesk: {
         title: "Helpdesk Dashboard",
         subtitle: "Alle Support-Tickets anzeigen und verwalten",
