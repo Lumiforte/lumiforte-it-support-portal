@@ -54,14 +54,12 @@ const AdminPanel = () => {
   });
   const [loading, setLoading] = useState(true);
   const [usersLoading, setUsersLoading] = useState(true);
+  const [editUserDialogOpen, setEditUserDialogOpen] = useState(false);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editingUserName, setEditingUserName] = useState("");
-  const [nameUpdateLoading, setNameUpdateLoading] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editEmailDialogOpen, setEditEmailDialogOpen] = useState(false);
   const [editingUserEmail, setEditingUserEmail] = useState("");
-  const [newUserEmail, setNewUserEmail] = useState("");
-  const [emailUpdateLoading, setEmailUpdateLoading] = useState(false);
+  const [editingUserCompany, setEditingUserCompany] = useState("");
+  const [userUpdateLoading, setUserUpdateLoading] = useState(false);
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [newUserData, setNewUserData] = useState({ email: "", password: "", fullName: "" });
   const [newUserRoles, setNewUserRoles] = useState<string[]>([]);
@@ -72,9 +70,6 @@ const AdminPanel = () => {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [sortByRole, setSortByRole] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [editCompanyDialogOpen, setEditCompanyDialogOpen] = useState(false);
-  const [editingUserCompany, setEditingUserCompany] = useState("");
-  const [companyUpdateLoading, setCompanyUpdateLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -243,65 +238,45 @@ const AdminPanel = () => {
     }
   };
 
-  const handleEmailUpdate = async () => {
-    if (!editingUserEmail || !newUserEmail) {
-      toast({
-        title: "Error",
-        description: "Please fill in both email fields",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setEmailUpdateLoading(true);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('update-user-email', {
-        body: { oldEmail: editingUserEmail, newEmail: newUserEmail }
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: data.message || "Email address successfully updated",
-      });
-
-      setEditingUserEmail("");
-      setNewUserEmail("");
-      setEditEmailDialogOpen(false);
-      fetchUsers();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update email address",
-        variant: "destructive",
-      });
-    } finally {
-      setEmailUpdateLoading(false);
-    }
-  };
-
-  const handleCompanyUpdate = async () => {
+  const handleUpdateUser = async () => {
     if (!editingUserId) return;
     
-    setCompanyUpdateLoading(true);
+    setUserUpdateLoading(true);
     try {
-      const { error } = await supabase
+      // Update profile (name and company)
+      const { error: profileError } = await supabase
         .from("profiles")
-        .update({ company: editingUserCompany || null })
+        .update({ 
+          full_name: editingUserName.trim() || null,
+          company: editingUserCompany || null 
+        })
         .eq("id", editingUserId);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      // Update email if changed
+      const currentUser = users.find(u => u.id === editingUserId);
+      if (currentUser && editingUserEmail !== currentUser.email) {
+        const { error: emailError } = await supabase.functions.invoke("update-user-email", {
+          body: { 
+            userId: editingUserId,
+            newEmail: editingUserEmail 
+          }
+        });
+
+        if (emailError) throw emailError;
+      }
 
       toast({
-        title: "Company updated",
-        description: "The user's company has been updated successfully.",
+        title: "User updated",
+        description: "The user information has been updated successfully.",
       });
 
       fetchUsers();
-      setEditCompanyDialogOpen(false);
+      setEditUserDialogOpen(false);
       setEditingUserId(null);
+      setEditingUserName("");
+      setEditingUserEmail("");
       setEditingUserCompany("");
     } catch (error: any) {
       toast({
@@ -310,7 +285,7 @@ const AdminPanel = () => {
         variant: "destructive",
       });
     } finally {
-      setCompanyUpdateLoading(false);
+      setUserUpdateLoading(false);
     }
   };
 
@@ -337,41 +312,6 @@ const AdminPanel = () => {
         description: error.message || "Failed to update user status",
         variant: "destructive",
       });
-    }
-  };
-
-  const handleUpdateName = async () => {
-    if (!editingUserId || !editingUserName) return;
-
-    setNameUpdateLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('manage-user', {
-        body: { 
-          userId: editingUserId, 
-          action: 'update_name',
-          fullName: editingUserName
-        }
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: data.message,
-      });
-
-      setEditingUserId(null);
-      setEditingUserName("");
-      setEditDialogOpen(false);
-      fetchUsers();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update name",
-        variant: "destructive",
-      });
-    } finally {
-      setNameUpdateLoading(false);
     }
   };
 
@@ -760,193 +700,27 @@ const AdminPanel = () => {
                             <h4 className="font-semibold truncate">
                               {user.full_name || user.email}
                             </h4>
-                            <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-                              <DialogTrigger asChild>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  className="h-6 w-6 p-0"
-                                  onClick={() => {
-                                    setEditingUserId(user.id);
-                                    setEditingUserName(user.full_name || "");
-                                    setEditDialogOpen(true);
-                                  }}
-                                >
-                                  <Edit2 className="h-3 w-3" />
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>Edit Name</DialogTitle>
-                                </DialogHeader>
-                                <div className="space-y-4">
-                                  <div className="space-y-2">
-                                    <Label htmlFor="editName">Full Name</Label>
-                                    <Input
-                                      id="editName"
-                                      value={editingUserName}
-                                      onChange={(e) => setEditingUserName(e.target.value)}
-                                    />
-                                  </div>
-                                  <Button 
-                                    onClick={handleUpdateName} 
-                                    disabled={nameUpdateLoading}
-                                  >
-                                    {nameUpdateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    Save
-                                  </Button>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
                           </div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="text-sm text-muted-foreground">{user.email}</p>
-                            <Dialog open={editEmailDialogOpen} onOpenChange={setEditEmailDialogOpen}>
-                              <DialogTrigger asChild>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  className="h-6 w-6 p-0"
-                                  onClick={() => {
-                                    setEditingUserEmail(user.email);
-                                    setNewUserEmail("");
-                                    setEditEmailDialogOpen(true);
-                                  }}
-                                >
-                                  <Edit2 className="h-3 w-3" />
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>Edit Email Address</DialogTitle>
-                                </DialogHeader>
-                                <div className="space-y-4">
-                                  <div className="space-y-2">
-                                    <Label>Current Email Address</Label>
-                                    <Input value={editingUserEmail} disabled />
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label htmlFor="newEmail">New Email Address</Label>
-                                    <Input
-                                      id="newEmail"
-                                      type="email"
-                                      value={newUserEmail}
-                                      onChange={(e) => setNewUserEmail(e.target.value)}
-                                      placeholder="new@email.com"
-                                    />
-                                  </div>
-                                  <Button 
-                                    onClick={handleEmailUpdate} 
-                                    disabled={emailUpdateLoading}
-                                  >
-                                    {emailUpdateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    Save
-                                  </Button>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                          </div>
+                          <p className="text-sm text-muted-foreground mb-1">{user.email}</p>
                           {user.company && (
-                            <div className="flex items-center gap-2">
-                              <p className="text-xs text-muted-foreground/70">{user.company}</p>
-                              <Dialog open={editCompanyDialogOpen} onOpenChange={setEditCompanyDialogOpen}>
-                                <DialogTrigger asChild>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm"
-                                    className="h-6 w-6 p-0"
-                                    onClick={() => {
-                                      setEditingUserId(user.id);
-                                      setEditingUserCompany(user.company || "");
-                                      setEditCompanyDialogOpen(true);
-                                    }}
-                                  >
-                                    <Edit2 className="h-3 w-3" />
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                  <DialogHeader>
-                                    <DialogTitle>Edit Company</DialogTitle>
-                                    <DialogDescription>Select the company for this user.</DialogDescription>
-                                  </DialogHeader>
-                                  <div className="space-y-4">
-                                    <div className="space-y-2">
-                                      <Label htmlFor="companySelectExisting">Company</Label>
-                                      <Select value={editingUserCompany} onValueChange={setEditingUserCompany}>
-                                        <SelectTrigger id="companySelectExisting">
-                                          <SelectValue placeholder="Select company..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          {COMPANIES.map((companyOption) => (
-                                            <SelectItem key={companyOption.value} value={companyOption.value}>
-                                              {companyOption.label}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                    </div>
-                                    <Button 
-                                      onClick={handleCompanyUpdate} 
-                                      disabled={companyUpdateLoading}
-                                    >
-                                      {companyUpdateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                      Save
-                                    </Button>
-                                  </div>
-                                </DialogContent>
-                              </Dialog>
-                            </div>
-                          )}
-                          {!user.company && (
-                            <Dialog open={editCompanyDialogOpen} onOpenChange={setEditCompanyDialogOpen}>
-                              <DialogTrigger asChild>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  className="text-xs text-muted-foreground/70 h-auto p-1"
-                                  onClick={() => {
-                                    setEditingUserId(user.id);
-                                    setEditingUserCompany("");
-                                    setEditCompanyDialogOpen(true);
-                                  }}
-                                >
-                                  + Add company
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>Edit Company</DialogTitle>
-                                  <DialogDescription>Select the company for this user.</DialogDescription>
-                                </DialogHeader>
-                                <div className="space-y-4">
-                                  <div className="space-y-2">
-                                    <Label htmlFor="companySelect">Company</Label>
-                                    <Select value={editingUserCompany} onValueChange={setEditingUserCompany}>
-                                      <SelectTrigger id="companySelect">
-                                        <SelectValue placeholder="Select company..." />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        {COMPANIES.map((companyOption) => (
-                                          <SelectItem key={companyOption.value} value={companyOption.value}>
-                                            {companyOption.label}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                  <Button 
-                                    onClick={handleCompanyUpdate} 
-                                    disabled={companyUpdateLoading}
-                                  >
-                                    {companyUpdateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    Save
-                                  </Button>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
+                            <p className="text-xs text-muted-foreground/70">{user.company}</p>
                           )}
                         </div>
                         <div className="flex items-center gap-3 ml-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditingUserId(user.id);
+                              setEditingUserName(user.full_name || "");
+                              setEditingUserEmail(user.email);
+                              setEditingUserCompany(user.company || "");
+                              setEditUserDialogOpen(true);
+                            }}
+                          >
+                            <Edit2 className="h-4 w-4 mr-2" />
+                            Wijzigen
+                          </Button>
                           <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
                               <Checkbox
@@ -1010,6 +784,62 @@ const AdminPanel = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* Edit User Dialog */}
+          <Dialog open={editUserDialogOpen} onOpenChange={setEditUserDialogOpen}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Gebruiker wijzigen</DialogTitle>
+                <DialogDescription>
+                  Pas de gegevens van de gebruiker aan.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="editUserName">Volledige naam</Label>
+                  <Input
+                    id="editUserName"
+                    value={editingUserName}
+                    onChange={(e) => setEditingUserName(e.target.value)}
+                    placeholder="Jan Jansen"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="editUserEmail">E-mailadres</Label>
+                  <Input
+                    id="editUserEmail"
+                    type="email"
+                    value={editingUserEmail}
+                    onChange={(e) => setEditingUserEmail(e.target.value)}
+                    placeholder="gebruiker@email.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="editUserCompany">Bedrijf</Label>
+                  <Select value={editingUserCompany} onValueChange={setEditingUserCompany}>
+                    <SelectTrigger id="editUserCompany">
+                      <SelectValue placeholder="Selecteer bedrijf..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COMPANIES.map((companyOption) => (
+                        <SelectItem key={companyOption.value} value={companyOption.value}>
+                          {companyOption.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button 
+                  onClick={handleUpdateUser} 
+                  disabled={userUpdateLoading}
+                  className="w-full"
+                >
+                  {userUpdateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Opslaan
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </TabsContent>
 
         <TabsContent value="transfer">
