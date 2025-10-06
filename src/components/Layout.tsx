@@ -19,7 +19,8 @@ import {
   Shield,
   Menu,
   Headset,
-  BarChart3
+  BarChart3,
+  Bot
 } from "lucide-react";
 import lumiforteLogo from "@/assets/lumiforte-logo.png";
 
@@ -72,6 +73,16 @@ const Layout = () => {
                 >
                   <Ticket className="h-4 w-4 mr-2" />
                   {t("common.tickets")}
+                </Button>
+              </Link>
+              <Link to="/ai">
+                <Button
+                  variant={isActive("/ai") ? "secondary" : "ghost"}
+                  size="sm"
+                  className={isActive("/ai") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-primary/80"}
+                >
+                  <Bot className="h-4 w-4 mr-2" />
+                  AI
                 </Button>
               </Link>
               {(profile?.is_helpdesk || profile?.is_admin) && (
@@ -147,6 +158,12 @@ const Layout = () => {
                   <Link to="/tickets" className="flex items-center">
                     <Ticket className="h-4 w-4 mr-2" />
                     {t("common.tickets")}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="md:hidden" asChild>
+                  <Link to="/ai" className="flex items-center">
+                    <Bot className="h-4 w-4 mr-2" />
+                    AI
                   </Link>
                 </DropdownMenuItem>
                 {(profile?.is_helpdesk || profile?.is_admin) && (

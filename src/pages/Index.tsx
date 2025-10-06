@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { HelpCircle, Ticket, Plus, Search, Clock, CheckCircle, Users } from "lucide-react";
+import { HelpCircle, Ticket, Plus, Search, Clock, CheckCircle, Users, Bot } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
-import { AIChat } from "@/components/AIChat";
 
 const Index = () => {
   const { t, language } = useLanguage();
@@ -28,7 +27,7 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <Card className="hover:shadow-lg transition-shadow flex flex-col">
             <CardHeader className="flex-grow">
               <div className="flex items-center gap-2">
@@ -94,6 +93,28 @@ const Index = () => {
               </Link>
             </CardContent>
           </Card>
+
+          <Card className="hover:shadow-lg transition-shadow flex flex-col">
+            <CardHeader className="flex-grow">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-secondary rounded-lg">
+                  <Bot className="h-6 w-6 text-secondary-foreground" />
+                </div>
+                <CardTitle>AI Assistent</CardTitle>
+              </div>
+              <CardDescription>
+                Stel direct een vraag aan onze AI assistent
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link to="/ai">
+                <Button className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
+                  <Bot className="mr-2 h-4 w-4" />
+                  Start Chat
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
         </div>
 
         <Card>
@@ -148,8 +169,6 @@ const Index = () => {
             </div>
           </CardContent>
         </Card>
-
-        <AIChat />
       </div>
   );
 };
