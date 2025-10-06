@@ -64,9 +64,10 @@ const AdminPanel = () => {
   const [editingUserCompany, setEditingUserCompany] = useState("");
   const [editCompanyLoading, setEditCompanyLoading] = useState(false);
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
-  const [newUserData, setNewUserData] = useState({ email: "", password: "", fullName: "" });
+  const [newUserData, setNewUserData] = useState({ email: "", fullName: "" });
   const [newUserRoles, setNewUserRoles] = useState<string[]>([]);
   const [createUserLoading, setCreateUserLoading] = useState(false);
+  const [sendingInvitationUserId, setSendingInvitationUserId] = useState<string | null>(null);
   const [fromHelpdesk, setFromHelpdesk] = useState("");
   const [toHelpdesk, setToHelpdesk] = useState("");
   const [transferLoading, setTransferLoading] = useState(false);
@@ -398,10 +399,10 @@ const AdminPanel = () => {
   };
 
   const handleCreateUser = async () => {
-    if (!newUserData.email || !newUserData.password) {
+    if (!newUserData.email) {
       toast({
         title: "Error",
-        description: "Email and password are required",
+        description: "Email is required",
         variant: "destructive",
       });
       return;
@@ -412,7 +413,6 @@ const AdminPanel = () => {
       const { data, error } = await supabase.functions.invoke('create-user', {
         body: {
           email: newUserData.email,
-          password: newUserData.password,
           fullName: newUserData.fullName,
           roles: newUserRoles.length > 0 ? newUserRoles : ['user']
         }
@@ -421,11 +421,11 @@ const AdminPanel = () => {
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: data.message,
+        title: "Succes",
+        description: data.message || "Gebruiker succesvol aangemaakt. Stuur nu een uitnodiging om de gebruiker in te laten loggen.",
       });
 
-      setNewUserData({ email: "", password: "", fullName: "" });
+      setNewUserData({ email: "", fullName: "" });
       setNewUserRoles([]);
       setAddUserDialogOpen(false);
       fetchUsers();
@@ -437,6 +437,49 @@ const AdminPanel = () => {
       });
     } finally {
       setCreateUserLoading(false);
+    }
+  };
+
+  const handleSendInvitation = async (userId: string) => {
+    setSendingInvitationUserId(userId);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Error",
+          description: "Niet ingelogd",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data: adminProfile } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', session.user.id)
+        .single();
+
+      const { data, error } = await supabase.functions.invoke('send-user-invitation', {
+        body: {
+          userId,
+          adminEmail: adminProfile?.email || session.user.email
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Uitnodiging verstuurd",
+        description: "De gebruiker heeft een e-mail ontvangen om een wachtwoord in te stellen.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Kon uitnodiging niet versturen",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingInvitationUserId(null);
     }
   };
 
@@ -637,16 +680,9 @@ const AdminPanel = () => {
                             onChange={(e) => setNewUserData(prev => ({ ...prev, email: e.target.value }))}
                             placeholder="gebruiker@email.com"
                           />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="newPassword">Wachtwoord *</Label>
-                          <Input
-                            id="newPassword"
-                            type="password"
-                            value={newUserData.password}
-                            onChange={(e) => setNewUserData(prev => ({ ...prev, password: e.target.value }))}
-                            placeholder="Minimaal 6 karakters"
-                          />
+                          <p className="text-xs text-muted-foreground">
+                            Na het aanmaken kun je de gebruiker uitnodigen om een wachtwoord in te stellen
+                          </p>
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="newFullName">Volledige naam</Label>
@@ -950,6 +986,19 @@ const AdminPanel = () => {
                               </label>
                             </div>
                           </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleSendInvitation(user.id)}
+                            disabled={sendingInvitationUserId === user.id}
+                          >
+                            {sendingInvitationUserId === user.id ? (
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <Mail className="h-4 w-4 mr-2" />
+                            )}
+                            Uitnodiging
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"

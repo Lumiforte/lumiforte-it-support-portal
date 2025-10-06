@@ -14,14 +14,14 @@ const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
 const CreateUserSchema = z.object({
   email: z.string().email().max(254),
-  password: z.string().min(8).max(128),
+  password: z.string().min(8).max(128).optional(),
   fullName: z.string().max(100).optional(),
   roles: z.array(z.enum(['admin', 'helpdesk', 'user'])).optional()
 });
 
 interface CreateUserRequest {
   email: string;
-  password: string;
+  password?: string;
   fullName?: string;
   roles?: string[];
 }
@@ -80,10 +80,13 @@ serve(async (req) => {
 
     console.log(`Creating user with email: ${email}`);
 
+    // Generate a random password if none provided
+    const userPassword = password || crypto.randomUUID();
+
     // Create user in auth.users
     const { data: authData, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email,
-      password,
+      password: userPassword,
       email_confirm: true,
       user_metadata: { full_name: fullName || email }
     });
