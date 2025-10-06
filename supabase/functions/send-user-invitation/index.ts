@@ -99,13 +99,12 @@ serve(async (req) => {
 
     const adminName = adminProfile?.full_name || adminEmail;
 
-    // Generate password recovery link (valid for 24 hours)
+    // Generate password recovery link
     const { data: resetData, error: resetError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'recovery',
       email: targetUser.user.email!,
       options: {
-        redirectTo: `${Deno.env.get("SUPABASE_URL")?.replace('https://', 'https://').replace('.supabase.co', '.lovableproject.com')}/auth`,
-        expiresIn: 86400 // 24 hours in seconds
+        redirectTo: `${Deno.env.get("SUPABASE_URL")?.replace('https://', 'https://').replace('.supabase.co', '.lovableproject.com')}/auth`
       }
     });
 
