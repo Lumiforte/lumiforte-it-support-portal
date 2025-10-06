@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import SetPassword from "./pages/SetPassword";
 import FAQ from "./pages/FAQ";
 import Tickets from "./pages/Tickets";
 import CreateTicket from "./pages/CreateTicket";
@@ -31,9 +32,10 @@ const App = () => (
       <BrowserRouter>
         <LanguageProvider>
           <AuthProvider>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route element={<Layout />}>
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/set-password" element={<SetPassword />} />
+          <Route element={<Layout />}>
                 <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
                 <Route path="/faq" element={<ProtectedRoute><FAQ /></ProtectedRoute>} />
                 <Route path="/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
