@@ -1164,37 +1164,45 @@ const AdminPanel = () => {
                             )}
                             Send Invitation
                           </Button>
-                           <Button
-                             variant="outline"
-                             size="sm"
-                             onClick={() => handleToggleUserActive(user.id, !!user.banned_until)}
-                           >
-                             {user.banned_until ? (
-                               <>
-                                 <UserCheck className="h-4 w-4 mr-2" />
-                                 Activate
-                               </>
-                             ) : (
-                               <>
-                                 <UserX className="h-4 w-4 mr-2" />
-                                 Deactivate
-                               </>
-                             )}
-                           </Button>
-                           {user.banned_until && (
-                             <Button
-                               variant="outline"
-                               size="sm"
-                               onClick={() => handleDeleteUser(user.id)}
-                               disabled={deletingUserId === user.id}
-                             >
-                               {deletingUserId === user.id ? (
-                                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                               ) : (
-                                 <Trash2 className="h-4 w-4 mr-2" />
+                           {user.email === 'jeroen.vrieselaar@lumiforte.com' ? (
+                             <Badge variant="secondary" className="px-3 py-1">
+                               <span className="text-xs">🛡️ Protected Admin</span>
+                             </Badge>
+                           ) : (
+                             <>
+                               <Button
+                                 variant="outline"
+                                 size="sm"
+                                 onClick={() => handleToggleUserActive(user.id, !!user.banned_until)}
+                               >
+                                 {user.banned_until ? (
+                                   <>
+                                     <UserCheck className="h-4 w-4 mr-2" />
+                                     Activate
+                                   </>
+                                 ) : (
+                                   <>
+                                     <UserX className="h-4 w-4 mr-2" />
+                                     Deactivate
+                                   </>
+                                 )}
+                               </Button>
+                               {user.banned_until && (
+                                 <Button
+                                   variant="outline"
+                                   size="sm"
+                                   onClick={() => handleDeleteUser(user.id)}
+                                   disabled={deletingUserId === user.id}
+                                 >
+                                   {deletingUserId === user.id ? (
+                                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                   ) : (
+                                     <Trash2 className="h-4 w-4 mr-2" />
+                                   )}
+                                   Delete
+                                 </Button>
                                )}
-                               Delete
-                             </Button>
+                             </>
                            )}
                         </div>
                       </div>

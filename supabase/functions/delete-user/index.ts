@@ -68,6 +68,17 @@ serve(async (req) => {
 
     const { userId } = validation.data;
 
+    console.log(`Checking if user ${userId} can be deleted...`);
+
+    // Check if this is the protected admin account
+    const { data: targetUser } = await supabaseAdmin.auth.admin.getUserById(userId);
+    if (targetUser?.user?.email === 'jeroen.vrieselaar@lumiforte.com') {
+      return new Response(
+        JSON.stringify({ error: 'Dit account kan niet worden verwijderd (beschermd admin account)' }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     console.log(`Checking if user ${userId} has any tickets...`);
 
     // Check if user has any tickets (any status)

@@ -78,6 +78,15 @@ serve(async (req) => {
 
     console.log(`Managing user ${userId}, action: ${action}`);
 
+    // Check if this is the protected admin account
+    const { data: targetUser } = await supabaseAdmin.auth.admin.getUserById(userId);
+    if (targetUser?.user?.email === 'jeroen.vrieselaar@lumiforte.com') {
+      return new Response(
+        JSON.stringify({ error: 'Dit account kan niet worden gedeactiveerd (beschermd admin account)' }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     if (action === 'ban') {
       const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
         ban_duration: "876000h" // 100 years
