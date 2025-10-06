@@ -68,7 +68,7 @@ const handler = async (req: Request): Promise<Response> => {
     }[priority] || "#6b7280";
 
     const emailResponse = await resend.emails.send({
-      from: "Lumiforte Support <onboarding@resend.dev>",
+      from: "Lumiforte Support <support@lumiforte.dev>",
       to: ["jeroen.vrieselaar@lumiforte.com"],
       subject: `Nieuw Support Ticket: ${title}`,
       html: `

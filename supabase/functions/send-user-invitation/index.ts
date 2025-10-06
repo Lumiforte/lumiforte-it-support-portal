@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.58.0";
-import { Resend } from "npm:resend@4.0.0";
+import { Resend } from "https://esm.sh/resend@4.0.0";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
@@ -118,8 +118,8 @@ serve(async (req) => {
 
     // Send invitation email
     const emailResponse = await resend.emails.send({
-      from: `${adminName} <onboarding@resend.dev>`,
-      reply_to: adminEmail,
+      from: `${adminName} <support@lumiforte.dev>`,
+      replyTo: adminEmail,
       to: [targetUser.user.email!],
       subject: "Uitnodiging voor het supportplatform",
       html: `
