@@ -1085,7 +1085,7 @@ const AdminPanel = () => {
                                   minute: '2-digit'
                                 })}
                               </span>
-                              {!user.last_sign_in_at && user.invitation_sent_at && (
+                              {user.invitation_sent_at && (
                                 <span>
                                   Invitation sent: {new Date(user.invitation_sent_at).toLocaleString('en-US', {
                                     day: '2-digit',
@@ -1099,6 +1099,17 @@ const AdminPanel = () => {
                               {user.last_sign_in_at && (
                                 <span>
                                   Last login: {new Date(user.last_sign_in_at).toLocaleString('en-US', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric', 
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </span>
+                              )}
+                              {user.banned_until && (
+                                <span className="text-destructive font-medium">
+                                  Deactivated: {new Date(user.banned_until).toLocaleString('en-US', {
                                     day: '2-digit',
                                     month: '2-digit',
                                     year: 'numeric', 
