@@ -848,189 +848,202 @@ const AdminPanel = () => {
                          }`}
                        >
                          <div className="flex-1 min-w-0 space-y-2">
-                           <div className="flex items-center gap-2 flex-wrap">
-                             <h4 className={`font-semibold truncate ${user.banned_until ? 'text-muted-foreground' : ''}`}>
-                               {user.full_name || user.email}
-                             </h4>
+                           {/* Eerste regel: Naam, Company, Email */}
+                           <div className="flex items-center gap-3 flex-wrap">
+                             {/* Naam */}
+                             <div className="flex items-center gap-2">
+                               {editingUserNameId === user.id ? (
+                                 <>
+                                   <Input
+                                     value={editingUserName}
+                                     onChange={(e) => setEditingUserName(e.target.value)}
+                                     className="h-8 max-w-[200px]"
+                                     placeholder="Volledige naam"
+                                   />
+                                   <Button
+                                     size="sm"
+                                     onClick={() => handleUpdateUserName(user.id)}
+                                     disabled={editNameLoading}
+                                   >
+                                     {editNameLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                     Save
+                                   </Button>
+                                   <Button
+                                     size="sm"
+                                     variant="ghost"
+                                     onClick={() => {
+                                       setEditingUserNameId(null);
+                                       setEditingUserName("");
+                                     }}
+                                   >
+                                     Cancel
+                                   </Button>
+                                 </>
+                               ) : (
+                                 <>
+                                   <h4 className={`font-semibold ${user.banned_until ? 'text-muted-foreground' : ''}`}>
+                                     {user.full_name || user.email}
+                                   </h4>
+                                   <Button
+                                     variant="ghost"
+                                     size="sm"
+                                     onClick={() => {
+                                       setEditingUserNameId(user.id);
+                                       setEditingUserName(user.full_name || "");
+                                     }}
+                                   >
+                                     <Edit2 className="h-3 w-3" />
+                                   </Button>
+                                 </>
+                               )}
+                             </div>
+
+                             {/* Company */}
+                             <div className="flex items-center gap-2">
+                               {editingUserCompanyId === user.id ? (
+                                 <>
+                                   <Select value={editingUserCompany} onValueChange={setEditingUserCompany}>
+                                     <SelectTrigger className="h-8 max-w-[200px]">
+                                       <SelectValue placeholder="Selecteer bedrijf..." />
+                                     </SelectTrigger>
+                                     <SelectContent>
+                                       {COMPANIES.map((companyOption) => (
+                                         <SelectItem key={companyOption.value} value={companyOption.value}>
+                                           {companyOption.label}
+                                         </SelectItem>
+                                       ))}
+                                     </SelectContent>
+                                   </Select>
+                                   <Button
+                                     size="sm"
+                                     onClick={() => handleUpdateUserCompany(user.id)}
+                                     disabled={editCompanyLoading}
+                                   >
+                                     {editCompanyLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                     Save
+                                   </Button>
+                                   <Button
+                                     size="sm"
+                                     variant="ghost"
+                                     onClick={() => {
+                                       setEditingUserCompanyId(null);
+                                       setEditingUserCompany("");
+                                     }}
+                                   >
+                                     Cancel
+                                   </Button>
+                                 </>
+                               ) : (
+                                 <>
+                                   {user.company && (
+                                     <Badge variant="outline" className="text-xs">
+                                       {user.company}
+                                     </Badge>
+                                   )}
+                                   <Button
+                                     variant="ghost"
+                                     size="sm"
+                                     onClick={() => {
+                                       setEditingUserCompanyId(user.id);
+                                       setEditingUserCompany(user.company || "");
+                                     }}
+                                   >
+                                     <Edit2 className="h-3 w-3" />
+                                   </Button>
+                                 </>
+                               )}
+                             </div>
+
+                             {/* Email */}
+                             <div className="flex items-center gap-2">
+                               {editingUserEmailId === user.id ? (
+                                 <>
+                                   <Input
+                                     type="email"
+                                     value={editingUserEmail}
+                                     onChange={(e) => setEditingUserEmail(e.target.value)}
+                                     className="h-8 max-w-[250px]"
+                                     placeholder="Email"
+                                   />
+                                   <Button
+                                     size="sm"
+                                     onClick={() => handleUpdateUserEmail(user.id)}
+                                     disabled={editEmailLoading}
+                                   >
+                                     {editEmailLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                     Save
+                                   </Button>
+                                   <Button
+                                     size="sm"
+                                     variant="ghost"
+                                     onClick={() => {
+                                       setEditingUserEmailId(null);
+                                       setEditingUserEmail("");
+                                     }}
+                                   >
+                                     Cancel
+                                   </Button>
+                                 </>
+                               ) : (
+                                 <>
+                                   <p className="text-sm text-muted-foreground">{user.email}</p>
+                                   <Button
+                                     variant="ghost"
+                                     size="sm"
+                                     onClick={() => {
+                                       setEditingUserEmailId(user.id);
+                                       setEditingUserEmail(user.email);
+                                     }}
+                                   >
+                                     <Edit2 className="h-3 w-3" />
+                                   </Button>
+                                 </>
+                               )}
+                             </div>
+
+                             {/* Status badges */}
                              {user.banned_until && (
                                <Badge variant="destructive" className="text-xs">
                                  Gedeactiveerd
                                </Badge>
                              )}
-                             {user.company && (
-                               <Badge variant="outline" className="text-xs">
-                                 {user.company}
-                               </Badge>
-                             )}
-                            <span className="text-xs text-muted-foreground">
-                              Aangemaakt: {new Date(user.created_at).toLocaleString('nl-NL', {
-                                day: '2-digit',
-                                month: '2-digit', 
-                                year: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </span>
-                            {!user.last_sign_in_at && user.invitation_sent_at && (
-                              <span className="text-xs text-muted-foreground">
-                                Uitnodiging verstuurd: {new Date(user.invitation_sent_at).toLocaleString('nl-NL', {
-                                  day: '2-digit',
-                                  month: '2-digit',
-                                  year: 'numeric', 
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
-                              </span>
-                            )}
-                            {user.last_sign_in_at && (
-                              <span className="text-xs text-muted-foreground">
-                                Laatste login: {new Date(user.last_sign_in_at).toLocaleString('nl-NL', {
-                                  day: '2-digit',
-                                  month: '2-digit',
-                                  year: 'numeric', 
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
-                              </span>
-                            )}
-                            {editingUserNameId === user.id ? (
-                              <div className="flex items-center gap-2">
-                                <Input
-                                  value={editingUserName}
-                                  onChange={(e) => setEditingUserName(e.target.value)}
-                                  className="h-8 max-w-[200px]"
-                                  placeholder="Full name"
-                                />
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleUpdateUserName(user.id)}
-                                  disabled={editNameLoading}
-                                >
-                                  {editNameLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                  Save
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => {
-                                    setEditingUserNameId(null);
-                                    setEditingUserName("");
-                                  }}
-                                >
-                                  Cancel
-                                </Button>
-                              </div>
-                            ) : (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setEditingUserNameId(user.id);
-                                  setEditingUserName(user.full_name || "");
-                                }}
-                              >
-                                <Edit2 className="h-3 w-3" />
-                              </Button>
-                            )}
-                          </div>
-                          
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm text-muted-foreground">{user.email}</p>
-                            {editingUserEmailId === user.id ? (
-                              <div className="flex items-center gap-2">
-                                <Input
-                                  type="email"
-                                  value={editingUserEmail}
-                                  onChange={(e) => setEditingUserEmail(e.target.value)}
-                                  className="h-8 max-w-[200px]"
-                                  placeholder="Email"
-                                />
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleUpdateUserEmail(user.id)}
-                                  disabled={editEmailLoading}
-                                >
-                                  {editEmailLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                  Save
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => {
-                                    setEditingUserEmailId(null);
-                                    setEditingUserEmail("");
-                                  }}
-                                >
-                                  Cancel
-                                </Button>
-                              </div>
-                            ) : (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setEditingUserEmailId(user.id);
-                                  setEditingUserEmail(user.email);
-                                }}
-                              >
-                                <Edit2 className="h-3 w-3" />
-                              </Button>
-                            )}
-                          </div>
+                           </div>
 
-                          <div className="flex items-center gap-2">
-                            {editingUserCompanyId === user.id ? (
-                              <div className="flex items-center gap-2">
-                                <Select value={editingUserCompany} onValueChange={setEditingUserCompany}>
-                                  <SelectTrigger className="h-8 max-w-[200px]">
-                                    <SelectValue placeholder="Select company..." />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {COMPANIES.map((companyOption) => (
-                                      <SelectItem key={companyOption.value} value={companyOption.value}>
-                                        {companyOption.label}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleUpdateUserCompany(user.id)}
-                                  disabled={editCompanyLoading}
-                                >
-                                  {editCompanyLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                  Save
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => {
-                                    setEditingUserCompanyId(null);
-                                    setEditingUserCompany("");
-                                  }}
-                                >
-                                  Cancel
-                                </Button>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-2">
-                                <p className="text-xs text-muted-foreground">
-                                  Company: {user.company || "Not set"}
-                                </p>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => {
-                                    setEditingUserCompanyId(user.id);
-                                    setEditingUserCompany(user.company || "");
-                                  }}
-                                >
-                                  <Edit2 className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                           {/* Tweede regel: Datums */}
+                           <div className="flex items-center gap-4 flex-wrap text-xs text-muted-foreground">
+                             <span>
+                               Aangemaakt: {new Date(user.created_at).toLocaleString('nl-NL', {
+                                 day: '2-digit',
+                                 month: '2-digit', 
+                                 year: 'numeric',
+                                 hour: '2-digit',
+                                 minute: '2-digit'
+                               })}
+                             </span>
+                             {!user.last_sign_in_at && user.invitation_sent_at && (
+                               <span>
+                                 Uitnodiging verstuurd: {new Date(user.invitation_sent_at).toLocaleString('nl-NL', {
+                                   day: '2-digit',
+                                   month: '2-digit',
+                                   year: 'numeric', 
+                                   hour: '2-digit',
+                                   minute: '2-digit'
+                                 })}
+                               </span>
+                             )}
+                             {user.last_sign_in_at && (
+                               <span>
+                                 Laatste login: {new Date(user.last_sign_in_at).toLocaleString('nl-NL', {
+                                   day: '2-digit',
+                                   month: '2-digit',
+                                   year: 'numeric', 
+                                   hour: '2-digit',
+                                   minute: '2-digit'
+                                 })}
+                               </span>
+                             )}
+                           </div>
+                         </div>
                         <div className="flex items-center gap-3 ml-4">
                           <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
