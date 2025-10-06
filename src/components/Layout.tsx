@@ -20,7 +20,8 @@ import {
   Menu,
   Headset,
   BarChart3,
-  Bot
+  Bot,
+  CheckSquare
 } from "lucide-react";
 import lumiforteLogo from "@/assets/lumiforte-logo.png";
 
@@ -85,6 +86,18 @@ const Layout = () => {
                   AI
                 </Button>
               </Link>
+              {profile?.is_manager && (
+                <Link to="/manager/approvals">
+                  <Button
+                    variant={isActive("/manager/approvals") ? "secondary" : "ghost"}
+                    size="sm"
+                    className={isActive("/manager/approvals") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-primary/80"}
+                  >
+                    <CheckSquare className="h-4 w-4 mr-2" />
+                    Approvals
+                  </Button>
+                </Link>
+              )}
               {(profile?.is_helpdesk || profile?.is_admin) && (
                 <Link to="/helpdesk">
                   <Button
@@ -166,6 +179,14 @@ const Layout = () => {
                     AI
                   </Link>
                 </DropdownMenuItem>
+                {profile?.is_manager && (
+                  <DropdownMenuItem className="md:hidden" asChild>
+                    <Link to="/manager/approvals" className="flex items-center">
+                      <CheckSquare className="h-4 w-4 mr-2" />
+                      Approvals
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 {(profile?.is_helpdesk || profile?.is_admin) && (
                   <DropdownMenuItem className="md:hidden" asChild>
                     <Link to="/helpdesk" className="flex items-center">

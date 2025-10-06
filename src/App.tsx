@@ -16,6 +16,7 @@ import Profile from "./pages/Profile";
 import HelpdeskDashboard from "./pages/HelpdeskDashboard";
 import Analytics from "./pages/Analytics";
 import AIAssistant from "./pages/AIAssistant";
+import ManagerApprovals from "./pages/ManagerApprovals";
 import NotFound from "./pages/NotFound";
 import Layout from "@/components/Layout";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -41,6 +42,7 @@ const App = () => (
                 <Route path="/ai" element={<ProtectedRoute><AIAssistant /></ProtectedRoute>} />
                 <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
                 <Route path="/helpdesk" element={<ProtectedRoute><HelpdeskDashboard /></ProtectedRoute>} />
+                <Route path="/manager/approvals" element={<ProtectedRoute><ManagerApprovals /></ProtectedRoute>} />
                 <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               </Route>

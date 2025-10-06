@@ -68,6 +68,7 @@ export type Database = {
           invitation_sent_at: string | null
           phone_number: string | null
           preferred_language: string | null
+          team_id: string | null
         }
         Insert: {
           company?: string | null
@@ -78,6 +79,7 @@ export type Database = {
           invitation_sent_at?: string | null
           phone_number?: string | null
           preferred_language?: string | null
+          team_id?: string | null
         }
         Update: {
           company?: string | null
@@ -88,6 +90,36 @@ export type Database = {
           invitation_sent_at?: string | null
           phone_number?: string | null
           preferred_language?: string | null
+          team_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teams: {
+        Row: {
+          company: string
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          company: string
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          company?: string
+          created_at?: string | null
+          id?: string
+          name?: string
         }
         Relationships: []
       }
@@ -173,6 +205,9 @@ export type Database = {
       }
       tickets: {
         Row: {
+          approval_status: string | null
+          approved_at: string | null
+          approved_by: string | null
           assigned_to: string | null
           category: string
           closed_at: string | null
@@ -183,6 +218,8 @@ export type Database = {
           main_category: string
           phone_number: string | null
           priority: Database["public"]["Enums"]["ticket_priority"] | null
+          rejection_reason: string | null
+          requires_approval: boolean | null
           resolved_at: string | null
           status: Database["public"]["Enums"]["ticket_status"] | null
           sub_category: string
@@ -190,6 +227,9 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           assigned_to?: string | null
           category: string
           closed_at?: string | null
@@ -200,6 +240,8 @@ export type Database = {
           main_category: string
           phone_number?: string | null
           priority?: Database["public"]["Enums"]["ticket_priority"] | null
+          rejection_reason?: string | null
+          requires_approval?: boolean | null
           resolved_at?: string | null
           status?: Database["public"]["Enums"]["ticket_status"] | null
           sub_category: string
@@ -207,6 +249,9 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           assigned_to?: string | null
           category?: string
           closed_at?: string | null
@@ -217,6 +262,8 @@ export type Database = {
           main_category?: string
           phone_number?: string | null
           priority?: Database["public"]["Enums"]["ticket_priority"] | null
+          rejection_reason?: string | null
+          requires_approval?: boolean | null
           resolved_at?: string | null
           status?: Database["public"]["Enums"]["ticket_status"] | null
           sub_category?: string

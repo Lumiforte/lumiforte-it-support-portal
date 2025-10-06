@@ -1,3 +1,13 @@
+// Categories that require manager approval
+export const APPROVAL_CATEGORIES = [
+  "hardware_request",
+  "license_request",
+  "software_purchase",
+  "budget_related",
+  "office_workspace",
+  "home_workspace"
+];
+
 export const TICKET_CATEGORIES = {
   IT: {
     label: "IT",
@@ -13,6 +23,17 @@ export const TICKET_CATEGORIES = {
       { value: "websites", label: "Websites" },
       { value: "intranet", label: "Intranet" },
       { value: "licenses", label: "Licenses" },
+    ]
+  },
+  Approvals: {
+    label: "Requires Manager Approval",
+    subcategories: [
+      { value: "hardware_request", label: "Hardware Request" },
+      { value: "license_request", label: "License Request" },
+      { value: "software_purchase", label: "Software Purchase" },
+      { value: "budget_related", label: "Budget Related" },
+      { value: "office_workspace", label: "Office Workspace (Desk/Chair)" },
+      { value: "home_workspace", label: "Home Workspace" },
     ]
   },
   Building: {

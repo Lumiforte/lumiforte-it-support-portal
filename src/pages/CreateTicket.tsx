@@ -12,7 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, AlertCircle, Phone } from "lucide-react";
-import { TICKET_CATEGORIES } from "@/lib/ticketCategories";
+import { TICKET_CATEGORIES, APPROVAL_CATEGORIES } from "@/lib/ticketCategories";
 
 const CreateTicket = () => {
   const [title, setTitle] = useState("");
@@ -74,6 +74,9 @@ const CreateTicket = () => {
     setLoading(true);
 
     try {
+      // Check if this category requires manager approval
+      const requiresApproval = APPROVAL_CATEGORIES.includes(subCategory);
+      
       const { data, error } = await supabase
         .from("tickets")
         .insert([{
@@ -85,35 +88,54 @@ const CreateTicket = () => {
           main_category: mainCategory,
           sub_category: subCategory,
           phone_number: phoneNumber,
+          requires_approval: requiresApproval,
+          approval_status: requiresApproval ? 'pending' : null,
+          status: requiresApproval ? 'open' : 'open', // All tickets start as open
         }])
         .select()
         .single();
 
       if (error) throw error;
 
-      // Send notification email
-      try {
-        await supabase.functions.invoke('notify-new-ticket', {
-          body: {
-            ticketId: data.id,
-            title: data.title,
-            description: data.description,
-            priority: data.priority,
-            category: `${mainCategory} - ${subCategory}`,
-            userName: user?.user_metadata?.full_name || user?.email || 'Unknown',
-            userEmail: user?.email || 'Unknown',
-            phoneNumber: phoneNumber
-          }
-        });
-      } catch (emailError) {
-        console.error("Error sending notification email:", emailError);
-        // Don't fail the ticket creation if email fails
-      }
+      // Send appropriate notification
+      if (requiresApproval) {
+        // Notify managers for approval
+        try {
+          await supabase.functions.invoke('notify-manager-approval', {
+            body: { ticketId: data.id }
+          });
+        } catch (emailError) {
+          console.error("Error sending manager notification:", emailError);
+        }
 
-      toast({
-        title: "Ticket created!",
-        description: "Your support ticket has been submitted successfully.",
-      });
+        toast({
+          title: "Approval request submitted!",
+          description: "Your request has been sent to your manager for approval.",
+        });
+      } else {
+        // Notify helpdesk for regular tickets
+        try {
+          await supabase.functions.invoke('notify-new-ticket', {
+            body: {
+              ticketId: data.id,
+              title: data.title,
+              description: data.description,
+              priority: data.priority,
+              category: `${mainCategory} - ${subCategory}`,
+              userName: user?.user_metadata?.full_name || user?.email || 'Unknown',
+              userEmail: user?.email || 'Unknown',
+              phoneNumber: phoneNumber
+            }
+          });
+        } catch (emailError) {
+          console.error("Error sending notification email:", emailError);
+        }
+
+        toast({
+          title: "Ticket created!",
+          description: "Your support ticket has been submitted successfully.",
+        });
+      }
 
       navigate(`/tickets/${data.id}`);
     } catch (error: any) {

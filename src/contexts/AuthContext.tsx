@@ -9,6 +9,7 @@ interface Profile {
   full_name: string | null;
   is_admin: boolean;
   is_helpdesk: boolean;
+  is_manager: boolean;
   roles: string[];
 }
 
@@ -80,6 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         ...profileData,
         is_admin: roles.includes('admin'),
         is_helpdesk: roles.includes('helpdesk'),
+        is_manager: roles.includes('manager'),
         roles
       });
     } catch (error) {
