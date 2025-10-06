@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.58.0";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,6 +11,12 @@ const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+
+const ManageUserSchema = z.object({
+  userId: z.string().uuid(),
+  action: z.enum(['ban', 'unban', 'update_name']),
+  fullName: z.string().max(100).optional()
+});
 
 interface ManageUserRequest {
   userId: string;
@@ -23,7 +30,51 @@ serve(async (req) => {
   }
 
   try {
-    const { userId, action, fullName }: ManageUserRequest = await req.json();
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Check if user has admin role
+    const { data: roleCheck } = await supabaseAdmin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'admin')
+      .single();
+
+    if (!roleCheck) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: Admin access required' }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Validate input
+    const body = await req.json();
+    const validation = ManageUserSchema.safeParse(body);
+    if (!validation.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: validation.error.issues }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const { userId, action, fullName }: ManageUserRequest = validation.data;
 
     console.log(`Managing user ${userId}, action: ${action}`);
 
@@ -102,7 +153,7 @@ serve(async (req) => {
   } catch (err: any) {
     console.error("Unexpected error in manage-user:", err);
     return new Response(
-      JSON.stringify({ error: err.message }),
+      JSON.stringify({ error: "An error occurred while processing your request" }),
       { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }
