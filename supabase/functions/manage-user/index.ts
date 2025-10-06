@@ -91,6 +91,20 @@ serve(async (req) => {
         );
       }
 
+      // Log audit entry
+      try {
+        await supabaseAdmin.rpc('log_audit_entry', {
+          p_user_id: user.id,
+          p_user_email: user.email,
+          p_action: 'deactivated',
+          p_table_name: 'users',
+          p_record_id: userId,
+          p_new_values: { banned: true }
+        });
+      } catch (logError) {
+        console.error("Error logging audit entry:", logError);
+      }
+
       console.log(`User ${userId} banned successfully`);
       return new Response(
         JSON.stringify({ success: true, message: "Gebruiker succesvol gedeactiveerd" }),
@@ -111,6 +125,20 @@ serve(async (req) => {
         );
       }
 
+      // Log audit entry
+      try {
+        await supabaseAdmin.rpc('log_audit_entry', {
+          p_user_id: user.id,
+          p_user_email: user.email,
+          p_action: 'activated',
+          p_table_name: 'users',
+          p_record_id: userId,
+          p_new_values: { banned: false }
+        });
+      } catch (logError) {
+        console.error("Error logging audit entry:", logError);
+      }
+
       console.log(`User ${userId} unbanned successfully`);
       return new Response(
         JSON.stringify({ success: true, message: "Gebruiker succesvol geactiveerd" }),
@@ -126,6 +154,13 @@ serve(async (req) => {
         );
       }
 
+      // Get old value first
+      const { data: oldProfile } = await supabaseAdmin
+        .from("profiles")
+        .select("full_name")
+        .eq("id", userId)
+        .single();
+
       const { error } = await supabaseAdmin
         .from("profiles")
         .update({ full_name: fullName })
@@ -137,6 +172,21 @@ serve(async (req) => {
           JSON.stringify({ error: "Kon naam niet updaten" }),
           { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
         );
+      }
+
+      // Log audit entry
+      try {
+        await supabaseAdmin.rpc('log_audit_entry', {
+          p_user_id: user.id,
+          p_user_email: user.email,
+          p_action: 'updated',
+          p_table_name: 'profiles',
+          p_record_id: userId,
+          p_old_values: { full_name: oldProfile?.full_name },
+          p_new_values: { full_name: fullName }
+        });
+      } catch (logError) {
+        console.error("Error logging audit entry:", logError);
       }
 
       console.log(`User ${userId} name updated successfully`);

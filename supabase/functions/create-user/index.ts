@@ -17,7 +17,7 @@ const CreateUserSchema = z.object({
   password: z.string().min(8).max(128).optional(),
   fullName: z.string().trim().min(1, "Naam is verplicht").max(100, "Naam te lang"),
   company: z.string().trim().min(1, "Bedrijfsnaam is verplicht").max(100, "Bedrijfsnaam te lang"),
-  roles: z.array(z.enum(['admin', 'helpdesk', 'hr', 'user'])).min(1, "Minimaal één rol is verplicht")
+  roles: z.array(z.enum(['admin', 'helpdesk', 'hr', 'manager'])).optional().default([])
 });
 
 interface CreateUserRequest {
@@ -117,18 +117,39 @@ serve(async (req) => {
       console.error("Error updating profile:", profileError);
     }
 
-    // Assign roles
-    const roleInserts = roles.map(role => ({
-      user_id: userId,
-      role: role
-    }));
+    // Assign roles (if any provided, otherwise user just has no additional roles)
+    if (roles && roles.length > 0) {
+      const roleInserts = roles.map(role => ({
+        user_id: userId,
+        role: role
+      }));
 
-    const { error: rolesError } = await supabaseAdmin
-      .from("user_roles")
-      .insert(roleInserts);
+      const { error: rolesError } = await supabaseAdmin
+        .from("user_roles")
+        .insert(roleInserts);
 
-    if (rolesError) {
-      console.error("Error assigning roles:", rolesError);
+      if (rolesError) {
+        console.error("Error assigning roles:", rolesError);
+      }
+    }
+
+    // Log audit entry
+    try {
+      await supabaseAdmin.rpc('log_audit_entry', {
+        p_user_id: user.id,
+        p_user_email: user.email,
+        p_action: 'created',
+        p_table_name: 'users',
+        p_record_id: userId,
+        p_new_values: {
+          email,
+          full_name: fullName,
+          company,
+          roles: roles || []
+        }
+      });
+    } catch (logError) {
+      console.error("Error logging audit entry:", logError);
     }
 
     console.log(`User ${userId} created successfully`);

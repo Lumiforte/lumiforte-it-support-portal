@@ -41,6 +41,7 @@ interface ResolutionTimeData {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
 const Analytics = () => {
+  const { profile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<"30days" | "ytd">("ytd");
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>(["ALL"]);
@@ -51,8 +52,25 @@ const Analytics = () => {
   const [companyData, setCompanyData] = useState<CategoryData[]>([]);
   const [resolutionTimeData, setResolutionTimeData] = useState<ResolutionTimeData[]>([]);
   const [avgCategoryResolutionTime, setAvgCategoryResolutionTime] = useState<CategoryData[]>([]);
-  const { profile } = useAuth();
   const { toast } = useToast();
+
+  // Security check - only allow admin or helpdesk
+  if (!profile?.is_admin && !profile?.is_helpdesk) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Card className="max-w-md">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold">Access Denied</h2>
+              <p className="text-muted-foreground">
+                You need admin or helpdesk privileges to access analytics.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   useEffect(() => {
     if (profile?.is_admin || profile?.is_helpdesk) {

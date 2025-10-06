@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle, Mail, UserX, UserCheck, Edit2, ArrowRightLeft, UserPlus, Search, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { COMPANIES } from "@/lib/companies";
+import { AuditLogs } from "@/components/AuditLogs";
 
 interface TicketWithUser {
   id: string;
@@ -460,14 +461,7 @@ const AdminPanel = () => {
       return;
     }
 
-    if (newUserRoles.length === 0) {
-      toast({
-        title: "Validation Error",
-        description: "Select at least one role",
-        variant: "destructive",
-      });
-      return;
-    }
+    // Roles are optional - everyone is a user by default
 
     setCreateUserLoading(true);
     try {
@@ -627,6 +621,7 @@ const AdminPanel = () => {
         <TabsList>
           <TabsTrigger value="users">Users & Roles</TabsTrigger>
           <TabsTrigger value="tickets">Tickets</TabsTrigger>
+          <TabsTrigger value="logs">Logs</TabsTrigger>
           <TabsTrigger value="transfer">Transfer Tickets</TabsTrigger>
         </TabsList>
 
@@ -791,19 +786,19 @@ const AdminPanel = () => {
                           <div className="flex flex-wrap gap-4">
                             <div className="flex items-center gap-2">
                               <Checkbox
-                                id="role-user"
-                                checked={newUserRoles.includes('user')}
-                                onCheckedChange={() => toggleNewUserRole('user')}
-                              />
-                              <label htmlFor="role-user" className="text-sm cursor-pointer">User</label>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Checkbox
                                 id="role-helpdesk"
                                 checked={newUserRoles.includes('helpdesk')}
                                 onCheckedChange={() => toggleNewUserRole('helpdesk')}
                               />
                               <label htmlFor="role-helpdesk" className="text-sm cursor-pointer">Helpdesk</label>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                id="role-manager"
+                                checked={newUserRoles.includes('manager')}
+                                onCheckedChange={() => toggleNewUserRole('manager')}
+                              />
+                              <label htmlFor="role-manager" className="text-sm cursor-pointer">Manager</label>
                             </div>
                             <div className="flex items-center gap-2">
                               <Checkbox
@@ -822,7 +817,7 @@ const AdminPanel = () => {
                               <label htmlFor="role-admin" className="text-sm cursor-pointer">Admin</label>
                             </div>
                           </div>
-                          <p className="text-xs text-muted-foreground">If no role selected, &apos;User&apos; will be assigned automatically</p>
+                          <p className="text-xs text-muted-foreground">Select additional roles for this user (everyone is a user by default)</p>
                         </div>
                         <Button onClick={handleCreateUser} disabled={createUserLoading} className="w-full">
                           {createUserLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -1126,21 +1121,6 @@ const AdminPanel = () => {
                             </div>
                             <div className="flex items-center gap-2">
                               <Checkbox
-                                id={`${user.id}-user`}
-                                checked={user.user_roles.some(r => r.role === 'user')}
-                                onCheckedChange={(checked) => 
-                                  handleRoleChange(user.id, 'user', checked as boolean)
-                                }
-                              />
-                              <label
-                                htmlFor={`${user.id}-user`}
-                                className="text-sm font-medium cursor-pointer"
-                              >
-                                User
-                              </label>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Checkbox
                                 id={`${user.id}-manager`}
                                 checked={user.user_roles.some(r => r.role === 'manager')}
                                 onCheckedChange={(checked) => 
@@ -1152,6 +1132,21 @@ const AdminPanel = () => {
                                 className="text-sm font-medium cursor-pointer"
                               >
                                 Manager
+                              </label>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                id={`${user.id}-hr`}
+                                checked={user.user_roles.some(r => r.role === 'hr')}
+                                onCheckedChange={(checked) => 
+                                  handleRoleChange(user.id, 'hr', checked as boolean)
+                                }
+                              />
+                              <label
+                                htmlFor={`${user.id}-hr`}
+                                className="text-sm font-medium cursor-pointer"
+                              >
+                                HR
                               </label>
                             </div>
                           </div>
@@ -1206,6 +1201,17 @@ const AdminPanel = () => {
                   )}
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="logs">
+          <Card>
+            <CardHeader>
+              <CardTitle>System Activity Logs</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AuditLogs />
             </CardContent>
           </Card>
         </TabsContent>
