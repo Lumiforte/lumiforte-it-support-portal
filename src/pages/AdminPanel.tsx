@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle, Mail, UserX, UserCheck, Edit2, ArrowRightLeft, UserPlus, Search } from "lucide-react";
+import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle, Mail, UserX, UserCheck, Edit2, ArrowRightLeft, UserPlus, Search, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { COMPANIES } from "@/lib/companies";
 
@@ -78,6 +78,7 @@ const AdminPanel = () => {
   const [sortByRole, setSortByRole] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [companyFilter, setCompanyFilter] = useState<string>("all");
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
   const { toast } = useToast();
  
   useEffect(() => {
@@ -392,12 +393,50 @@ const AdminPanel = () => {
     }
   };
 
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+      return;
+    }
+
+    setDeletingUserId(userId);
+    try {
+      const { data, error } = await supabase.functions.invoke('delete-user', {
+        body: { userId }
+      });
+
+      if (error) throw error;
+
+      if (data.canDelete === false) {
+        // User has tickets, show message to deactivate instead
+        toast({
+          title: "Cannot Delete User",
+          description: data.error,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: data.message,
+        });
+        fetchUsers();
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete user",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
+
   const handleCreateUser = async () => {
     // Validate all required fields
     if (!newUserData.email || !newUserData.email.trim()) {
       toast({
-        title: "Validatiefout",
-        description: "E-mailadres is verplicht",
+        title: "Validation Error",
+        description: "Email address is required",
         variant: "destructive",
       });
       return;
@@ -405,8 +444,8 @@ const AdminPanel = () => {
 
     if (!newUserData.fullName || !newUserData.fullName.trim()) {
       toast({
-        title: "Validatiefout",
-        description: "Naam is verplicht",
+        title: "Validation Error",
+        description: "Name is required",
         variant: "destructive",
       });
       return;
@@ -414,8 +453,8 @@ const AdminPanel = () => {
 
     if (!newUserData.company || newUserData.company === "none" || !newUserData.company.trim()) {
       toast({
-        title: "Validatiefout",
-        description: "Bedrijfsnaam is verplicht",
+        title: "Validation Error",
+        description: "Company name is required",
         variant: "destructive",
       });
       return;
@@ -423,8 +462,8 @@ const AdminPanel = () => {
 
     if (newUserRoles.length === 0) {
       toast({
-        title: "Validatiefout",
-        description: "Selecteer minimaal één rol",
+        title: "Validation Error",
+        description: "Select at least one role",
         variant: "destructive",
       });
       return;
@@ -444,8 +483,8 @@ const AdminPanel = () => {
       if (error) throw error;
 
       toast({
-        title: "Succes",
-        description: data.message || "Gebruiker succesvol aangemaakt. Stuur nu een uitnodiging om de gebruiker in te laten loggen.",
+        title: "Success",
+        description: data.message || "User created successfully. Now send an invitation to let the user log in.",
       });
 
       setNewUserData({ email: "", fullName: "", company: "" });
@@ -470,7 +509,7 @@ const AdminPanel = () => {
       if (!session) {
         toast({
           title: "Error",
-          description: "Niet ingelogd",
+          description: "Not logged in",
           variant: "destructive",
         });
         return;
@@ -492,8 +531,8 @@ const AdminPanel = () => {
       if (error) throw error;
 
       toast({
-        title: "Uitnodiging verstuurd",
-        description: "De gebruiker heeft een e-mail ontvangen om een wachtwoord in te stellen.",
+        title: "Invitation Sent",
+        description: "The user has received an email to set a password.",
       });
       
       // Refresh users list to show invitation timestamp
@@ -501,7 +540,7 @@ const AdminPanel = () => {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Kon uitnodiging niet versturen",
+        description: error.message || "Failed to send invitation",
         variant: "destructive",
       });
     } finally {
@@ -541,9 +580,17 @@ const AdminPanel = () => {
       filteredUsers = filteredUsers.filter(user => user.company === companyFilter);
     }
 
-    // Sort by role
-    if (sortByRole) {
-      filteredUsers = [...filteredUsers].sort((a, b) => {
+    // Sort: active users first, then deactivated users at the bottom
+    filteredUsers = [...filteredUsers].sort((a, b) => {
+      const aIsDeactivated = !!a.banned_until;
+      const bIsDeactivated = !!b.banned_until;
+      
+      // If one is deactivated and one is not, put deactivated at bottom
+      if (aIsDeactivated && !bIsDeactivated) return 1;
+      if (!aIsDeactivated && bIsDeactivated) return -1;
+      
+      // If both have same deactivation status, sort by role if enabled
+      if (sortByRole) {
         const aHasAdmin = a.user_roles.some(r => r.role === 'admin');
         const bHasAdmin = b.user_roles.some(r => r.role === 'admin');
         const aHasHelpdesk = a.user_roles.some(r => r.role === 'helpdesk');
@@ -553,9 +600,10 @@ const AdminPanel = () => {
         if (!aHasAdmin && bHasAdmin) return 1;
         if (aHasHelpdesk && !bHasHelpdesk) return -1;
         if (!aHasHelpdesk && bHasHelpdesk) return 1;
-        return 0;
-      });
-    }
+      }
+      
+      return 0;
+    });
 
     return filteredUsers;
   };
@@ -698,38 +746,38 @@ const AdminPanel = () => {
                       </DialogHeader>
                       <div className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="newEmail">Email Address *</Label>
+                           <Label htmlFor="newEmail">Email Address *</Label>
                           <Input
                             id="newEmail"
                             type="email"
                             value={newUserData.email}
                             onChange={(e) => setNewUserData(prev => ({ ...prev, email: e.target.value }))}
-                            placeholder="gebruiker@email.com"
+                            placeholder="user@email.com"
                           />
                           <p className="text-xs text-muted-foreground">
-                            Na het aanmaken kun je de gebruiker uitnodigen om een wachtwoord in te stellen
+                            After creating, you can invite the user to set a password
                           </p>
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="newFullName">Volledige naam</Label>
+                          <Label htmlFor="newFullName">Full Name *</Label>
                           <Input
                             id="newFullName"
                             value={newUserData.fullName}
                             onChange={(e) => setNewUserData(prev => ({ ...prev, fullName: e.target.value }))}
-                            placeholder="Jan Jansen"
+                            placeholder="John Doe"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="newCompany">Bedrijf</Label>
+                          <Label htmlFor="newCompany">Company *</Label>
                           <Select
                             value={newUserData.company}
                             onValueChange={(value) => setNewUserData(prev => ({ ...prev, company: value }))}
                           >
                             <SelectTrigger id="newCompany">
-                              <SelectValue placeholder="Selecteer bedrijf" />
+                              <SelectValue placeholder="Select company" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="none">Geen bedrijf</SelectItem>
+                              <SelectItem value="none">No company</SelectItem>
                               {COMPANIES.map(company => (
                                 <SelectItem key={company.value} value={company.value}>
                                   {company.label}
@@ -788,7 +836,7 @@ const AdminPanel = () => {
                   <div className="relative flex-1 max-w-sm">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      placeholder="Zoek op naam of e-mail..."
+                      placeholder="Search by name or email..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-9"
@@ -847,10 +895,10 @@ const AdminPanel = () => {
                                : 'bg-background'
                          }`}
                        >
-                         <div className="flex-1 min-w-0 space-y-2">
-                           {/* Eerste regel: Naam, Company, Email */}
+                       <div className="flex-1 min-w-0 space-y-2">
+                           {/* First line: Name, Company, Email */}
                            <div className="flex items-center gap-3 flex-wrap">
-                             {/* Naam */}
+                             {/* Name */}
                              <div className="flex items-center gap-2">
                                {editingUserNameId === user.id ? (
                                  <>
@@ -858,7 +906,7 @@ const AdminPanel = () => {
                                      value={editingUserName}
                                      onChange={(e) => setEditingUserName(e.target.value)}
                                      className="h-8 max-w-[200px]"
-                                     placeholder="Volledige naam"
+                                     placeholder="Full name"
                                    />
                                    <Button
                                      size="sm"
@@ -1001,48 +1049,48 @@ const AdminPanel = () => {
                                )}
                              </div>
 
-                             {/* Status badges */}
-                             {user.banned_until && (
-                               <Badge variant="destructive" className="text-xs">
-                                 Gedeactiveerd
-                               </Badge>
-                             )}
-                           </div>
+                              {/* Status badges */}
+                              {user.banned_until && (
+                                <Badge variant="destructive" className="text-xs">
+                                  Deactivated
+                                </Badge>
+                              )}
+                            </div>
 
-                           {/* Tweede regel: Datums */}
-                           <div className="flex items-center gap-4 flex-wrap text-xs text-muted-foreground">
-                             <span>
-                               Aangemaakt: {new Date(user.created_at).toLocaleString('nl-NL', {
-                                 day: '2-digit',
-                                 month: '2-digit', 
-                                 year: 'numeric',
-                                 hour: '2-digit',
-                                 minute: '2-digit'
-                               })}
-                             </span>
-                             {!user.last_sign_in_at && user.invitation_sent_at && (
-                               <span>
-                                 Uitnodiging verstuurd: {new Date(user.invitation_sent_at).toLocaleString('nl-NL', {
-                                   day: '2-digit',
-                                   month: '2-digit',
-                                   year: 'numeric', 
-                                   hour: '2-digit',
-                                   minute: '2-digit'
-                                 })}
-                               </span>
-                             )}
-                             {user.last_sign_in_at && (
-                               <span>
-                                 Laatste login: {new Date(user.last_sign_in_at).toLocaleString('nl-NL', {
-                                   day: '2-digit',
-                                   month: '2-digit',
-                                   year: 'numeric', 
-                                   hour: '2-digit',
-                                   minute: '2-digit'
-                                 })}
-                               </span>
-                             )}
-                           </div>
+                            {/* Second line: Dates */}
+                            <div className="flex items-center gap-4 flex-wrap text-xs text-muted-foreground">
+                              <span>
+                                Created: {new Date(user.created_at).toLocaleString('en-US', {
+                                  day: '2-digit',
+                                  month: '2-digit', 
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
+                              {!user.last_sign_in_at && user.invitation_sent_at && (
+                                <span>
+                                  Invitation sent: {new Date(user.invitation_sent_at).toLocaleString('en-US', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric', 
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </span>
+                              )}
+                              {user.last_sign_in_at && (
+                                <span>
+                                  Last login: {new Date(user.last_sign_in_at).toLocaleString('en-US', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric', 
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </span>
+                              )}
+                            </div>
                          </div>
                         <div className="flex items-center gap-3 ml-4">
                           <div className="flex items-center gap-4">
@@ -1103,7 +1151,7 @@ const AdminPanel = () => {
                             ) : (
                               <Mail className="h-4 w-4 mr-2" />
                             )}
-                            Uitnodiging
+                            Send Invitation
                           </Button>
                            <Button
                              variant="outline"
@@ -1113,14 +1161,27 @@ const AdminPanel = () => {
                              {user.banned_until ? (
                                <>
                                  <UserCheck className="h-4 w-4 mr-2" />
-                                 Activeren
+                                 Activate
                                </>
                              ) : (
                                <>
                                  <UserX className="h-4 w-4 mr-2" />
-                                 Deactiveren
+                                 Deactivate
                                </>
                              )}
+                           </Button>
+                           <Button
+                             variant="destructive"
+                             size="sm"
+                             onClick={() => handleDeleteUser(user.id)}
+                             disabled={deletingUserId === user.id}
+                           >
+                             {deletingUserId === user.id ? (
+                               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                             ) : (
+                               <Trash2 className="h-4 w-4 mr-2" />
+                             )}
+                             Delete
                            </Button>
                         </div>
                       </div>

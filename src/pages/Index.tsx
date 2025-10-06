@@ -100,17 +100,17 @@ const Index = () => {
                 <div className="p-2 bg-secondary rounded-lg">
                   <Bot className="h-6 w-6 text-secondary-foreground" />
                 </div>
-                <CardTitle>AI Assistent</CardTitle>
+                <CardTitle>{t("home.aiAssistant")}</CardTitle>
               </div>
               <CardDescription>
-                Stel direct een vraag aan onze AI assistent
+                {t("home.aiAssistantDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Link to="/ai">
                 <Button className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
                   <Bot className="mr-2 h-4 w-4" />
-                  Start Chat
+                  {t("home.startChat")}
                 </Button>
               </Link>
             </CardContent>
