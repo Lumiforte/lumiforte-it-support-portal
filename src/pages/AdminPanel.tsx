@@ -392,10 +392,38 @@ const AdminPanel = () => {
   };
 
   const handleCreateUser = async () => {
-    if (!newUserData.email) {
+    // Validate all required fields
+    if (!newUserData.email || !newUserData.email.trim()) {
       toast({
-        title: "Error",
-        description: "Email is required",
+        title: "Validatiefout",
+        description: "E-mailadres is verplicht",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!newUserData.fullName || !newUserData.fullName.trim()) {
+      toast({
+        title: "Validatiefout",
+        description: "Naam is verplicht",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!newUserData.company || newUserData.company === "none" || !newUserData.company.trim()) {
+      toast({
+        title: "Validatiefout",
+        description: "Bedrijfsnaam is verplicht",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newUserRoles.length === 0) {
+      toast({
+        title: "Validatiefout",
+        description: "Selecteer minimaal één rol",
         variant: "destructive",
       });
       return;
@@ -405,10 +433,10 @@ const AdminPanel = () => {
     try {
       const { data, error } = await supabase.functions.invoke('create-user', {
         body: {
-          email: newUserData.email,
-          fullName: newUserData.fullName,
-          company: newUserData.company && newUserData.company !== "none" ? newUserData.company : null,
-          roles: newUserRoles.length > 0 ? newUserRoles : ['user']
+          email: newUserData.email.trim(),
+          fullName: newUserData.fullName.trim(),
+          company: newUserData.company.trim(),
+          roles: newUserRoles
         }
       });
 

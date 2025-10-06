@@ -13,19 +13,19 @@ const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
 const CreateUserSchema = z.object({
-  email: z.string().email().max(254),
+  email: z.string().trim().email("Ongeldig e-mailadres").max(254, "E-mailadres te lang"),
   password: z.string().min(8).max(128).optional(),
-  fullName: z.string().max(100).optional(),
-  company: z.string().max(100).optional().nullable(),
-  roles: z.array(z.enum(['admin', 'helpdesk', 'hr', 'user'])).optional()
+  fullName: z.string().trim().min(1, "Naam is verplicht").max(100, "Naam te lang"),
+  company: z.string().trim().min(1, "Bedrijfsnaam is verplicht").max(100, "Bedrijfsnaam te lang"),
+  roles: z.array(z.enum(['admin', 'helpdesk', 'hr', 'user'])).min(1, "Minimaal één rol is verplicht")
 });
 
 interface CreateUserRequest {
   email: string;
   password?: string;
-  fullName?: string;
-  company?: string | null;
-  roles?: string[];
+  fullName: string;
+  company: string;
+  roles: string[];
 }
 
 serve(async (req) => {
@@ -90,7 +90,7 @@ serve(async (req) => {
       email,
       password: userPassword,
       email_confirm: true,
-      user_metadata: { full_name: fullName || email }
+      user_metadata: { full_name: fullName }
     });
 
     if (createError || !authData?.user) {
@@ -104,36 +104,31 @@ serve(async (req) => {
     const userId = authData.user.id;
     console.log(`User created with ID: ${userId}`);
 
-    // Update profile with full name and company if provided
-    const profileUpdates: any = {};
-    if (fullName) profileUpdates.full_name = fullName;
-    if (company !== undefined) profileUpdates.company = company;
+    // Update profile with full name and company
+    const { error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .update({
+        full_name: fullName,
+        company: company
+      })
+      .eq("id", userId);
 
-    if (Object.keys(profileUpdates).length > 0) {
-      const { error: profileError } = await supabaseAdmin
-        .from("profiles")
-        .update(profileUpdates)
-        .eq("id", userId);
-
-      if (profileError) {
-        console.error("Error updating profile:", profileError);
-      }
+    if (profileError) {
+      console.error("Error updating profile:", profileError);
     }
 
-    // Assign roles if provided
-    if (roles && roles.length > 0) {
-      const roleInserts = roles.map(role => ({
-        user_id: userId,
-        role: role
-      }));
+    // Assign roles
+    const roleInserts = roles.map(role => ({
+      user_id: userId,
+      role: role
+    }));
 
-      const { error: rolesError } = await supabaseAdmin
-        .from("user_roles")
-        .insert(roleInserts);
+    const { error: rolesError } = await supabaseAdmin
+      .from("user_roles")
+      .insert(roleInserts);
 
-      if (rolesError) {
-        console.error("Error assigning roles:", rolesError);
-      }
+    if (rolesError) {
+      console.error("Error assigning roles:", rolesError);
     }
 
     console.log(`User ${userId} created successfully`);
