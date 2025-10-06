@@ -216,6 +216,9 @@ export const AIChat = () => {
             onKeyPress={handleKeyPress}
             placeholder="Ask a question or use voice input..."
             disabled={isLoading || isListening}
+            autoComplete="off"
+            data-lpignore="true"
+            data-form-type="other"
           />
           <Button onClick={sendMessage} disabled={isLoading || !input.trim() || isListening}>
             {isLoading ? (

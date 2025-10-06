@@ -1,3 +1,4 @@
+import React from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -29,6 +30,7 @@ const Layout = () => {
   const { profile, signOut } = useAuth();
   const { language, setLanguage, t } = useLanguage();
   const location = useLocation();
+  const [isUserMenuOpen, setIsUserMenuOpen] = React.useState(false);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -138,14 +140,25 @@ const Layout = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <DropdownMenu>
+            <DropdownMenu open={isUserMenuOpen} onOpenChange={setIsUserMenuOpen}>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-accent hover:text-accent-foreground">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-primary-foreground hover:bg-accent hover:text-accent-foreground"
+                  onMouseEnter={() => setIsUserMenuOpen(true)}
+                  onMouseLeave={() => setIsUserMenuOpen(false)}
+                >
                   <User className="h-4 w-4 mr-2" />
                   {profile?.full_name || profile?.email}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent 
+                align="end" 
+                className="w-56"
+                onMouseEnter={() => setIsUserMenuOpen(true)}
+                onMouseLeave={() => setIsUserMenuOpen(false)}
+              >
                 <DropdownMenuLabel>{t("common.myAccount")}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
