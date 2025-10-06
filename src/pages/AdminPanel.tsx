@@ -242,6 +242,19 @@ const AdminPanel = () => {
   };
 
   const handleUpdateUserName = async (userId: string) => {
+    // Check if this is a protected admin account
+    const user = users.find(u => u.id === userId);
+    const PROTECTED_ADMINS = ['jeroen.vrieselaar@lumiforte.com', 'jort.gerritsen@lumiforte.com'];
+    
+    if (user && PROTECTED_ADMINS.includes(user.email)) {
+      toast({
+        title: "Protected Account",
+        description: "This admin account cannot be modified.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setEditNameLoading(true);
     try {
       const { error } = await supabase

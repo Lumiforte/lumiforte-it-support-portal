@@ -9,12 +9,16 @@ import { format, subDays, startOfYear } from "date-fns";
 interface AuditLog {
   id: string;
   user_email: string;
+  user_id: string | null;
   action: string;
   table_name: string;
   record_id: string | null;
   old_values: any;
   new_values: any;
   created_at: string;
+  user_profile?: {
+    full_name: string | null;
+  };
 }
 
 type TimeFilter = "today" | "7days" | "30days" | "ytd" | "all";
@@ -65,7 +69,18 @@ export const AuditLogs = () => {
 
       if (error) throw error;
 
-      setLogs(data || []);
+      // Fetch profiles to get full names
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, full_name");
+
+      // Map profiles to logs
+      const logsWithProfiles = (data || []).map(log => ({
+        ...log,
+        user_profile: profiles?.find(p => p.id === log.user_id) || null
+      }));
+
+      setLogs(logsWithProfiles);
     } catch (error) {
       console.error("Error fetching audit logs:", error);
     } finally {
@@ -163,7 +178,9 @@ export const AuditLogs = () => {
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">{log.user_email || "System"}</span>
+                      <span className="font-medium">
+                        {log.user_profile?.full_name || log.user_email || "System"}
+                      </span>
                       <Badge variant={getActionColor(log.action)}>
                         {log.action}
                       </Badge>
