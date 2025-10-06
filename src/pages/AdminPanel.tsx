@@ -40,6 +40,7 @@ interface UserWithRoles {
   full_name: string | null;
   company: string | null;
   created_at: string;
+  last_sign_in_at: string | null;
   user_roles: Array<{ role: string; id: string }>;
 }
 
@@ -150,19 +151,10 @@ const AdminPanel = () => {
 
   const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select(`
-          *,
-          user_roles (
-            id,
-            role
-          )
-        `)
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.functions.invoke("get-users-with-auth-data");
 
       if (error) throw error;
-      setUsers(data || []);
+      setUsers(data?.users || []);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -791,7 +783,7 @@ const AdminPanel = () => {
                         }`}
                       >
                         <div className="flex-1 min-w-0 space-y-2">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <h4 className="font-semibold truncate">
                               {user.full_name || user.email}
                             </h4>
@@ -799,6 +791,26 @@ const AdminPanel = () => {
                               <Badge variant="outline" className="text-xs">
                                 {user.company}
                               </Badge>
+                            )}
+                            <span className="text-xs text-muted-foreground">
+                              Aangemaakt: {new Date(user.created_at).toLocaleString('nl-NL', {
+                                day: '2-digit',
+                                month: '2-digit', 
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </span>
+                            {user.last_sign_in_at && (
+                              <span className="text-xs text-muted-foreground">
+                                Laatste login: {new Date(user.last_sign_in_at).toLocaleString('nl-NL', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: 'numeric', 
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
                             )}
                             {editingUserNameId === user.id ? (
                               <div className="flex items-center gap-2">
