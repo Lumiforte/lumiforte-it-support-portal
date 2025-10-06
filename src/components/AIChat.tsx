@@ -211,14 +211,25 @@ export const AIChat = () => {
             )}
           </Button>
           <Input
+            id="ai-chat-input"
+            name="ai_query"
+            type="search"
+            inputMode="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Ask a question or use voice input..."
             disabled={isLoading || isListening}
             autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            enterKeyHint="send"
             data-lpignore="true"
             data-form-type="other"
+            data-1p-ignore="true"
+            data-bwignore="true"
+            data-dashlane-disabled="true"
           />
           <Button onClick={sendMessage} disabled={isLoading || !input.trim() || isListening}>
             {isLoading ? (
