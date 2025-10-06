@@ -231,7 +231,7 @@ const Layout = () => {
           <p>© {new Date().getFullYear()} Lumiforte Holding BV. {t("common.copyright")}</p>
           <p className="mt-2">{t("footer.systemDevelopment")}</p>
           <p className="mt-1">
-            Please get in touch via ticket:{" "}
+            If you have questions about this portal or would like to contribute, please get in touch via tickets:{" "}
             <Link to="/tickets/new" className="text-primary hover:underline font-medium">
               Create a new ticket
             </Link>
