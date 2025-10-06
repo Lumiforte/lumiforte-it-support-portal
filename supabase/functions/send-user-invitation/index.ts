@@ -119,13 +119,17 @@ serve(async (req) => {
     const recoveryLink = resetData;
 
     // Update invitation_sent_at timestamp
-    const { error: updateError } = await supabaseAdmin
+    console.log(`Updating invitation_sent_at for user ${userId}`);
+    const { data: updateData, error: updateError } = await supabaseAdmin
       .from("profiles")
       .update({ invitation_sent_at: new Date().toISOString() })
-      .eq("id", userId);
+      .eq("id", userId)
+      .select();
 
     if (updateError) {
       console.error("Error updating invitation timestamp:", updateError);
+    } else {
+      console.log("Successfully updated invitation timestamp:", updateData);
     }
 
     // Send invitation email
