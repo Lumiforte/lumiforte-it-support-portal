@@ -421,26 +421,40 @@ const AdminPanel = () => {
         body: { userId }
       });
 
-      if (error) throw error;
+      // Check if the edge function returned an error status
+      if (error) {
+        console.error("Delete user error:", error);
+        toast({
+          title: "Error",
+          description: error.message || "Failed to delete user",
+          variant: "destructive",
+        });
+        return;
+      }
 
-      if (data.canDelete === false) {
-        // User has tickets, show message to deactivate instead
+      // Check if the response contains an error message (400 status from edge function)
+      if (data?.error) {
         toast({
           title: "Cannot Delete User",
           description: data.error,
           variant: "destructive",
         });
-      } else {
+        return;
+      }
+
+      // Success case
+      if (data?.success) {
         toast({
           title: "Success",
-          description: data.message,
+          description: data.message || "User deleted successfully",
         });
         fetchUsers();
       }
     } catch (error: any) {
+      console.error("Unexpected error:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to delete user",
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
     } finally {
