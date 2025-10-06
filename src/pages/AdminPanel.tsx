@@ -1139,6 +1139,21 @@ const AdminPanel = () => {
                                 User
                               </label>
                             </div>
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                id={`${user.id}-manager`}
+                                checked={user.user_roles.some(r => r.role === 'manager')}
+                                onCheckedChange={(checked) => 
+                                  handleRoleChange(user.id, 'manager', checked as boolean)
+                                }
+                              />
+                              <label
+                                htmlFor={`${user.id}-manager`}
+                                className="text-sm font-medium cursor-pointer"
+                              >
+                                Manager
+                              </label>
+                            </div>
                           </div>
                           <Button
                             variant="outline"
@@ -1170,19 +1185,21 @@ const AdminPanel = () => {
                                </>
                              )}
                            </Button>
-                           <Button
-                             variant="destructive"
-                             size="sm"
-                             onClick={() => handleDeleteUser(user.id)}
-                             disabled={deletingUserId === user.id}
-                           >
-                             {deletingUserId === user.id ? (
-                               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                             ) : (
-                               <Trash2 className="h-4 w-4 mr-2" />
-                             )}
-                             Delete
-                           </Button>
+                           {user.banned_until && (
+                             <Button
+                               variant="outline"
+                               size="sm"
+                               onClick={() => handleDeleteUser(user.id)}
+                               disabled={deletingUserId === user.id}
+                             >
+                               {deletingUserId === user.id ? (
+                                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                               ) : (
+                                 <Trash2 className="h-4 w-4 mr-2" />
+                               )}
+                               Delete
+                             </Button>
+                           )}
                         </div>
                       </div>
                     ))
