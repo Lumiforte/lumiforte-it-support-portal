@@ -50,17 +50,27 @@ const Layout = () => {
                 <Button
                   variant={isActive("/") ? "secondary" : "ghost"}
                   size="sm"
-                  className={isActive("/") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-primary/80"}
+                  className={isActive("/") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-accent/20"}
                 >
                   <Home className="h-4 w-4 mr-2" />
                   {t("common.home")}
+                </Button>
+              </Link>
+              <Link to="/ai">
+                <Button
+                  variant={isActive("/ai") ? "secondary" : "ghost"}
+                  size="sm"
+                  className={isActive("/ai") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-accent/20"}
+                >
+                  <Bot className="h-4 w-4 mr-2" />
+                  AI
                 </Button>
               </Link>
               <Link to="/faq">
                 <Button
                   variant={isActive("/faq") ? "secondary" : "ghost"}
                   size="sm"
-                  className={isActive("/faq") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-primary/80"}
+                  className={isActive("/faq") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-accent/20"}
                 >
                   <HelpCircle className="h-4 w-4 mr-2" />
                   {t("common.faq")}
@@ -70,20 +80,10 @@ const Layout = () => {
                 <Button
                   variant={isActive("/tickets") ? "secondary" : "ghost"}
                   size="sm"
-                  className={isActive("/tickets") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-primary/80"}
+                  className={isActive("/tickets") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-accent/20"}
                 >
                   <Ticket className="h-4 w-4 mr-2" />
                   {t("common.tickets")}
-                </Button>
-              </Link>
-              <Link to="/ai">
-                <Button
-                  variant={isActive("/ai") ? "secondary" : "ghost"}
-                  size="sm"
-                  className={isActive("/ai") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-primary/80"}
-                >
-                  <Bot className="h-4 w-4 mr-2" />
-                  AI
                 </Button>
               </Link>
               {profile?.is_manager && (
@@ -91,7 +91,7 @@ const Layout = () => {
                   <Button
                     variant={isActive("/manager/approvals") ? "secondary" : "ghost"}
                     size="sm"
-                    className={isActive("/manager/approvals") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-primary/80"}
+                    className={isActive("/manager/approvals") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-accent/20"}
                   >
                     <CheckSquare className="h-4 w-4 mr-2" />
                     Approvals
@@ -103,7 +103,7 @@ const Layout = () => {
                   <Button
                     variant={isActive("/helpdesk") ? "secondary" : "ghost"}
                     size="sm"
-                    className={isActive("/helpdesk") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-primary/80"}
+                    className={isActive("/helpdesk") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-accent/20"}
                   >
                     <Headset className="h-4 w-4 mr-2" />
                     {t("common.helpdesk")}
@@ -115,7 +115,7 @@ const Layout = () => {
                   <Button
                     variant={isActive("/analytics") ? "secondary" : "ghost"}
                     size="sm"
-                    className={isActive("/analytics") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-primary/80"}
+                    className={isActive("/analytics") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-accent/20"}
                   >
                     <BarChart3 className="h-4 w-4 mr-2" />
                     Analytics
@@ -127,7 +127,7 @@ const Layout = () => {
                   <Button
                     variant={isActive("/admin") ? "secondary" : "ghost"}
                     size="sm"
-                    className={isActive("/admin") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-primary/80"}
+                    className={isActive("/admin") ? "" : "text-primary-foreground hover:text-primary-foreground hover:bg-accent/20"}
                   >
                     <Shield className="h-4 w-4 mr-2" />
                     Admin
