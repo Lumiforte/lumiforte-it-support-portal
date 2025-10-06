@@ -15,6 +15,7 @@ import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle, Ma
 import { formatDistanceToNow } from "date-fns";
 import { COMPANIES } from "@/lib/companies";
 import { AuditLogs } from "@/components/AuditLogs";
+import UserAnalytics from "@/pages/UserAnalytics";
 
 interface TicketWithUser {
   id: string;
@@ -621,6 +622,7 @@ const AdminPanel = () => {
         <TabsList>
           <TabsTrigger value="users">Users & Roles</TabsTrigger>
           <TabsTrigger value="tickets">Tickets</TabsTrigger>
+          <TabsTrigger value="analytics">User Analytics</TabsTrigger>
           <TabsTrigger value="logs">Logs</TabsTrigger>
           <TabsTrigger value="transfer">Transfer Tickets</TabsTrigger>
         </TabsList>
@@ -1214,6 +1216,17 @@ const AdminPanel = () => {
           </Card>
         </TabsContent>
 
+        <TabsContent value="analytics">
+          <Card>
+            <CardHeader>
+              <CardTitle>User Engagement Analytics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UserAnalytics />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="logs">
           <Card>
             <CardHeader>
@@ -1242,15 +1255,14 @@ const AdminPanel = () => {
                       <SelectValue placeholder="Select agent" />
                     </SelectTrigger>
                     <SelectContent>
-                      {users.map(u => (
-                        <SelectItem key={u.id} value={u.id}>
-                          {u.full_name || u.email}
-                          {u.user_roles.some(r => r.role === 'helpdesk') ? 
-                            " (Helpdesk)" : 
-                            u.user_roles.some(r => r.role === 'admin') ? " (Admin)" : ""
-                          }
-                        </SelectItem>
-                      ))}
+                      {users
+                        .filter(u => u.user_roles.some(r => r.role === 'helpdesk'))
+                        .map(u => (
+                          <SelectItem key={u.id} value={u.id}>
+                            {u.full_name || u.email}
+                          </SelectItem>
+                        ))
+                      }
                     </SelectContent>
                   </Select>
                 </div>
