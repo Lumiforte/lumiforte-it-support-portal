@@ -42,13 +42,46 @@ const UserAnalytics = () => {
 
   useEffect(() => {
     fetchAnalytics();
+    
+    // Set up realtime updates for profiles and tickets
+    const profilesChannel = supabase
+      .channel('analytics-profiles-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'profiles' },
+        () => fetchAnalytics()
+      )
+      .subscribe();
+
+    const ticketsChannel = supabase
+      .channel('analytics-tickets-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tickets' },
+        () => fetchAnalytics()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(profilesChannel);
+      supabase.removeChannel(ticketsChannel);
+    };
   }, []);
 
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
-      // Get all users from auth and profiles
-      const { data: authUsers } = await supabase.auth.admin.listUsers();
+      // Get all users with auth data using edge function
+      const { data: usersData, error: usersError } = await supabase.functions.invoke('get-users-with-auth-data');
+      
+      if (usersError) {
+        console.error('Error fetching users:', usersError);
+        return;
+      }
+
+      const authUsers = usersData?.users || [];
+      
+      // Get profiles
       const { data: profiles } = await supabase
         .from('profiles')
         .select('id, email, full_name, created_at');
@@ -72,7 +105,7 @@ const UserAnalytics = () => {
       const userEngagementMap = new Map<string, UserEngagement>();
 
       // Process all users
-      for (const authUser of authUsers.users) {
+      for (const authUser of authUsers) {
         const profile = profiles.find(p => p.id === authUser.id);
         const lastSignIn = authUser.last_sign_in_at ? new Date(authUser.last_sign_in_at) : null;
 
@@ -143,7 +176,7 @@ const UserAnalytics = () => {
         .slice(0, 20); // Top 20 users
 
       setStats({
-        totalUsers: authUsers.users.length,
+        totalUsers: authUsers.length,
         neverLoggedIn,
         loggedInOnce,
         activeUsers,

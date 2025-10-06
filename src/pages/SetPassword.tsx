@@ -23,9 +23,19 @@ const SetPassword = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         setEmail(session.user.email || "");
+        
+        // Check if user has already set a password by checking user metadata
+        // If they've logged in before and have a password, redirect them to home
+        const hasExistingPassword = session.user.user_metadata?.has_password || session.user.last_sign_in_at;
+        
+        if (hasExistingPassword && session.user.last_sign_in_at) {
+          // User already has a password and has logged in before, redirect to home
+          toast.info("You already have an account. Redirecting to home...");
+          navigate("/");
+        }
       } else {
         // If no session, redirect to auth page
-        toast.error("Uitnodigingslink is ongeldig of verlopen");
+        toast.error("Invitation link is invalid or expired");
         navigate("/auth");
       }
     };
@@ -37,12 +47,12 @@ const SetPassword = () => {
     e.preventDefault();
     
     if (password.length < 8) {
-      toast.error("Wachtwoord moet minimaal 8 karakters bevatten");
+      toast.error("Password must be at least 8 characters");
       return;
     }
     
     if (password !== confirmPassword) {
-      toast.error("Wachtwoorden komen niet overeen");
+      toast.error("Passwords do not match");
       return;
     }
 
@@ -50,16 +60,17 @@ const SetPassword = () => {
 
     try {
       const { error } = await supabase.auth.updateUser({
-        password: password
+        password: password,
+        data: { has_password: true }
       });
 
       if (error) throw error;
 
-      toast.success("Wachtwoord succesvol ingesteld!");
+      toast.success("Password successfully set!");
       navigate("/");
     } catch (error: any) {
       console.error("Error setting password:", error);
-      toast.error(error.message || "Er is een fout opgetreden bij het instellen van het wachtwoord");
+      toast.error(error.message || "An error occurred while setting the password");
     } finally {
       setLoading(false);
     }
@@ -70,10 +81,10 @@ const SetPassword = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
-            Welkom bij het supportplatform
+            Welcome to the Support Platform
           </CardTitle>
           <CardDescription className="text-center">
-            Stel je wachtwoord in om te beginnen
+            Set your password to get started
           </CardDescription>
           {email && (
             <p className="text-sm text-muted-foreground text-center mt-2">
@@ -84,14 +95,14 @@ const SetPassword = () => {
         <CardContent>
           <form onSubmit={handleSetPassword} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="password">Nieuw wachtwoord</Label>
+              <Label htmlFor="password">New Password</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Minimaal 8 karakters"
+                  placeholder="At least 8 characters"
                   required
                   minLength={8}
                 />
@@ -112,14 +123,14 @@ const SetPassword = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Bevestig wachtwoord</Label>
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Herhaal je wachtwoord"
+                  placeholder="Repeat your password"
                   required
                   minLength={8}
                 />
@@ -141,12 +152,12 @@ const SetPassword = () => {
 
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground">
-                Je wachtwoord moet:
+                Your password must:
               </p>
               <ul className="text-xs text-muted-foreground list-disc list-inside space-y-1">
-                <li>Minimaal 8 karakters bevatten</li>
-                <li>Een combinatie van letters en cijfers bevatten (aanbevolen)</li>
-                <li>Een speciaal teken bevatten (aanbevolen)</li>
+                <li>Be at least 8 characters long</li>
+                <li>Contain a combination of letters and numbers (recommended)</li>
+                <li>Contain a special character (recommended)</li>
               </ul>
             </div>
 
@@ -155,7 +166,7 @@ const SetPassword = () => {
               className="w-full"
               disabled={loading || !password || !confirmPassword}
             >
-              {loading ? "Bezig met instellen..." : "Wachtwoord instellen"}
+              {loading ? "Setting password..." : "Set Password"}
             </Button>
           </form>
         </CardContent>
