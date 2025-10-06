@@ -275,7 +275,7 @@ const CreateTicket = () => {
                       required
                     />
                     <p className="text-xs text-muted-foreground">
-                      Format: +landcode netnummer abonneenummer (bijv. +31 6 12345678)
+                      Format: +country code area code subscriber number (e.g. +31 6 12345678)
                     </p>
                     {phoneError && (
                       <p className="text-xs text-destructive">{phoneError}</p>

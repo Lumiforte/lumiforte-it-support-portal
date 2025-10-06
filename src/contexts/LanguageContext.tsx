@@ -145,7 +145,7 @@ const getTranslations = (lang: Language) => {
       },
       faq: {
         title: "Frequently Asked Questions",
-        subtitle: "Search our knowledge base for quick answers to common IT questions",
+        subtitle: "Search our knowledge base for quick answers to common questions",
         searchPlaceholder: "Search FAQs...",
         noResults: "No FAQs found matching your search.",
       },
