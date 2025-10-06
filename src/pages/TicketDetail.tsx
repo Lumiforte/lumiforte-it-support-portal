@@ -24,6 +24,8 @@ interface Ticket {
   status: string;
   priority: string;
   category: string;
+  main_category: string;
+  sub_category: string;
   created_at: string;
   updated_at: string;
   created_by: string;
@@ -102,6 +104,8 @@ const TicketDetail = () => {
   const [assignSearchOpen, setAssignSearchOpen] = useState(false);
   const [assignSearchValue, setAssignSearchValue] = useState("");
   const [isHelpdeskUser, setIsHelpdeskUser] = useState(false);
+  const [editingMainCategory, setEditingMainCategory] = useState<string>("");
+  const [editingSubCategory, setEditingSubCategory] = useState<string>("");
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -430,12 +434,16 @@ const TicketDetail = () => {
     }
   };
 
-  const handleCategoryChange = async (newCategory: string) => {
+  const handleCategoryChange = async (mainCat: string, subCat: string) => {
     setUpdating(true);
     try {
       const { error } = await supabase
         .from("tickets")
-        .update({ category: newCategory })
+        .update({ 
+          main_category: mainCat,
+          sub_category: subCat,
+          category: subCat // Keep for backwards compatibility
+        })
         .eq("id", id);
 
       if (error) throw error;
@@ -795,24 +803,53 @@ const TicketDetail = () => {
                         </Select>
                       </div>
                       
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium min-w-[80px]">Category:</span>
-                        <Select
-                          value={ticket.category}
-                          onValueChange={handleCategoryChange}
-                          disabled={updating}
-                        >
-                          <SelectTrigger className="flex-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {TICKET_CATEGORIES.map((cat) => (
-                              <SelectItem key={cat.value} value={cat.value}>
-                                {cat.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium min-w-[100px]">Main Category:</span>
+                          <Select
+                            value={editingMainCategory || ticket.main_category}
+                            onValueChange={(value) => {
+                              setEditingMainCategory(value);
+                              setEditingSubCategory(""); // Reset sub when main changes
+                            }}
+                            disabled={updating}
+                          >
+                            <SelectTrigger className="flex-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.keys(TICKET_CATEGORIES).map((key) => (
+                                <SelectItem key={key} value={key}>
+                                  {TICKET_CATEGORIES[key as keyof typeof TICKET_CATEGORIES].label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium min-w-[100px]">Sub Category:</span>
+                          <Select
+                            value={editingSubCategory || ticket.sub_category}
+                            onValueChange={(value) => {
+                              setEditingSubCategory(value);
+                              // Auto-save when subcategory is selected
+                              handleCategoryChange(editingMainCategory || ticket.main_category, value);
+                            }}
+                            disabled={updating}
+                          >
+                            <SelectTrigger className="flex-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {TICKET_CATEGORIES[(editingMainCategory || ticket.main_category) as keyof typeof TICKET_CATEGORIES]?.subcategories.map((sub) => (
+                                <SelectItem key={sub.value} value={sub.value}>
+                                  {sub.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                       
                       <div className="flex items-center gap-2">

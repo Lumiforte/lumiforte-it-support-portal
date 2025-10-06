@@ -19,6 +19,8 @@ const CreateTicket = () => {
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("medium");
   const [category, setCategory] = useState("");
+  const [mainCategory, setMainCategory] = useState<string>("");
+  const [subCategory, setSubCategory] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [profilePhone, setProfilePhone] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -79,7 +81,9 @@ const CreateTicket = () => {
           title,
           description,
           priority: priority as "low" | "medium" | "high" | "urgent",
-          category,
+          category: subCategory, // Keep for backwards compatibility
+          main_category: mainCategory,
+          sub_category: subCategory,
           phone_number: phoneNumber,
         }])
         .select()
@@ -95,7 +99,7 @@ const CreateTicket = () => {
             title: data.title,
             description: data.description,
             priority: data.priority,
-            category: data.category,
+            category: `${mainCategory} - ${subCategory}`,
             userName: user?.user_metadata?.full_name || user?.email || 'Unknown',
             userEmail: user?.email || 'Unknown',
             phoneNumber: phoneNumber
@@ -161,20 +165,41 @@ const CreateTicket = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger id="category">
-                    <SelectValue placeholder="Select a category" />
+                <Label htmlFor="mainCategory">Main Category *</Label>
+                <Select value={mainCategory} onValueChange={(value) => {
+                  setMainCategory(value);
+                  setSubCategory(""); // Reset subcategory when main changes
+                }} required>
+                  <SelectTrigger id="mainCategory">
+                    <SelectValue placeholder="Select a main category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {TICKET_CATEGORIES.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
-                        {cat.label}
+                    {Object.keys(TICKET_CATEGORIES).map((key) => (
+                      <SelectItem key={key} value={key}>
+                        {TICKET_CATEGORIES[key as keyof typeof TICKET_CATEGORIES].label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
+
+              {mainCategory && (
+                <div className="space-y-2">
+                  <Label htmlFor="subCategory">Sub Category *</Label>
+                  <Select value={subCategory} onValueChange={setSubCategory} required>
+                    <SelectTrigger id="subCategory">
+                      <SelectValue placeholder="Select a sub category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TICKET_CATEGORIES[mainCategory as keyof typeof TICKET_CATEGORIES].subcategories.map((sub) => (
+                        <SelectItem key={sub.value} value={sub.value}>
+                          {sub.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="priority">Priority *</Label>

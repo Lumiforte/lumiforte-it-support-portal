@@ -119,8 +119,8 @@ const getTranslations = (lang: Language) => {
         noTickets: "No tickets found.",
       },
       home: {
-        title: "IT Support Portal",
-        subtitle: "Welcome to the Lumiforte IT Support System",
+        title: "Lumiforte Internal Support Portal",
+        subtitle: "Welcome to the Lumiforte Internal Support System",
         browseFaq: "Browse FAQ",
         browseFaqDesc: "Find answers to frequently asked questions about IT support",
         searchFaq: "Search FAQ",

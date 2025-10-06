@@ -177,10 +177,12 @@ export type Database = {
           created_by: string
           description: string
           id: string
+          main_category: string
           phone_number: string | null
           priority: Database["public"]["Enums"]["ticket_priority"] | null
           resolved_at: string | null
           status: Database["public"]["Enums"]["ticket_status"] | null
+          sub_category: string
           title: string
           updated_at: string | null
         }
@@ -192,10 +194,12 @@ export type Database = {
           created_by: string
           description: string
           id?: string
+          main_category: string
           phone_number?: string | null
           priority?: Database["public"]["Enums"]["ticket_priority"] | null
           resolved_at?: string | null
           status?: Database["public"]["Enums"]["ticket_status"] | null
+          sub_category: string
           title: string
           updated_at?: string | null
         }
@@ -207,10 +211,12 @@ export type Database = {
           created_by?: string
           description?: string
           id?: string
+          main_category?: string
           phone_number?: string | null
           priority?: Database["public"]["Enums"]["ticket_priority"] | null
           resolved_at?: string | null
           status?: Database["public"]["Enums"]["ticket_status"] | null
+          sub_category?: string
           title?: string
           updated_at?: string | null
         }
