@@ -78,6 +78,7 @@ serve(async (req) => {
       return {
         ...profile,
         last_sign_in_at: authUser?.last_sign_in_at || null,
+        invitation_sent_at: profile.invitation_sent_at || null,
       };
     }) || [];
 

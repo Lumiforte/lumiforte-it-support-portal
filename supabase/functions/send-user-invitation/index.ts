@@ -116,6 +116,18 @@ serve(async (req) => {
       );
     }
 
+    const recoveryLink = resetData;
+
+    // Update invitation_sent_at timestamp
+    const { error: updateError } = await supabaseAdmin
+      .from("profiles")
+      .update({ invitation_sent_at: new Date().toISOString() })
+      .eq("id", userId);
+
+    if (updateError) {
+      console.error("Error updating invitation timestamp:", updateError);
+    }
+
     // Send invitation email
     const emailResponse = await resend.emails.send({
       from: `${adminName} <support@lumiforte.dev>`,
@@ -128,14 +140,14 @@ serve(async (req) => {
         <p>${adminName} heeft je uitgenodigd om het supportplatform te gebruiken.</p>
         <p>Klik op de onderstaande knop om je wachtwoord in te stellen en in te loggen:</p>
         <p>
-          <a href="${resetData.properties.action_link}" 
+          <a href="${recoveryLink.properties.action_link}" 
              style="background-color: #0066cc; color: white; padding: 12px 24px; 
                     text-decoration: none; border-radius: 4px; display: inline-block;">
             Wachtwoord instellen
           </a>
         </p>
         <p>Of kopieer deze link naar je browser:</p>
-        <p style="color: #666; word-break: break-all;">${resetData.properties.action_link}</p>
+        <p style="color: #666; word-break: break-all;">${recoveryLink.properties.action_link}</p>
         <p>Deze link is 24 uur geldig.</p>
         <br>
         <p>Met vriendelijke groet,<br>${adminName}</p>

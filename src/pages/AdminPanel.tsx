@@ -41,6 +41,7 @@ interface UserWithRoles {
   company: string | null;
   created_at: string;
   last_sign_in_at: string | null;
+  invitation_sent_at: string | null;
   user_roles: Array<{ role: string; id: string }>;
 }
 
@@ -801,6 +802,17 @@ const AdminPanel = () => {
                                 minute: '2-digit'
                               })}
                             </span>
+                            {!user.last_sign_in_at && user.invitation_sent_at && (
+                              <span className="text-xs text-muted-foreground">
+                                Uitnodiging verstuurd: {new Date(user.invitation_sent_at).toLocaleString('nl-NL', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: 'numeric', 
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
+                            )}
                             {user.last_sign_in_at && (
                               <span className="text-xs text-muted-foreground">
                                 Laatste login: {new Date(user.last_sign_in_at).toLocaleString('nl-NL', {
