@@ -42,6 +42,7 @@ interface UserWithRoles {
   created_at: string;
   last_sign_in_at: string | null;
   invitation_sent_at: string | null;
+  banned_until: string | null;
   user_roles: Array<{ role: string; id: string }>;
 }
 
@@ -836,22 +837,31 @@ const AdminPanel = () => {
                     <p className="text-center text-muted-foreground py-8">No users found.</p>
                   ) : (
                     getFilteredAndSortedUsers().map((user, index) => (
-                      <div
-                        key={user.id}
-                        className={`flex items-center justify-between p-3 ${
-                          index % 2 === 0 ? 'bg-accent/40' : 'bg-background'
-                        }`}
-                      >
-                        <div className="flex-1 min-w-0 space-y-2">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="font-semibold truncate">
-                              {user.full_name || user.email}
-                            </h4>
-                            {user.company && (
-                              <Badge variant="outline" className="text-xs">
-                                {user.company}
-                              </Badge>
-                            )}
+                       <div
+                         key={user.id}
+                         className={`flex items-center justify-between p-3 ${
+                           user.banned_until 
+                             ? 'bg-destructive/10 border-l-4 border-destructive' 
+                             : index % 2 === 0 
+                               ? 'bg-accent/40' 
+                               : 'bg-background'
+                         }`}
+                       >
+                         <div className="flex-1 min-w-0 space-y-2">
+                           <div className="flex items-center gap-2 flex-wrap">
+                             <h4 className={`font-semibold truncate ${user.banned_until ? 'text-muted-foreground' : ''}`}>
+                               {user.full_name || user.email}
+                             </h4>
+                             {user.banned_until && (
+                               <Badge variant="destructive" className="text-xs">
+                                 Gedeactiveerd
+                               </Badge>
+                             )}
+                             {user.company && (
+                               <Badge variant="outline" className="text-xs">
+                                 {user.company}
+                               </Badge>
+                             )}
                             <span className="text-xs text-muted-foreground">
                               Aangemaakt: {new Date(user.created_at).toLocaleString('nl-NL', {
                                 day: '2-digit',
@@ -1082,14 +1092,23 @@ const AdminPanel = () => {
                             )}
                             Uitnodiging
                           </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleToggleUserActive(user.id, false)}
-                          >
-                            <UserX className="h-4 w-4 mr-2" />
-                            Deactivate
-                          </Button>
+                           <Button
+                             variant="outline"
+                             size="sm"
+                             onClick={() => handleToggleUserActive(user.id, !!user.banned_until)}
+                           >
+                             {user.banned_until ? (
+                               <>
+                                 <UserCheck className="h-4 w-4 mr-2" />
+                                 Activeren
+                               </>
+                             ) : (
+                               <>
+                                 <UserX className="h-4 w-4 mr-2" />
+                                 Deactiveren
+                               </>
+                             )}
+                           </Button>
                         </div>
                       </div>
                     ))

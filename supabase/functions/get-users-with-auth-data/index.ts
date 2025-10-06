@@ -79,6 +79,7 @@ serve(async (req) => {
         ...profile,
         last_sign_in_at: authUser?.last_sign_in_at || null,
         invitation_sent_at: profile.invitation_sent_at || null,
+        banned_until: (authUser as any)?.banned_until || null,
       };
     }) || [];
 
