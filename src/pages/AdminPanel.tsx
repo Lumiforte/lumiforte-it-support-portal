@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,8 +10,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle, Mail, UserX, UserCheck, Edit2, ArrowRightLeft, UserPlus, Search, Trash2 } from "lucide-react";
+import { Loader2, Users, Ticket, HelpCircle, Clock, AlertCircle, CheckCircle, Mail, UserX, UserCheck, Edit2, ArrowRightLeft, UserPlus, Search, Trash2, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { COMPANIES } from "@/lib/companies";
 import { AuditLogs } from "@/components/AuditLogs";
@@ -80,6 +81,10 @@ const AdminPanel = () => {
   const [sortByRole, setSortByRole] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [companyFilter, setCompanyFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(25);
+  const [expandedCompanies, setExpandedCompanies] = useState<Set<string>>(new Set());
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
   const { toast } = useToast();
   
@@ -604,6 +609,15 @@ const AdminPanel = () => {
       filteredUsers = filteredUsers.filter(user => user.company === companyFilter);
     }
 
+    // Filter by status
+    if (statusFilter === "active") {
+      filteredUsers = filteredUsers.filter(user => !user.banned_until && user.last_sign_in_at !== null);
+    } else if (statusFilter === "deactivated") {
+      filteredUsers = filteredUsers.filter(user => user.banned_until !== null);
+    } else if (statusFilter === "never_logged_in") {
+      filteredUsers = filteredUsers.filter(user => user.last_sign_in_at === null && !user.banned_until);
+    }
+
     // Sort: active users first, then deactivated users at the bottom
     filteredUsers = [...filteredUsers].sort((a, b) => {
       const aIsDeactivated = !!a.banned_until;
@@ -630,6 +644,75 @@ const AdminPanel = () => {
     });
 
     return filteredUsers;
+  };
+
+  // Group users by company
+  const groupedUsers = useMemo(() => {
+    const filtered = getFilteredAndSortedUsers();
+    const groups: Record<string, UserWithRoles[]> = {};
+    
+    filtered.forEach(user => {
+      const company = user.company || "No Company";
+      if (!groups[company]) {
+        groups[company] = [];
+      }
+      groups[company].push(user);
+    });
+    
+    return groups;
+  }, [users, searchTerm, roleFilter, companyFilter, statusFilter, sortByRole]);
+
+  // Pagination for grouped view
+  const totalFilteredUsers = getFilteredAndSortedUsers().length;
+  const totalPages = Math.ceil(totalFilteredUsers / usersPerPage);
+  
+  const getPaginatedCompanies = () => {
+    const companies = Object.keys(groupedUsers).sort();
+    const startIndex = (currentPage - 1) * usersPerPage;
+    
+    // Calculate which companies to show based on user count
+    let userCount = 0;
+    let startCompanyIndex = 0;
+    let endCompanyIndex = 0;
+    
+    for (let i = 0; i < companies.length; i++) {
+      const companyUserCount = groupedUsers[companies[i]].length;
+      
+      if (userCount + companyUserCount > startIndex && startCompanyIndex === 0) {
+        startCompanyIndex = i;
+      }
+      
+      userCount += companyUserCount;
+      
+      if (userCount >= startIndex + usersPerPage) {
+        endCompanyIndex = i + 1;
+        break;
+      }
+    }
+    
+    if (endCompanyIndex === 0) endCompanyIndex = companies.length;
+    
+    return companies.slice(startCompanyIndex, endCompanyIndex);
+  };
+
+  const toggleCompany = (company: string) => {
+    setExpandedCompanies(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(company)) {
+        newSet.delete(company);
+      } else {
+        newSet.add(company);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleAllCompanies = () => {
+    if (expandedCompanies.size === Object.keys(groupedUsers).length) {
+      setExpandedCompanies(new Set());
+    } else {
+      setExpandedCompanies(new Set(Object.keys(groupedUsers)));
+    }
   };
 
   if (loading) {
@@ -891,12 +974,30 @@ const AdminPanel = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="never_logged_in">Never Logged In</SelectItem>
+                      <SelectItem value="deactivated">Deactivated</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <Button
                     variant={sortByRole ? "default" : "outline"}
                     size="sm"
                     onClick={() => setSortByRole(!sortByRole)}
                   >
                     Sort by Role
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={toggleAllCompanies}
+                  >
+                    {expandedCompanies.size === Object.keys(groupedUsers).length ? "Collapse All" : "Expand All"}
                   </Button>
                 </div>
               </div>
@@ -907,21 +1008,49 @@ const AdminPanel = () => {
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
               ) : (
-                <div className="space-y-1">
-                  {getFilteredAndSortedUsers().length === 0 ? (
-                    <p className="text-center text-muted-foreground py-8">No users found.</p>
-                  ) : (
-                    getFilteredAndSortedUsers().map((user, index) => (
-                       <div
-                         key={user.id}
-                         className={`flex items-center justify-between p-3 ${
-                           user.banned_until 
-                             ? 'bg-destructive/10 border-l-4 border-destructive' 
-                             : index % 2 === 0 
-                               ? 'bg-accent/40' 
-                               : 'bg-background'
-                         }`}
-                       >
+                <>
+                  <div className="space-y-4">
+                    {totalFilteredUsers === 0 ? (
+                      <p className="text-center text-muted-foreground py-8">No users found.</p>
+                    ) : (
+                      <>
+                        {getPaginatedCompanies().map(company => {
+                          const companyUsers = groupedUsers[company];
+                          const isExpanded = expandedCompanies.has(company);
+                          
+                          return (
+                            <Collapsible
+                              key={company}
+                              open={isExpanded}
+                              onOpenChange={() => toggleCompany(company)}
+                            >
+                              <div className="border rounded-lg">
+                                <CollapsibleTrigger className="w-full">
+                                  <div className="flex items-center justify-between p-4 hover:bg-accent/50 transition-colors">
+                                    <div className="flex items-center gap-2">
+                                      {isExpanded ? (
+                                        <ChevronDown className="h-4 w-4" />
+                                      ) : (
+                                        <ChevronRight className="h-4 w-4" />
+                                      )}
+                                      <h3 className="font-semibold text-lg">{company}</h3>
+                                      <Badge variant="secondary">{companyUsers.length} users</Badge>
+                                    </div>
+                                  </div>
+                                </CollapsibleTrigger>
+                                <CollapsibleContent>
+                                  <div className="space-y-1 p-2">
+                                    {companyUsers.map((user, index) => (
+                                      <div
+                                        key={user.id}
+                                        className={`flex items-center justify-between p-3 rounded ${
+                                          user.banned_until 
+                                            ? 'bg-destructive/10 border-l-4 border-destructive' 
+                                            : index % 2 === 0 
+                                              ? 'bg-accent/40' 
+                                              : 'bg-background'
+                                        }`}
+                                      >
                        <div className="flex-1 min-w-0 space-y-2">
                            {/* First line: Name, Company, Email */}
                            <div className="flex items-center gap-3 flex-wrap">
@@ -1250,15 +1379,55 @@ const AdminPanel = () => {
                                )}
                              </>
                            )}
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+                         </div>
+                       </div>
+                                     ))}
+                                   </div>
+                                 </CollapsibleContent>
+                               </div>
+                             </Collapsible>
+                           );
+                         })}
+                       </>
+                     )}
+                   </div>
+                   
+                   {/* Pagination Controls */}
+                   {totalPages > 1 && (
+                     <div className="flex items-center justify-between mt-6 pt-4 border-t">
+                       <div className="text-sm text-muted-foreground">
+                         Showing {((currentPage - 1) * usersPerPage) + 1} to {Math.min(currentPage * usersPerPage, totalFilteredUsers)} of {totalFilteredUsers} users
+                       </div>
+                       <div className="flex items-center gap-2">
+                         <Button
+                           variant="outline"
+                           size="sm"
+                           onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                           disabled={currentPage === 1}
+                         >
+                           <ChevronLeft className="h-4 w-4 mr-1" />
+                           Previous
+                         </Button>
+                         <div className="text-sm">
+                           Page {currentPage} of {totalPages}
+                         </div>
+                         <Button
+                           variant="outline"
+                           size="sm"
+                           onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                           disabled={currentPage === totalPages}
+                         >
+                           Next
+                           <ChevronRight className="h-4 w-4 ml-1" />
+                         </Button>
+                       </div>
+                     </div>
+                   )}
+                 </>
+               )}
+             </CardContent>
+           </Card>
+         </TabsContent>
 
         <TabsContent value="analytics">
           <Card>
