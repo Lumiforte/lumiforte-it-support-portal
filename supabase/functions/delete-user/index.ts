@@ -75,7 +75,7 @@ serve(async (req) => {
     const protectedEmails = ['jeroen.vrieselaar@lumiforte.com', 'jort.gerritsen@lumiforte.com'];
     if (protectedEmails.includes(targetUser?.user?.email || '')) {
       return new Response(
-        JSON.stringify({ error: 'Dit account kan niet worden verwijderd (beschermd admin account)' }),
+        JSON.stringify({ error: 'This account cannot be deleted (protected admin account)' }),
         { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
@@ -91,7 +91,7 @@ serve(async (req) => {
     if (createdTicketsError) {
       console.error("Error checking created tickets:", createdTicketsError);
       return new Response(
-        JSON.stringify({ error: "Kon niet controleren of gebruiker tickets heeft aangemaakt" }),
+        JSON.stringify({ error: "Failed to check user's created tickets" }),
         { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
@@ -105,7 +105,7 @@ serve(async (req) => {
     if (assignedTicketsError) {
       console.error("Error checking assigned tickets:", assignedTicketsError);
       return new Response(
-        JSON.stringify({ error: "Kon niet controleren of gebruiker toegewezen tickets heeft" }),
+        JSON.stringify({ error: "Failed to check user's assigned tickets" }),
         { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
@@ -116,18 +116,18 @@ serve(async (req) => {
     if (totalCreated > 0 || totalAssigned > 0) {
       console.log(`User ${userId} has ${totalCreated} created tickets and ${totalAssigned} assigned tickets, cannot delete`);
       
-      let errorMessage = "Deze gebruiker kan niet worden verwijderd: ";
+      let errorMessage = "This user cannot be deleted: ";
       const reasons = [];
       
       if (totalCreated > 0) {
-        reasons.push(`${totalCreated} ${totalCreated === 1 ? 'ticket aangemaakt' : 'tickets aangemaakt'}`);
+        reasons.push(`${totalCreated} ${totalCreated === 1 ? 'created ticket' : 'created tickets'}`);
       }
       if (totalAssigned > 0) {
-        reasons.push(`${totalAssigned} ${totalAssigned === 1 ? 'ticket toegewezen' : 'tickets toegewezen'}`);
+        reasons.push(`${totalAssigned} ${totalAssigned === 1 ? 'assigned ticket' : 'assigned tickets'}`);
       }
       
-      errorMessage += reasons.join(" en ");
-      errorMessage += ". Deactiveer de gebruiker in plaats van te verwijderen.";
+      errorMessage += reasons.join(" and ");
+      errorMessage += ". Please deactivate the user instead.";
       
       return new Response(
         JSON.stringify({ 
