@@ -82,27 +82,61 @@ serve(async (req) => {
 
     console.log(`Checking if user ${userId} has any tickets...`);
 
-    // Check if user has any tickets (any status)
-    const { data: tickets, error: ticketsError } = await supabaseAdmin
+    // Check if user has created any tickets
+    const { data: createdTickets, error: createdTicketsError } = await supabaseAdmin
       .from('tickets')
-      .select('id')
-      .eq('created_by', userId)
-      .limit(1);
+      .select('id, title, status')
+      .eq('created_by', userId);
 
-    if (ticketsError) {
-      console.error("Error checking tickets:", ticketsError);
+    if (createdTicketsError) {
+      console.error("Error checking created tickets:", createdTicketsError);
       return new Response(
-        JSON.stringify({ error: "Failed to check user tickets" }),
+        JSON.stringify({ error: "Kon niet controleren of gebruiker tickets heeft aangemaakt" }),
         { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    if (tickets && tickets.length > 0) {
-      console.log(`User ${userId} has tickets, cannot delete`);
+    // Check if user is assigned to any tickets
+    const { data: assignedTickets, error: assignedTicketsError } = await supabaseAdmin
+      .from('tickets')
+      .select('id, title, status')
+      .eq('assigned_to', userId);
+
+    if (assignedTicketsError) {
+      console.error("Error checking assigned tickets:", assignedTicketsError);
+      return new Response(
+        JSON.stringify({ error: "Kon niet controleren of gebruiker toegewezen tickets heeft" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const totalCreated = createdTickets?.length || 0;
+    const totalAssigned = assignedTickets?.length || 0;
+
+    if (totalCreated > 0 || totalAssigned > 0) {
+      console.log(`User ${userId} has ${totalCreated} created tickets and ${totalAssigned} assigned tickets, cannot delete`);
+      
+      let errorMessage = "Deze gebruiker kan niet worden verwijderd: ";
+      const reasons = [];
+      
+      if (totalCreated > 0) {
+        reasons.push(`${totalCreated} ${totalCreated === 1 ? 'ticket aangemaakt' : 'tickets aangemaakt'}`);
+      }
+      if (totalAssigned > 0) {
+        reasons.push(`${totalAssigned} ${totalAssigned === 1 ? 'ticket toegewezen' : 'tickets toegewezen'}`);
+      }
+      
+      errorMessage += reasons.join(" en ");
+      errorMessage += ". Deactiveer de gebruiker in plaats van te verwijderen.";
+      
       return new Response(
         JSON.stringify({ 
-          error: "Cannot delete user with existing tickets. Please deactivate instead.",
-          canDelete: false
+          error: errorMessage,
+          canDelete: false,
+          details: {
+            createdTickets: totalCreated,
+            assignedTickets: totalAssigned
+          }
         }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
