@@ -82,6 +82,9 @@ const AdminPanel = () => {
   const [companyFilter, setCompanyFilter] = useState<string>("all");
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
   const { toast } = useToast();
+  
+  const PROTECTED_ADMINS = ['jeroen.vrieselaar@lumiforte.com', 'jort.gerritsen@lumiforte.com'];
+  const isProtectedAdmin = (email: string) => PROTECTED_ADMINS.includes(email);
  
   useEffect(() => {
     fetchTickets();
@@ -244,9 +247,8 @@ const AdminPanel = () => {
   const handleUpdateUserName = async (userId: string) => {
     // Check if this is a protected admin account
     const user = users.find(u => u.id === userId);
-    const PROTECTED_ADMINS = ['jeroen.vrieselaar@lumiforte.com', 'jort.gerritsen@lumiforte.com'];
     
-    if (user && PROTECTED_ADMINS.includes(user.email)) {
+    if (user && isProtectedAdmin(user.email)) {
       toast({
         title: "Protected Account",
         description: "This admin account cannot be modified.",
@@ -938,23 +940,25 @@ const AdminPanel = () => {
                                      Cancel
                                    </Button>
                                  </>
-                               ) : (
-                                 <>
-                                   <h4 className={`font-semibold ${user.banned_until ? 'text-muted-foreground' : ''}`}>
-                                     {user.full_name || user.email}
-                                   </h4>
-                                   <Button
-                                     variant="ghost"
-                                     size="sm"
-                                     onClick={() => {
-                                       setEditingUserNameId(user.id);
-                                       setEditingUserName(user.full_name || "");
-                                     }}
-                                   >
-                                     <Edit2 className="h-3 w-3" />
-                                   </Button>
-                                 </>
-                               )}
+                                ) : (
+                                  <>
+                                    <h4 className={`font-semibold ${user.banned_until ? 'text-muted-foreground' : ''}`}>
+                                      {user.full_name || user.email}
+                                    </h4>
+                                    {!isProtectedAdmin(user.email) && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => {
+                                          setEditingUserNameId(user.id);
+                                          setEditingUserName(user.full_name || "");
+                                        }}
+                                      >
+                                        <Edit2 className="h-3 w-3" />
+                                      </Button>
+                                    )}
+                                  </>
+                                )}
                              </div>
 
                              {/* Company */}
@@ -1043,21 +1047,23 @@ const AdminPanel = () => {
                                      Cancel
                                    </Button>
                                  </>
-                               ) : (
-                                 <>
-                                   <p className="text-sm text-muted-foreground">{user.email}</p>
-                                   <Button
-                                     variant="ghost"
-                                     size="sm"
-                                     onClick={() => {
-                                       setEditingUserEmailId(user.id);
-                                       setEditingUserEmail(user.email);
-                                     }}
-                                   >
-                                     <Edit2 className="h-3 w-3" />
-                                   </Button>
-                                 </>
-                               )}
+                                ) : (
+                                  <>
+                                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                                    {!isProtectedAdmin(user.email) && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => {
+                                          setEditingUserEmailId(user.id);
+                                          setEditingUserEmail(user.email);
+                                        }}
+                                      >
+                                        <Edit2 className="h-3 w-3" />
+                                      </Button>
+                                    )}
+                                  </>
+                                )}
                              </div>
 
                               {/* Status badges */}
