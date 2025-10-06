@@ -466,6 +466,9 @@ const AdminPanel = () => {
         title: "Uitnodiging verstuurd",
         description: "De gebruiker heeft een e-mail ontvangen om een wachtwoord in te stellen.",
       });
+      
+      // Refresh users list to show invitation timestamp
+      await fetchUsers();
     } catch (error: any) {
       toast({
         title: "Error",
