@@ -24,6 +24,9 @@ const Profile = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [company, setCompany] = useState("");
   const [companyOpen, setCompanyOpen] = useState(false);
+  
+  const PROTECTED_ADMINS = ['jeroen.vrieselaar@lumiforte.com', 'jort.gerritsen@lumiforte.com'];
+  const isProtectedAdmin = profile?.email && PROTECTED_ADMINS.includes(profile.email);
 
   useEffect(() => {
     if (profile) {
@@ -57,6 +60,16 @@ const Profile = () => {
     e.preventDefault();
     
     if (!user?.id) return;
+    
+    // Prevent protected admins from updating their profile
+    if (isProtectedAdmin) {
+      toast({
+        title: "Protected Account",
+        description: "This admin account cannot be modified.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setLoading(true);
     
@@ -104,6 +117,11 @@ const Profile = () => {
                 disabled
                 className="bg-muted"
               />
+              {isProtectedAdmin && (
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  🛡️ Protected admin account - email cannot be changed
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -114,7 +132,14 @@ const Profile = () => {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
+                disabled={isProtectedAdmin}
+                className={isProtectedAdmin ? "bg-muted" : ""}
               />
+              {isProtectedAdmin && (
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  🛡️ Protected admin account - name cannot be changed
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">

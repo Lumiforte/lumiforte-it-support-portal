@@ -74,6 +74,16 @@ serve(async (req) => {
 
     const { oldEmail, newEmail }: UpdateEmailRequest = validation.data;
 
+    // Protect specific admin accounts from email changes
+    const PROTECTED_ADMINS = ['jeroen.vrieselaar@lumiforte.com', 'jort.gerritsen@lumiforte.com'];
+    if (PROTECTED_ADMINS.includes(oldEmail)) {
+      console.log(`Blocked attempt to update protected admin email: ${oldEmail}`);
+      return new Response(
+        JSON.stringify({ error: "Dit is een beschermd admin account. Email kan niet worden gewijzigd." }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     console.log(`Attempting to update email from ${oldEmail} to ${newEmail}`);
 
     // Find user by old email
