@@ -407,7 +407,7 @@ const AdminPanel = () => {
         body: {
           email: newUserData.email,
           fullName: newUserData.fullName,
-          company: newUserData.company || null,
+          company: newUserData.company && newUserData.company !== "none" ? newUserData.company : null,
           roles: newUserRoles.length > 0 ? newUserRoles : ['user']
         }
       });
@@ -697,7 +697,7 @@ const AdminPanel = () => {
                               <SelectValue placeholder="Selecteer bedrijf" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="">Geen bedrijf</SelectItem>
+                              <SelectItem value="none">Geen bedrijf</SelectItem>
                               {COMPANIES.map(company => (
                                 <SelectItem key={company.value} value={company.value}>
                                   {company.label}
