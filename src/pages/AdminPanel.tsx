@@ -66,7 +66,7 @@ const AdminPanel = () => {
   const [editingUserCompany, setEditingUserCompany] = useState("");
   const [editCompanyLoading, setEditCompanyLoading] = useState(false);
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
-  const [newUserData, setNewUserData] = useState({ email: "", fullName: "" });
+  const [newUserData, setNewUserData] = useState({ email: "", fullName: "", company: "" });
   const [newUserRoles, setNewUserRoles] = useState<string[]>([]);
   const [createUserLoading, setCreateUserLoading] = useState(false);
   const [sendingInvitationUserId, setSendingInvitationUserId] = useState<string | null>(null);
@@ -407,6 +407,7 @@ const AdminPanel = () => {
         body: {
           email: newUserData.email,
           fullName: newUserData.fullName,
+          company: newUserData.company || null,
           roles: newUserRoles.length > 0 ? newUserRoles : ['user']
         }
       });
@@ -418,7 +419,7 @@ const AdminPanel = () => {
         description: data.message || "Gebruiker succesvol aangemaakt. Stuur nu een uitnodiging om de gebruiker in te laten loggen.",
       });
 
-      setNewUserData({ email: "", fullName: "" });
+      setNewUserData({ email: "", fullName: "", company: "" });
       setNewUserRoles([]);
       setAddUserDialogOpen(false);
       fetchUsers();
@@ -542,10 +543,10 @@ const AdminPanel = () => {
         <p className="text-muted-foreground">Manage tickets, users, and support requests</p>
       </div>
 
-      <Tabs defaultValue="tickets" className="space-y-6">
+      <Tabs defaultValue="users" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="tickets">Tickets</TabsTrigger>
           <TabsTrigger value="users">Users & Roles</TabsTrigger>
+          <TabsTrigger value="tickets">Tickets</TabsTrigger>
           <TabsTrigger value="transfer">Transfer Tickets</TabsTrigger>
         </TabsList>
 
@@ -687,8 +688,27 @@ const AdminPanel = () => {
                           />
                         </div>
                         <div className="space-y-2">
+                          <Label htmlFor="newCompany">Bedrijf</Label>
+                          <Select
+                            value={newUserData.company}
+                            onValueChange={(value) => setNewUserData(prev => ({ ...prev, company: value }))}
+                          >
+                            <SelectTrigger id="newCompany">
+                              <SelectValue placeholder="Selecteer bedrijf" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="">Geen bedrijf</SelectItem>
+                              {COMPANIES.map(company => (
+                                <SelectItem key={company.value} value={company.value}>
+                                  {company.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
                           <Label>Roles</Label>
-                          <div className="flex gap-4">
+                          <div className="flex flex-wrap gap-4">
                             <div className="flex items-center gap-2">
                               <Checkbox
                                 id="role-user"
@@ -704,6 +724,14 @@ const AdminPanel = () => {
                                 onCheckedChange={() => toggleNewUserRole('helpdesk')}
                               />
                               <label htmlFor="role-helpdesk" className="text-sm cursor-pointer">Helpdesk</label>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                id="role-hr"
+                                checked={newUserRoles.includes('hr')}
+                                onCheckedChange={() => toggleNewUserRole('hr')}
+                              />
+                              <label htmlFor="role-hr" className="text-sm cursor-pointer">HR</label>
                             </div>
                             <div className="flex items-center gap-2">
                               <Checkbox

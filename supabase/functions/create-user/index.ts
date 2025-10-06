@@ -16,13 +16,15 @@ const CreateUserSchema = z.object({
   email: z.string().email().max(254),
   password: z.string().min(8).max(128).optional(),
   fullName: z.string().max(100).optional(),
-  roles: z.array(z.enum(['admin', 'helpdesk', 'user'])).optional()
+  company: z.string().max(100).optional().nullable(),
+  roles: z.array(z.enum(['admin', 'helpdesk', 'hr', 'user'])).optional()
 });
 
 interface CreateUserRequest {
   email: string;
   password?: string;
   fullName?: string;
+  company?: string | null;
   roles?: string[];
 }
 
@@ -76,7 +78,7 @@ serve(async (req) => {
       );
     }
 
-    const { email, password, fullName, roles }: CreateUserRequest = validation.data;
+    const { email, password, fullName, company, roles }: CreateUserRequest = validation.data;
 
     console.log(`Creating user with email: ${email}`);
 
@@ -102,11 +104,15 @@ serve(async (req) => {
     const userId = authData.user.id;
     console.log(`User created with ID: ${userId}`);
 
-    // Update profile with full name if provided
-    if (fullName) {
+    // Update profile with full name and company if provided
+    const profileUpdates: any = {};
+    if (fullName) profileUpdates.full_name = fullName;
+    if (company !== undefined) profileUpdates.company = company;
+
+    if (Object.keys(profileUpdates).length > 0) {
       const { error: profileError } = await supabaseAdmin
         .from("profiles")
-        .update({ full_name: fullName })
+        .update(profileUpdates)
         .eq("id", userId);
 
       if (profileError) {
