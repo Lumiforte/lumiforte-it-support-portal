@@ -348,6 +348,7 @@ const HelpdeskDashboard = () => {
             disabled={checkingUnassigned}
             variant="outline"
             size="sm"
+            title="Check for unassigned tickets and send notifications to helpdesk team members"
           >
             {checkingUnassigned ? (
               <>

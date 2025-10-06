@@ -140,7 +140,7 @@ const Layout = () => {
           <div className="flex items-center gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary/80">
+                <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-accent hover:text-accent-foreground">
                   <User className="h-4 w-4 mr-2" />
                   {profile?.full_name || profile?.email}
                 </Button>
@@ -231,10 +231,10 @@ const Layout = () => {
           <p>© {new Date().getFullYear()} Lumiforte Holding BV. {t("common.copyright")}</p>
           <p className="mt-2">{t("footer.systemDevelopment")}</p>
           <p className="mt-1">
-            {t("footer.feedbackContact")}{" "}
-            <a href="mailto:jeroen.vrieselaar@lumiforte.com" className="text-primary hover:underline">
-              Jeroen Vrieselaar
-            </a>.
+            Please get in touch via ticket:{" "}
+            <Link to="/tickets/new" className="text-primary hover:underline font-medium">
+              Create a new ticket
+            </Link>
           </p>
         </div>
       </footer>

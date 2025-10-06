@@ -172,7 +172,7 @@ const Tickets = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-primary mb-2">My Support Tickets</h1>
-            <p className="text-muted-foreground">Track and manage your IT support requests</p>
+            <p className="text-muted-foreground">Track and manage your support requests</p>
           </div>
           <Link to="/tickets/new">
             <Button>

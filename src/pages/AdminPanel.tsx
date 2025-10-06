@@ -845,7 +845,8 @@ const AdminPanel = () => {
                       <SelectItem value="all">All Users</SelectItem>
                       <SelectItem value="admin">Admins Only</SelectItem>
                       <SelectItem value="helpdesk">Helpdesk Only</SelectItem>
-                      <SelectItem value="user">Users Only</SelectItem>
+                      <SelectItem value="hr">HR Only</SelectItem>
+                      <SelectItem value="manager">Managers Only</SelectItem>
                     </SelectContent>
                   </Select>
                   <Select value={companyFilter} onValueChange={setCompanyFilter}>

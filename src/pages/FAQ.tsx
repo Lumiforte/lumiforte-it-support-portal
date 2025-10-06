@@ -175,7 +175,14 @@ const FAQ = () => {
         <div>
           <h1 className="text-3xl font-bold text-primary mb-2">{t("faq.title")}</h1>
           <p className="text-muted-foreground">
-            {t("faq.subtitle")}
+            {t("faq.subtitle")}.
+          </p>
+          <p className="text-muted-foreground mt-2">
+            Our{" "}
+            <Link to="/ai" className="text-primary hover:underline font-medium">
+              AI Assistant
+            </Link>{" "}
+            may be able to provide faster answers.
           </p>
         </div>
 

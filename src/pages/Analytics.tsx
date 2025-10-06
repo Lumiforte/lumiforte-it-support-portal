@@ -178,6 +178,60 @@ const Analytics = () => {
         .sort((a, b) => b.count - a.count);
       setCompanyData(companies);
 
+      // Helper function to calculate business hours between two dates
+      const calculateBusinessHours = (start: Date, end: Date): number => {
+        const WORK_START = 9; // 9 AM
+        const WORK_END = 17; // 5 PM (17:00)
+        const WORK_HOURS_PER_DAY = WORK_END - WORK_START; // 8 hours
+
+        let workHours = 0;
+        const current = new Date(start);
+
+        while (current < end) {
+          const dayOfWeek = current.getDay();
+          
+          // Skip weekends
+          if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+            const currentHour = current.getHours();
+            
+            // Calculate next work period boundary
+            let nextBoundary = new Date(current);
+            
+            if (currentHour < WORK_START) {
+              // Before work hours - jump to work start
+              nextBoundary.setHours(WORK_START, 0, 0, 0);
+            } else if (currentHour >= WORK_END) {
+              // After work hours - jump to next day work start
+              nextBoundary.setDate(nextBoundary.getDate() + 1);
+              nextBoundary.setHours(WORK_START, 0, 0, 0);
+            } else {
+              // During work hours - count until end of work or ticket resolution
+              const workEndToday = new Date(current);
+              workEndToday.setHours(WORK_END, 0, 0, 0);
+              nextBoundary = end < workEndToday ? end : workEndToday;
+            }
+            
+            // Add hours if we're in work time
+            if (currentHour >= WORK_START && currentHour < WORK_END && nextBoundary > current) {
+              const hoursInPeriod = (nextBoundary.getTime() - current.getTime()) / (1000 * 60 * 60);
+              workHours += hoursInPeriod;
+            }
+            
+            current.setTime(nextBoundary.getTime());
+          } else {
+            // Skip to next Monday
+            const daysToAdd = dayOfWeek === 0 ? 1 : 2;
+            current.setDate(current.getDate() + daysToAdd);
+            current.setHours(WORK_START, 0, 0, 0);
+          }
+          
+          // Safety check to prevent infinite loop
+          if (current >= end || workHours > 10000) break;
+        }
+
+        return workHours;
+      };
+
       // Calculate resolution time data
       const resolvedTickets = filteredTickets?.filter(t => t.resolved_at || t.closed_at) || [];
       const resolutionTimes: number[] = [];
@@ -185,11 +239,11 @@ const Analytics = () => {
       resolvedTickets.forEach(ticket => {
         const endDate = new Date(ticket.resolved_at || ticket.closed_at!);
         const startDate = new Date(ticket.created_at);
-        const hoursToResolve = differenceInHours(endDate, startDate);
-        resolutionTimes.push(hoursToResolve);
+        const workHoursToResolve = calculateBusinessHours(startDate, endDate);
+        resolutionTimes.push(workHoursToResolve);
       });
 
-      // Calculate average resolution time
+      // Calculate average resolution time in work hours
       const avgResolutionTime = resolutionTimes.length > 0
         ? resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length
         : 0;
@@ -200,35 +254,36 @@ const Analytics = () => {
         avgResolutionTimeHours: avgResolutionTime
       });
 
-      // Group by time ranges
+      // Group by time ranges (work hours)
       const timeRanges = [
-        { range: "< 1 day", count: 0, max: 24 },
-        { range: "1-3 days", count: 0, max: 72 },
-        { range: "3-7 days", count: 0, max: 168 },
-        { range: "1-2 weeks", count: 0, max: 336 },
-        { range: "> 2 weeks", count: 0, max: Infinity }
+        { range: "< 8h", count: 0, max: 8 },
+        { range: "8-24h", count: 0, max: 24 },
+        { range: "1-3 days", count: 0, max: 24 },
+        { range: "3-5 days", count: 0, max: 40 },
+        { range: "> 5 days", count: 0, max: Infinity }
       ];
 
       resolutionTimes.forEach(hours => {
-        if (hours < 24) timeRanges[0].count++;
-        else if (hours < 72) timeRanges[1].count++;
-        else if (hours < 168) timeRanges[2].count++;
-        else if (hours < 336) timeRanges[3].count++;
+        if (hours < 8) timeRanges[0].count++;
+        else if (hours < 24) timeRanges[1].count++;
+        else if (hours < 24) timeRanges[2].count++;
+        else if (hours < 40) timeRanges[3].count++;
         else timeRanges[4].count++;
       });
 
       setResolutionTimeData(timeRanges.filter(r => r.count > 0));
 
-      // Calculate average resolution time per category
+      // Calculate average resolution time per category (work days)
       const categoryResolutionMap = new Map<string, { total: number; count: number }>();
       resolvedTickets.forEach(ticket => {
         const endDate = new Date(ticket.resolved_at || ticket.closed_at!);
         const startDate = new Date(ticket.created_at);
-        const daysToResolve = differenceInDays(endDate, startDate);
+        const workHoursToResolve = calculateBusinessHours(startDate, endDate);
+        const workDaysToResolve = workHoursToResolve / 8; // Convert to work days
         
         const existing = categoryResolutionMap.get(ticket.category) || { total: 0, count: 0 };
         categoryResolutionMap.set(ticket.category, {
-          total: existing.total + daysToResolve,
+          total: existing.total + workDaysToResolve,
           count: existing.count + 1
         });
       });
@@ -236,7 +291,7 @@ const Analytics = () => {
       const categoryResolution = Array.from(categoryResolutionMap.entries())
         .map(([name, data]) => ({
           name,
-          count: Math.round(data.total / data.count * 10) / 10 // Average days, rounded to 1 decimal
+          count: Math.round(data.total / data.count * 10) / 10 // Average work days, rounded to 1 decimal
         }))
         .sort((a, b) => b.count - a.count);
       setAvgCategoryResolutionTime(categoryResolution);
@@ -395,14 +450,14 @@ const Analytics = () => {
           <CardContent>
             <div className="text-2xl font-bold">
               {stats.avgResolutionTimeHours !== undefined && stats.avgResolutionTimeHours > 0
-                ? stats.avgResolutionTimeHours < 48
+                ? stats.avgResolutionTimeHours < 8
                   ? `${Math.round(stats.avgResolutionTimeHours)}h`
-                  : `${Math.round(stats.avgResolutionTimeHours / 24)}d`
+                  : `${Math.round(stats.avgResolutionTimeHours / 8)}d`
                 : "N/A"
               }
             </div>
             <p className="text-xs text-muted-foreground">
-              For resolved tickets
+              Work hours (8h/day)
             </p>
           </CardContent>
         </Card>
@@ -544,9 +599,9 @@ const Analytics = () => {
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={avgCategoryResolutionTime} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" label={{ value: 'Days', position: 'insideBottom', offset: -5 }} />
+                  <XAxis type="number" label={{ value: 'Work Days', position: 'insideBottom', offset: -5 }} />
                   <YAxis dataKey="name" type="category" width={150} />
-                  <Tooltip formatter={(value) => `${value} days`} />
+                  <Tooltip formatter={(value) => `${value} work days`} />
                   <Bar dataKey="count" fill="#FFBB28" name="Avg Days to Resolve" />
                 </BarChart>
               </ResponsiveContainer>

@@ -32,6 +32,28 @@ const Index = () => {
             <CardHeader className="flex-grow">
               <div className="flex items-center gap-2">
                 <div className="p-2 bg-secondary rounded-lg">
+                  <Bot className="h-6 w-6 text-secondary-foreground" />
+                </div>
+                <CardTitle>{t("home.aiAssistant")}</CardTitle>
+              </div>
+              <CardDescription>
+                {t("home.aiAssistantDesc")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link to="/ai">
+                <Button className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
+                  <Bot className="mr-2 h-4 w-4" />
+                  {t("home.startChat")}
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow flex flex-col">
+            <CardHeader className="flex-grow">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-secondary rounded-lg">
                   <HelpCircle className="h-6 w-6 text-secondary-foreground" />
                 </div>
                 <CardTitle>{t("home.browseFaq")}</CardTitle>
@@ -45,28 +67,6 @@ const Index = () => {
                 <Button className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
                   <Search className="mr-2 h-4 w-4" />
                   {t("home.searchFaq")}
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow flex flex-col">
-            <CardHeader className="flex-grow">
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-secondary rounded-lg">
-                  <Plus className="h-6 w-6 text-secondary-foreground" />
-                </div>
-                <CardTitle>{t("home.createTicket")}</CardTitle>
-              </div>
-              <CardDescription>
-                {t("home.createTicketDesc")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Link to="/tickets/new">
-                <Button className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
-                  <Plus className="mr-2 h-4 w-4" />
-                  {t("home.newTicket")}
                 </Button>
               </Link>
             </CardContent>
@@ -98,19 +98,19 @@ const Index = () => {
             <CardHeader className="flex-grow">
               <div className="flex items-center gap-2">
                 <div className="p-2 bg-secondary rounded-lg">
-                  <Bot className="h-6 w-6 text-secondary-foreground" />
+                  <Plus className="h-6 w-6 text-secondary-foreground" />
                 </div>
-                <CardTitle>{t("home.aiAssistant")}</CardTitle>
+                <CardTitle>{t("home.createTicket")}</CardTitle>
               </div>
               <CardDescription>
-                {t("home.aiAssistantDesc")}
+                {t("home.createTicketDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Link to="/ai">
+              <Link to="/tickets/new">
                 <Button className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
-                  <Bot className="mr-2 h-4 w-4" />
-                  {t("home.startChat")}
+                  <Plus className="mr-2 h-4 w-4" />
+                  {t("home.newTicket")}
                 </Button>
               </Link>
             </CardContent>

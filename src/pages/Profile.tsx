@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -211,6 +212,24 @@ const Profile = () => {
               </Select>
               <p className="text-xs text-muted-foreground">
                 {t("profile.languageDescription")}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Your Roles</Label>
+              <div className="flex flex-wrap gap-2 p-3 bg-muted rounded-md">
+                {profile?.roles && profile.roles.length > 0 ? (
+                  profile.roles.map((role) => (
+                    <Badge key={role} variant="secondary" className="capitalize">
+                      {role}
+                    </Badge>
+                  ))
+                ) : (
+                  <span className="text-sm text-muted-foreground">No roles assigned</span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Contact an administrator to modify your roles
               </p>
             </div>
 
