@@ -78,9 +78,10 @@ serve(async (req) => {
 
     console.log(`Managing user ${userId}, action: ${action}`);
 
-    // Check if this is the protected admin account
+    // Check if this is a protected admin account
     const { data: targetUser } = await supabaseAdmin.auth.admin.getUserById(userId);
-    if (targetUser?.user?.email === 'jeroen.vrieselaar@lumiforte.com') {
+    const protectedEmails = ['jeroen.vrieselaar@lumiforte.com', 'jort.gerritsen@lumiforte.com'];
+    if (protectedEmails.includes(targetUser?.user?.email || '')) {
       return new Response(
         JSON.stringify({ error: 'Dit account kan niet worden gedeactiveerd (beschermd admin account)' }),
         { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }

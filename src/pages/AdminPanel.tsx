@@ -1164,7 +1164,7 @@ const AdminPanel = () => {
                             )}
                             Send Invitation
                           </Button>
-                           {user.email === 'jeroen.vrieselaar@lumiforte.com' ? (
+                           {(user.email === 'jeroen.vrieselaar@lumiforte.com' || user.email === 'jort.gerritsen@lumiforte.com') ? (
                              <Badge variant="secondary" className="px-3 py-1">
                                <span className="text-xs">🛡️ Protected Admin</span>
                              </Badge>
