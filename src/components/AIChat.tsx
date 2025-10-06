@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,12 +16,21 @@ export const AIChat = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Hallo! Ik ben je AI-assistent. Stel me gerust een vraag over het supportplatform!"
+      content: "Hello! I'm your AI assistant. Feel free to ask me any questions about the support platform!"
     }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading]);
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
@@ -48,20 +57,20 @@ export const AIChat = () => {
       
       if (error.message?.includes("429")) {
         toast({
-          title: "Rate limit bereikt",
-          description: "Te veel verzoeken. Probeer het over een minuut opnieuw.",
+          title: "Rate limit reached",
+          description: "Too many requests. Please try again in a minute.",
           variant: "destructive",
         });
       } else if (error.message?.includes("402")) {
         toast({
-          title: "Credits nodig",
-          description: "Voeg credits toe aan je Lovable workspace om door te gaan.",
+          title: "Credits needed",
+          description: "Add credits to your Lovable workspace to continue.",
           variant: "destructive",
         });
       } else {
         toast({
-          title: "Fout",
-          description: "Er ging iets mis. Probeer het opnieuw.",
+          title: "Error",
+          description: "Something went wrong. Please try again.",
           variant: "destructive",
         });
       }
@@ -126,6 +135,7 @@ export const AIChat = () => {
                 </div>
               </div>
             )}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
         <div className="flex gap-2">
@@ -133,7 +143,7 @@ export const AIChat = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Stel een vraag..."
+            placeholder="Ask a question..."
             disabled={isLoading}
           />
           <Button onClick={sendMessage} disabled={isLoading || !input.trim()}>
