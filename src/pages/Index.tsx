@@ -5,6 +5,7 @@ import { HelpCircle, Ticket, Plus, Search, Clock, CheckCircle, Users } from "luc
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
+import { AIChat } from "@/components/AIChat";
 
 const Index = () => {
   const { t, language } = useLanguage();
@@ -147,6 +148,8 @@ const Index = () => {
             </div>
           </CardContent>
         </Card>
+
+        <AIChat />
       </div>
   );
 };
