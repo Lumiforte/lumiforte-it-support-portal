@@ -69,7 +69,7 @@ serve(async (req) => {
     }
 
     // Send via Resend
-    const textBody = `Reset je wachtwoord\n\nKlik op de onderstaande link om je wachtwoord te resetten:\n\n${actionLink}\n\nDe link is geldig voor 1 uur.`;
+    const textBody = `Reset your password\n\nClick on the link below to reset your password:\n\n${actionLink}\n\nThis link is valid for 1 hour.`;
 
     await resend.emails.send({
       from: "Lumiforte Support <noreply@lumiforte.dev>",
@@ -78,14 +78,14 @@ serve(async (req) => {
       text: textBody,
       html: `
         <div style="font-family:Inter,Arial,sans-serif;line-height:1.6;color:#0f172a">
-          <h2>Reset je wachtwoord</h2>
-          <p>Klik op de onderstaande knop om je wachtwoord te resetten:</p>
+          <h2>Reset your password</h2>
+          <p>Click on the button below to reset your password:</p>
           <p style="margin:24px 0">
-            <a href="${actionLink}" style="display:inline-block;padding:12px 24px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600">Reset wachtwoord</a>
+            <a href="${actionLink}" style="display:inline-block;padding:12px 24px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600">Reset password</a>
           </p>
-          <p style="color:#64748b;font-size:14px">Of kopieer deze link naar je browser:</p>
+          <p style="color:#64748b;font-size:14px">Or copy this link to your browser:</p>
           <p style="word-break:break-all;background:#f8fafc;padding:12px;border-radius:8px;font-size:13px">${actionLink}</p>
-          <p style="color:#64748b;font-size:14px;margin-top:24px">Deze link is geldig voor 1 uur.</p>
+          <p style="color:#64748b;font-size:14px;margin-top:24px">This link is valid for 1 hour.</p>
         </div>
       `,
     });

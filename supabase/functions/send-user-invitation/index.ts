@@ -85,7 +85,7 @@ serve(async (req) => {
     if (userError || !targetUser) {
       console.error("Error fetching user:", userError);
       return new Response(
-        JSON.stringify({ error: "Gebruiker niet gevonden" }),
+        JSON.stringify({ error: "User not found" }),
         { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
@@ -111,7 +111,7 @@ serve(async (req) => {
     if (resetError || !resetData) {
       console.error("Error generating reset link:", resetError);
       return new Response(
-        JSON.stringify({ error: "Kon uitnodigingslink niet genereren" }),
+        JSON.stringify({ error: "Could not generate invitation link" }),
         { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
@@ -137,24 +137,24 @@ serve(async (req) => {
       from: `${adminName} <support@lumiforte.dev>`,
       replyTo: adminEmail,
       to: [targetUser.user.email!],
-      subject: "Uitnodiging voor het supportplatform",
+      subject: "Invitation to the support platform",
       html: `
-        <h2>Welkom bij het supportplatform</h2>
-        <p>Hallo ${targetUser.user.user_metadata?.full_name || targetUser.user.email},</p>
-        <p>${adminName} heeft je uitgenodigd om het supportplatform te gebruiken.</p>
-        <p>Klik op de onderstaande knop om je wachtwoord in te stellen en in te loggen:</p>
+        <h2>Welcome to the support platform</h2>
+        <p>Hello ${targetUser.user.user_metadata?.full_name || targetUser.user.email},</p>
+        <p>${adminName} has invited you to use the support platform.</p>
+        <p>Click the button below to set your password and log in:</p>
         <p>
           <a href="${recoveryLink.properties.action_link}" 
              style="background-color: #0066cc; color: white; padding: 12px 24px; 
                     text-decoration: none; border-radius: 4px; display: inline-block;">
-            Wachtwoord instellen
+            Set password
           </a>
         </p>
-        <p>Of kopieer deze link naar je browser:</p>
+        <p>Or copy this link to your browser:</p>
         <p style="color: #666; word-break: break-all;">${recoveryLink.properties.action_link}</p>
-        <p>Deze link is 24 uur geldig.</p>
+        <p>This link is valid for 24 hours.</p>
         <br>
-        <p>Met vriendelijke groet,<br>${adminName}</p>
+        <p>Best regards,<br>${adminName}</p>
       `,
     });
 
@@ -163,14 +163,14 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: "Uitnodiging succesvol verstuurd"
+        message: "Invitation sent successfully"
       }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   } catch (err: any) {
     console.error("Unexpected error in send-user-invitation:", err);
     return new Response(
-      JSON.stringify({ error: "Er is een fout opgetreden bij het versturen van de uitnodiging" }),
+      JSON.stringify({ error: "An error occurred while sending the invitation" }),
       { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }
