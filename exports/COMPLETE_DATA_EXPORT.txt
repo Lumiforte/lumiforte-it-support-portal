@@ -1,0 +1,87 @@
+================================================================================
+COMPLETE DATA EXPORT - LUMIFORTE HELPDESK
+Datum: 7 oktober 2025, 14:45
+================================================================================
+
+================================================================================
+1. PROFILES (11 gebruikers)
+================================================================================
+id,email,full_name,company,phone_number,preferred_language,team_id,created_at,invitation_sent_at
+20016dbd-9aaa-47eb-a978-91d82c8e95aa,vrieselaar.jeroen@gmail.com,Jeroen privé,Sportlines GmbH,,en,,2025-10-04 11:28:59.873945+00,
+9d291f14-093d-4356-a5c7-075813ca47ae,jeroen.vrieselaar@lumiforte.com,Jeroen Vrieselaar,Lumiforte EMEA BV,+31655387622,en,,2025-10-04 19:57:39.51961+00,
+63707620-c4c0-4bb0-bd4b-b48331aff0d3,pietje@lumiforte.dev,Pietje Puk,Lumiforte EMEA SAS,+31655387622,en,,2025-10-04 20:13:24.676776+00,2025-10-06 16:59:13.656+00
+ba4a6c0d-bd90-41e3-922e-dfdaea86e2fe,test1@lumiforte.dev,Kees Jansma,Lumiforte EMEA BV,,en,,2025-10-05 06:48:14.441001+00,2025-10-06 09:52:19.082+00
+6b602d09-b90b-48f3-aebd-38772baee4b4,test2@lumiforte.dev,Bas Moeskops,Lumiforte EMEA BV,,en,,2025-10-05 06:51:14.160249+00,
+7a265c0c-33b0-4a1e-af16-207b6b72eff8,jort.gerritsen@lumiforte.com,Jort Gerritsen,Lumiforte EMEA BV,,en,,2025-10-06 09:25:36.911715+00,
+95e616b0-ebf2-483f-8bd9-c4ab9fcaa03c,michel.kooiman@lumiforte.com,Michel Kooiman,Lumiforte EMEA BV,,en,,2025-10-06 09:43:54.398279+00,2025-10-06 12:12:49.872+00
+db5d20aa-8a6f-4806-8df4-5f9f54a60c2c,jortger@gmail.com,Jort Ger,Lumiforte EMEA BV,,en,,2025-10-06 10:00:13.566987+00,2025-10-06 11:28:18.401+00
+85d91fbf-a7d2-48e0-875f-31129e3f77ad,carlo.reinacher@lumiforte.com,Carlo Reinacher,Lumiforte EMEA BV,,en,,2025-10-06 11:54:23.036634+00,2025-10-06 13:13:25.681+00
+7b5b7a80-3ba3-4025-b68d-b9288409292e,erika.vanderwoude@lumiforte.com,Erika van der Woude,Lumiforte EMEA BV,,en,,2025-10-06 12:53:09.989746+00,2025-10-06 12:53:17.331+00
+6fa1de90-3572-4dc1-9f6b-2ee314e02d19,jeroen.bruers@lumiforte.com,Jeroen Bruers,Lumiforte EMEA BV,,en,,2025-10-07 11:53:32.563671+00,2025-10-07 11:53:39.58+00
+
+================================================================================
+2. USER_ROLES (16 rollen)
+================================================================================
+id,user_id,role,created_at
+6dd35882-79da-43ee-a8c9-b8d95f15003e,20016dbd-9aaa-47eb-a978-91d82c8e95aa,user,2025-10-04 11:28:59.873945+00
+ebcddd17-4d56-44ea-9b96-e004d64a560f,9d291f14-093d-4356-a5c7-075813ca47ae,admin,2025-10-04 20:00:31.977862+00
+5d07c71f-944b-4e6c-95d3-a8df8d8de114,63707620-c4c0-4bb0-bd4b-b48331aff0d3,user,2025-10-04 20:13:24.676776+00
+8021915d-0fc4-4dd7-a6e5-ea5a41b2bfdb,ba4a6c0d-bd90-41e3-922e-dfdaea86e2fe,user,2025-10-05 06:48:14.441001+00
+626af510-c0c2-4ab5-a2c9-5cdc7feca5a2,6b602d09-b90b-48f3-aebd-38772baee4b4,helpdesk,2025-10-05 07:11:18.376584+00
+e2460ad1-1bed-4410-915e-27ea5476c3f1,9d291f14-093d-4356-a5c7-075813ca47ae,helpdesk,2025-10-05 07:11:35.868104+00
+61336c7d-72da-4452-b960-4a3569dd04d9,7a265c0c-33b0-4a1e-af16-207b6b72eff8,helpdesk,2025-10-06 09:26:27.346511+00
+5a90f2f9-605b-4dee-b84d-798054c2f2a5,95e616b0-ebf2-483f-8bd9-c4ab9fcaa03c,user,2025-10-06 09:43:54.398279+00
+c0720ac1-f0bf-44fc-8d42-0c9b386c8dba,db5d20aa-8a6f-4806-8df4-5f9f54a60c2c,user,2025-10-06 10:00:13.566987+00
+94e2cc2a-5a6d-4e23-92b4-4e72f1d9463b,85d91fbf-a7d2-48e0-875f-31129e3f77ad,user,2025-10-06 11:54:23.036634+00
+d70efd74-7994-41cb-bc32-4a36dc60b829,85d91fbf-a7d2-48e0-875f-31129e3f77ad,manager,2025-10-06 11:56:10.571347+00
+0270c9e8-b6fd-4039-b387-c9e50eb98648,95e616b0-ebf2-483f-8bd9-c4ab9fcaa03c,manager,2025-10-06 11:56:24.592508+00
+66131251-f3a8-40f9-8703-5c5448cf26d3,95e616b0-ebf2-483f-8bd9-c4ab9fcaa03c,hr,2025-10-06 12:12:52.795634+00
+6ab8445f-8227-499d-a107-0f6447c5f1d9,7a265c0c-33b0-4a1e-af16-207b6b72eff8,admin,2025-10-06 12:19:33.092881+00
+2718a1a9-d67f-4dc7-a9f5-760926434cd5,7b5b7a80-3ba3-4025-b68d-b9288409292e,user,2025-10-06 12:53:09.989746+00
+0e70b1c9-5c61-4b5c-b33c-55762ce07bf3,6fa1de90-3572-4dc1-9f6b-2ee314e02d19,user,2025-10-07 11:53:32.563671+00
+
+================================================================================
+3. TICKET_MESSAGES (10 berichten)
+================================================================================
+id,ticket_id,message,created_by,created_at,is_admin_reply
+378304ff-af7f-43a5-b09c-ac167a63dc05,02bf7224-164b-4e70-b942-086417e95422,Kun je resetten?,20016dbd-9aaa-47eb-a978-91d82c8e95aa,2025-10-04 14:32:36.919721+00,false
+e8323f06-2997-4387-bb6a-b6ddc1cd3d66,6f2aa0bc-ff65-42d5-8ba5-d7ab89231bc5,"Hallo Jeroen - Ik ga dit ticket voor je oppakken",63707620-c4c0-4bb0-bd4b-b48331aff0d3,2025-10-04 20:49:09.822006+00,false
+192d018b-31af-4889-887a-77964a05d75a,6f2aa0bc-ff65-42d5-8ba5-d7ab89231bc5,Ik ga je helpen! (2),63707620-c4c0-4bb0-bd4b-b48331aff0d3,2025-10-04 20:51:10.372327+00,false
+8d8fd874-9043-489c-b8f1-df98adfe8b60,6f2aa0bc-ff65-42d5-8ba5-d7ab89231bc5,test,63707620-c4c0-4bb0-bd4b-b48331aff0d3,2025-10-04 20:56:04.762695+00,false
+acb7ae34-b59a-4418-b67e-633b971bddef,6f2aa0bc-ff65-42d5-8ba5-d7ab89231bc5,En lukt het al?,63707620-c4c0-4bb0-bd4b-b48331aff0d3,2025-10-04 21:04:40.176596+00,false
+5472d622-98f1-4376-b924-69e16f1253b6,73379500-fe4c-4a4e-9521-17f2365485f6,is er al nieuws?,ba4a6c0d-bd90-41e3-922e-dfdaea86e2fe,2025-10-05 07:45:22.238904+00,false
+79d57b08-1ecf-4250-99b8-123c669476c3,73379500-fe4c-4a4e-9521-17f2365485f6,Heb het voor je ingesteld Kees!  Fijne dag nog!,9d291f14-093d-4356-a5c7-075813ca47ae,2025-10-05 08:01:35.227096+00,false
+42858895-0517-4b79-977e-d4e4e29ab236,73379500-fe4c-4a4e-9521-17f2365485f6,proeer,9d291f14-093d-4356-a5c7-075813ca47ae,2025-10-06 08:29:46.017527+00,false
+9c0aa10a-5ccc-4228-af62-6fb1b3e0e0ee,fd1e8835-b1da-426a-a896-5ca75eb0f55c,The software was installed and it works. Thank you!,7b5b7a80-3ba3-4025-b68d-b9288409292e,2025-10-06 13:44:08.931532+00,false
+e74313e4-16fd-42ea-861e-9c5172b09c40,f0041250-516b-4725-9b3e-3c23ee55f084,Zoek t uit,9d291f14-093d-4356-a5c7-075813ca47ae,2025-10-07 11:57:31.245414+00,false
+
+================================================================================
+VOLGENDE STAPPEN
+================================================================================
+
+1. NIEUW SUPABASE PROJECT
+   - Ga naar supabase.com
+   - Login en klik "New Project"
+   - Naam: lumiforte-helpdesk-prod
+   - Kies database wachtwoord
+   - Regio: Europa
+
+2. IMPORTEER DATA (in deze volgorde):
+   a. Eerst alle migrations uitvoeren (kopieer van supabase/migrations/)
+   b. Dan data importeren:
+      - profiles (bovenaan)
+      - user_roles
+      - tickets
+      - ticket_messages
+      - ticket_activities
+      - audit_logs
+
+3. AUTH USERS
+   Moet je nog handmatig exporteren vanuit de nieuwe Supabase SQL Editor
+
+4. AZURE AD SSO
+   Instellen na succesvolle data import
+
+================================================================================
+EINDE EXPORT
+================================================================================
