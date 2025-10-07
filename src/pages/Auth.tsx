@@ -187,8 +187,8 @@ const Auth = () => {
     try {
       if (newPassword !== confirmPassword) {
         toast({
-          title: "Wachtwoorden komen niet overeen",
-          description: "Voer hetzelfde wachtwoord twee keer in.",
+          title: "Passwords don't match",
+          description: "Please enter the same password twice.",
           variant: "destructive",
         });
         return;
@@ -214,6 +214,30 @@ const Auth = () => {
         variant: "destructive",
       });
       logAuthEvent({ action: 'reset_failed', email, reason: error.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAzureSignIn = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'azure',
+        options: {
+          scopes: 'email',
+          redirectTo: `${window.location.origin}/`,
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+      logAuthEvent({ action: 'azure_login_failed', reason: error.message });
     } finally {
       setLoading(false);
     }
@@ -326,6 +350,29 @@ const Auth = () => {
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Sign In
                   </Button>
+                  
+                  <div className="relative my-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">
+                        Or continue with
+                      </span>
+                    </div>
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleAzureSignIn}
+                    disabled={loading}
+                  >
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Sign in with Azure AD
+                  </Button>
+
                   <Button
                     type="button"
                     variant="link"

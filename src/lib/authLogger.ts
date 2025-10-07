@@ -5,7 +5,8 @@ export type AuthEventAction =
   | "reset_failed"
   | "reset_link_invalid"
   | "session_timeout"
-  | "post_reset_session_timeout";
+  | "post_reset_session_timeout"
+  | "azure_login_failed";
 
 export async function logAuthEvent(params: {
   action: AuthEventAction;
