@@ -1,0 +1,19 @@
+id,ticket_id,message,created_by,created_at,is_admin_reply
+378304ff-af7f-43a5-b09c-ac167a63dc05,02bf7224-164b-4e70-b942-086417e95422,Kun je resetten?,20016dbd-9aaa-47eb-a978-91d82c8e95aa,2025-10-04 14:32:36.919721+00,false
+e8323f06-2997-4387-bb6a-b6ddc1cd3d66,6f2aa0bc-ff65-42d5-8ba5-d7ab89231bc5,"Hallo Jeroen,
+
+Ik ga dit ticket voor je oppakken. Kun je mij vertellen wat de huidige problemen met je laptop zijn?
+
+Groet,
+
+Pietje Puk",63707620-c4c0-4bb0-bd4b-b48331aff0d3,2025-10-04 20:49:09.822006+00,false
+192d018b-31af-4889-887a-77964a05d75a,6f2aa0bc-ff65-42d5-8ba5-d7ab89231bc5,Ik ga je helpen! (2),63707620-c4c0-4bb0-bd4b-b48331aff0d3,2025-10-04 20:51:10.372327+00,false
+8d8fd874-9043-489c-b8f1-df98adfe8b60,6f2aa0bc-ff65-42d5-8ba5-d7ab89231bc5,test,63707620-c4c0-4bb0-bd4b-b48331aff0d3,2025-10-04 20:56:04.762695+00,false
+acb7ae34-b59a-4418-b67e-633b971bddef,6f2aa0bc-ff65-42d5-8ba5-d7ab89231bc5,En lukt het al?,63707620-c4c0-4bb0-bd4b-b48331aff0d3,2025-10-04 21:04:40.176596+00,false
+5472d622-98f1-4376-b924-69e16f1253b6,73379500-fe4c-4a4e-9521-17f2365485f6,is er al nieuws?,ba4a6c0d-bd90-41e3-922e-dfdaea86e2fe,2025-10-05 07:45:22.238904+00,false
+79d57b08-1ecf-4250-99b8-123c669476c3,73379500-fe4c-4a4e-9521-17f2365485f6,Heb het voor je ingesteld Kees!  Fijne dag nog!,9d291f14-093d-4356-a5c7-075813ca47ae,2025-10-05 08:01:35.227096+00,false
+42858895-0517-4b79-977e-d4e4e29ab236,73379500-fe4c-4a4e-9521-17f2365485f6,proeer,9d291f14-093d-4356-a5c7-075813ca47ae,2025-10-06 08:29:46.017527+00,false
+9c0aa10a-5ccc-4228-af62-6fb1b3e0e0ee,fd1e8835-b1da-426a-a896-5ca75eb0f55c,"
+The software was installed and it works.
+Thank you for your service =)",7b5b7a80-3ba3-4025-b68d-b9288409292e,2025-10-06 13:44:08.931532+00,false
+e74313e4-16fd-42ea-861e-9c5172b09c40,f0041250-516b-4725-9b3e-3c23ee55f084,Zoek t uit,9d291f14-093d-4356-a5c7-075813ca47ae,2025-10-07 11:57:31.245414+00,false

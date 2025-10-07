@@ -1,0 +1,12 @@
+id,email,full_name,company,phone_number,preferred_language,team_id,created_at,invitation_sent_at
+20016dbd-9aaa-47eb-a978-91d82c8e95aa,vrieselaar.jeroen@gmail.com,Jeroen privé,Sportlines GmbH,,en,,2025-10-04 11:28:59.873945+00,
+9d291f14-093d-4356-a5c7-075813ca47ae,jeroen.vrieselaar@lumiforte.com,Jeroen Vrieselaar,Lumiforte EMEA BV,+31655387622,en,,2025-10-04 19:57:39.51961+00,
+63707620-c4c0-4bb0-bd4b-b48331aff0d3,pietje@lumiforte.dev,Pietje Puk,Lumiforte EMEA SAS,+31655387622,en,,2025-10-04 20:13:24.676776+00,2025-10-06 16:59:13.656+00
+ba4a6c0d-bd90-41e3-922e-dfdaea86e2fe,test1@lumiforte.dev,Kees Jansma,Lumiforte EMEA BV,,en,,2025-10-05 06:48:14.441001+00,2025-10-06 09:52:19.082+00
+6b602d09-b90b-48f3-aebd-38772baee4b4,test2@lumiforte.dev,Bas Moeskops,Lumiforte EMEA BV,,en,,2025-10-05 06:51:14.160249+00,
+7a265c0c-33b0-4a1e-af16-207b6b72eff8,jort.gerritsen@lumiforte.com,Jort Gerritsen,Lumiforte EMEA BV,,en,,2025-10-06 09:25:36.911715+00,
+95e616b0-ebf2-483f-8bd9-c4ab9fcaa03c,michel.kooiman@lumiforte.com,Michel Kooiman,Lumiforte EMEA BV,,en,,2025-10-06 09:43:54.398279+00,2025-10-06 12:12:49.872+00
+db5d20aa-8a6f-4806-8df4-5f9f54a60c2c,jortger@gmail.com,Jort Ger,Lumiforte EMEA BV,,en,,2025-10-06 10:00:13.566987+00,2025-10-06 11:28:18.401+00
+85d91fbf-a7d2-48e0-875f-31129e3f77ad,carlo.reinacher@lumiforte.com,Carlo Reinacher,Lumiforte EMEA BV,,en,,2025-10-06 11:54:23.036634+00,2025-10-06 13:13:25.681+00
+7b5b7a80-3ba3-4025-b68d-b9288409292e,erika.vanderwoude@lumiforte.com,Erika van der Woude,Lumiforte EMEA BV,,en,,2025-10-06 12:53:09.989746+00,2025-10-06 12:53:17.331+00
+6fa1de90-3572-4dc1-9f6b-2ee314e02d19,jeroen.bruers@lumiforte.com,Jeroen Bruers,Lumiforte EMEA BV,,en,,2025-10-07 11:53:32.563671+00,2025-10-07 11:53:39.58+00
