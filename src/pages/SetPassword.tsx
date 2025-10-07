@@ -68,6 +68,22 @@ const SetPassword = () => {
       if (error) throw error;
 
       toast.success("Password successfully set!");
+
+      // Start a 60s watchdog: if session isn't established, log it
+      const resetTimeout = setTimeout(async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          logAuthEvent({ action: "post_reset_session_timeout", email });
+        }
+      }, 60000);
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+        if (event === "SIGNED_IN") {
+          clearTimeout(resetTimeout);
+          subscription.unsubscribe();
+        }
+      });
+
       navigate("/");
     } catch (error: any) {
       console.error("Error setting password:", error);
