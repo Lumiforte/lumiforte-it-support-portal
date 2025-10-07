@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
+import { logAuthEvent } from "@/lib/authLogger";
 
 const SetPassword = () => {
   const [password, setPassword] = useState("");
@@ -71,6 +72,7 @@ const SetPassword = () => {
     } catch (error: any) {
       console.error("Error setting password:", error);
       toast.error(error.message || "An error occurred while setting the password");
+      logAuthEvent({ action: 'reset_failed', email, reason: error.message });
     } finally {
       setLoading(false);
     }

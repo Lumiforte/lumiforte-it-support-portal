@@ -86,7 +86,8 @@ serve(async (req) => {
     const { data: createdTickets, error: createdTicketsError } = await supabaseAdmin
       .from('tickets')
       .select('id, title, status')
-      .eq('created_by', userId);
+      .eq('created_by', userId)
+      .in('status', ['open', 'in_progress']);
 
     if (createdTicketsError) {
       console.error("Error checking created tickets:", createdTicketsError);
@@ -100,7 +101,8 @@ serve(async (req) => {
     const { data: assignedTickets, error: assignedTicketsError } = await supabaseAdmin
       .from('tickets')
       .select('id, title, status')
-      .eq('assigned_to', userId);
+      .eq('assigned_to', userId)
+      .in('status', ['open', 'in_progress']);
 
     if (assignedTicketsError) {
       console.error("Error checking assigned tickets:", assignedTicketsError);
@@ -114,31 +116,33 @@ serve(async (req) => {
     const totalAssigned = assignedTickets?.length || 0;
 
     if (totalCreated > 0 || totalAssigned > 0) {
-      console.log(`User ${userId} has ${totalCreated} created tickets and ${totalAssigned} assigned tickets, cannot delete`);
+      console.log(`User ${userId} has ${totalCreated} active created tickets and ${totalAssigned} active assigned tickets, cannot delete`);
       
       let errorMessage = "This user cannot be deleted: ";
-      const reasons = [];
+      const reasons = [] as string[];
       
       if (totalCreated > 0) {
-        reasons.push(`${totalCreated} ${totalCreated === 1 ? 'created ticket' : 'created tickets'}`);
+        reasons.push(`${totalCreated} ${totalCreated === 1 ? 'active created ticket' : 'active created tickets'}`);
       }
       if (totalAssigned > 0) {
-        reasons.push(`${totalAssigned} ${totalAssigned === 1 ? 'assigned ticket' : 'assigned tickets'}`);
+        reasons.push(`${totalAssigned} ${totalAssigned === 1 ? 'active assigned ticket' : 'active assigned tickets'}`);
       }
       
       errorMessage += reasons.join(" and ");
-      errorMessage += ". Please deactivate the user instead.";
+      errorMessage += ". Close or reassign these tickets first.";
       
+      // Business-rule block: return 200 with structured response so UI can show a friendly message
       return new Response(
         JSON.stringify({ 
-          error: errorMessage,
+          success: false,
           canDelete: false,
+          error: errorMessage,
           details: {
-            createdTickets: totalCreated,
-            assignedTickets: totalAssigned
+            activeCreatedTickets: totalCreated,
+            activeAssignedTickets: totalAssigned
           }
         }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 

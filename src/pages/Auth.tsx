@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import lumiforteLogo from "@/assets/lumiforte-logo.png";
+import { logAuthEvent } from "@/lib/authLogger";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -53,6 +54,7 @@ const Auth = () => {
         description: errorDescription || 'Vraag hieronder een nieuwe resetlink aan.',
         variant: 'destructive',
       });
+      logAuthEvent({ action: "reset_link_invalid", reason: errorDescription || error || errorCode });
     }
   }, [toast]);
 
@@ -115,12 +117,28 @@ const Auth = () => {
         title: "Welcome back!",
         description: "You have been signed in successfully.",
       });
+
+      // Start a 60s watchdog: if session isn't established, log it
+      const signInTimeout = setTimeout(async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          logAuthEvent({ action: "session_timeout", email });
+        }
+      }, 60000);
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+        if (event === "SIGNED_IN") {
+          clearTimeout(signInTimeout);
+          subscription.unsubscribe();
+        }
+      });
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
         variant: "destructive",
       });
+      logAuthEvent({ action: 'login_failed', email, reason: error.message });
     } finally {
       setLoading(false);
     }
@@ -195,6 +213,7 @@ const Auth = () => {
         description: error.message,
         variant: "destructive",
       });
+      logAuthEvent({ action: 'reset_failed', email, reason: error.message });
     } finally {
       setLoading(false);
     }
