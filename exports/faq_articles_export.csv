@@ -1,0 +1,171 @@
+id,title,content,category,language,tags,created_by,created_at,updated_at
+b89e49ba-1315-44d8-8e14-4e3d5c9b016e,"I can't access my email. What should I do?","If you're having email access issues:
+1. Verify you're using the correct email address and password
+2. Check your internet connection
+3. Clear your browser cache and cookies if using webmail
+4. Try accessing email from a different browser or device
+5. Ensure your account hasn't been locked due to multiple failed login attempts
+
+If you're still unable to access your email after these steps, please [Create a support ticket] immediately.",Email,en,"{email,outlook,access,login}",,2025-10-04 11:41:53.734765+00,2025-10-04 15:19:17.88346+00
+32de52ac-e648-4b3c-8943-840569f951df,How do I set up my printer?,"To connect to a network printer:
+1. Go to Settings > Devices > Printers & Scanners (Windows) or System Preferences > Printers (Mac)
+2. Click ""Add Printer""
+3. Select the printer from the list of available network printers
+4. If prompted, install the necessary drivers
+5. Set as default printer if desired
+
+If you can't find the printer, note down the printer name/location and contact IT support for assistance.",Hardware,en,"{printer,printing,setup,hardware}",,2025-10-04 11:41:47.414058+00,2025-10-04 14:40:34.758591+00
+8834d795-c02d-4d95-a650-88d175095fc4,"My computer won't turn on. What should I do?","Follow these troubleshooting steps:
+1. Check if the power cable is properly connected to both the computer and wall outlet
+2. Verify the power outlet is working by testing with another device
+3. If using a laptop, ensure the battery is charged or connect the power adapter
+4. Try a different power cable if available
+5. Listen for any beeps or look for LED lights when pressing the power button
+
+If none of these steps work, please submit a support ticket with details about what you observed.",Hardware,en,"{computer,power,hardware,troubleshooting}",,2025-10-04 11:41:47.414058+00,2025-10-04 14:40:34.758591+00
+a6cc3928-7787-40d3-b5fe-b9eff4604b94,"My screen is frozen. What should I do?","If your screen is unresponsive:
+1. Wait 30 seconds to see if the system recovers
+2. Try pressing Ctrl+Alt+Delete (Windows) or Command+Option+Esc (Mac)
+3. Close the unresponsive application if possible
+4. If completely frozen, perform a hard restart by holding the power button for 10 seconds
+5. After restart, save your work frequently
+
+If this happens regularly, create a support ticket as it may indicate a hardware or software issue.",Hardware,en,"{frozen,computer,unresponsive,troubleshooting}",,2025-10-04 11:41:47.414058+00,2025-10-04 14:40:34.758591+00
+c34df0db-447b-4f08-92fe-fc6346adcc57,What hardware standards does Lumiforte use?,"Lumiforte uses Microsoft Surface laptops as the standard hardware for employees, with a few exceptions based on specific job requirements. Any exceptions must be approved by global IT (Jeroen Vrieselaar or Jort Gerritsen).
+
+Key points:
+- Standard device: Microsoft Surface laptops
+- Mobile phones provided for certain positions
+- All devices are centrally managed through Microsoft Intune
+- Devices include a 'Lumiforte software shell' with minimum applications and security policies
+- Faulty hardware is collected and replaced quickly
+
+When replacing hardware, old equipment must be returned to the local IT responsible for potential reuse or secure destruction.",Hardware,en,"{hardware,laptop,surface,intune,standards}",,2025-10-04 11:49:13.557036+00,2025-10-04 14:40:34.758591+00
+8a9b3c7d-2e4f-5a6b-8c9d-1e2f3a4b5c6d,Who is responsible for IT at Lumiforte?,"In general, IT is a global topic. Where possible we approach it in a global way, where needed we arrange some topics locally.
+
+- Global IT: Jeroen Vrieselaar & Jort Gerritsen
+
+Contact persons for local entities:
+- Echirolles (France): Rémi Weber or Valérie Fornes
+- Baarle-Nassau (The Netherlands): Jeroen Vrieselaar
+- Hamm (Germany): Jeroen Vrieselaar
+- Beijing (China): Jeroen Vrieselaar
+- Munich (Germany): Jeroen Vrieselaar",IT Management,en,"{it,management,contact,global,local}",,2025-10-04 11:49:13.557036+00,2025-10-04 14:40:34.758591+00
+7b8c9d1e-3f4a-6b7c-9d8e-2f3a4b5c6d7e,How do I request new software?,"To request new software installation:
+1. Create a support ticket with the software name and business justification
+2. IT will evaluate if the software is approved for use within Lumiforte
+3. If approved, software will be deployed via Microsoft Intune
+4. You'll receive a notification when the software is available
+
+Note: Software must comply with Lumiforte's security policies. Installation of unauthorized software is not permitted.",IT Management,en,"{software,installation,request,intune}",,2025-10-04 11:49:13.557036+00,2025-10-04 14:40:34.758591+00
+4c5d6e7f-8a9b-1c2d-3e4f-5a6b7c8d9e1f,I forgot my password. How do I reset it?,"To reset your password:
+1. Go to the login page and click 'Forgot Password'
+2. Enter your email address
+3. Check your email for a password reset link
+4. Click the link and create a new password
+5. Your new password must meet the security requirements (minimum 8 characters, including uppercase, lowercase, and numbers)
+
+If you don't receive the reset email within 5 minutes, check your spam folder or contact IT support.",Password & Security,en,"{password,reset,security,login}",,2025-10-04 11:41:53.734765+00,2025-10-04 15:19:17.88346+00
+9d1e2f3a-4b5c-6d7e-8f9a-1b2c3d4e5f6a,What is the password policy at Lumiforte?,"Lumiforte's password policy requires:
+- Minimum 8 characters
+- At least one uppercase letter
+- At least one lowercase letter
+- At least one number
+- At least one special character
+- Passwords expire every 90 days
+- Cannot reuse the last 5 passwords
+- Account locks after 5 failed login attempts
+
+For security reasons, never share your password with anyone, including IT staff.",Password & Security,en,"{password,policy,security,requirements}",,2025-10-04 11:41:53.734765+00,2025-10-04 15:19:17.88346+00
+1e2f3a4b-5c6d-7e8f-9a1b-2c3d4e5f6a7b,How do I connect to the company VPN?,"To connect to Lumiforte's VPN:
+1. Ensure you have the VPN client installed (if not, request via support ticket)
+2. Open the VPN client
+3. Enter your company credentials
+4. Select the appropriate server location
+5. Click Connect
+
+You should use VPN when:
+- Working remotely
+- Accessing internal company resources
+- Working from public Wi-Fi networks
+
+If you experience connection issues, try restarting your computer and VPN client first.",Remote Access,en,"{vpn,remote,access,connection}",,2025-10-04 11:49:13.557036+00,2025-10-04 14:40:34.758591+00
+2f3a4b5c-6d7e-8f9a-1b2c-3d4e5f6a7b8c,How do I access shared drives?,"To access Lumiforte shared drives:
+1. Connect to the company network (either on-site or via VPN)
+2. Open File Explorer (Windows) or Finder (Mac)
+3. In the address bar, type: \\\\lumiforte-server\\shared
+4. Browse to your department's folder
+5. You can map the drive for easier access
+
+Note: Access to shared drives is based on your role and department. If you need access to additional folders, submit a support ticket with justification.",Remote Access,en,"{shared,drives,network,access,storage}",,2025-10-04 11:49:13.557036+00,2025-10-04 14:40:34.758591+00
+3a4b5c6d-7e8f-9a1b-2c3d-4e5f6a7b8c9d,What is Salesforce and how do I access it?,"Salesforce is Lumiforte's Customer Relationship Management (CRM) system used for managing customer data, sales opportunities, and business processes.
+
+To access Salesforce:
+1. Go to lumiforte.my.salesforce.com
+2. Enter your Salesforce username (usually your email)
+3. Enter your password
+4. You may be prompted for MFA verification
+
+If you don't have Salesforce access or forgot your password, create a support ticket under the 'Salesforce' category.
+
+For Salesforce training or questions about specific functionality, contact your department's Salesforce administrator.",Salesforce,en,"{salesforce,crm,access,login}",,2025-10-04 11:49:13.557036+00,2025-10-04 14:40:34.758591+00
+4b5c6d7e-8f9a-1b2c-3d4e-5f6a7b8c9d1e,How do I report a lost or stolen device?,"If your company device is lost or stolen:
+1. IMMEDIATELY create an urgent support ticket or contact IT directly
+2. Provide device details (serial number if available, device type, when/where lost)
+3. IT will remotely lock and wipe the device to protect company data
+4. File a police report if stolen (required for insurance)
+5. Provide the police report number to IT
+
+For prevention:
+- Always lock your device when not in use
+- Never leave devices unattended in public places
+- Use strong passwords/PINs
+- Enable location tracking if available
+
+A replacement device will be arranged after the incident is documented.",Security,en,"{security,lost,stolen,device,emergency}",,2025-10-04 11:49:13.557036+00,2025-10-04 14:40:34.758591+00
+5c6d7e8f-9a1b-2c3d-4e5f-6a7b8c9d1e2f,How do I report a phishing email?,"If you receive a suspicious email:
+1. DO NOT click any links or download attachments
+2. DO NOT reply to the email
+3. Forward the email to security@lumiforte.com
+4. Delete the email from your inbox
+5. Create a support ticket to report the incident
+
+Signs of phishing emails:
+- Urgent requests for personal information or passwords
+- Suspicious sender addresses (check carefully)
+- Poor grammar or spelling errors
+- Unexpected attachments or links
+- Requests to verify account information
+- Too good to be true offers
+
+When in doubt, contact IT to verify the email's legitimacy.",Security,en,"{security,phishing,email,spam,threat}",,2025-10-04 11:49:13.557036+00,2025-10-04 14:40:34.758591+00
+6d7e8f9a-1b2c-3d4e-5f6a-7b8c9d1e2f3a,How do I update my contact information?,"To update your contact information:
+1. Log into the employee portal
+2. Go to 'My Profile'
+3. Click 'Edit Profile'
+4. Update your information (phone number, emergency contact, address, etc.)
+5. Click 'Save Changes'
+
+Important: Keep your contact information current, especially:
+- Personal phone number
+- Emergency contact details
+- Home address (for equipment delivery)
+
+Some information (like name or email changes) must be updated by HR. Create a support ticket if you need help.",User Management,en,"{profile,contact,information,update,personal}",,2025-10-04 11:49:13.557036+00,2025-10-04 14:40:34.758591+00
+7e8f9a1b-2c3d-4e5f-6a7b-8c9d1e2f3a4b,What are my options for video conferencing?,"Lumiforte uses Microsoft Teams as the primary platform for video conferencing and collaboration.
+
+Features available:
+- Video calls (one-on-one and group)
+- Screen sharing
+- Meeting recording
+- Chat during meetings
+- Calendar integration
+- Virtual backgrounds
+
+To start a video call:
+1. Open Microsoft Teams
+2. Click 'Meet' or 'New Meeting'
+3. Invite participants
+4. Join with video and audio
+
+For external meetings with clients, use Teams meeting links. If you need help with Teams features, contact IT support or refer to Microsoft Teams documentation.",Video Conferencing,en,"{video,conferencing,teams,meetings,collaboration}",,2025-10-04 11:49:13.557036+00,2025-10-04 14:40:34.758591+00
